@@ -14,15 +14,48 @@
  * limitations under the License.
  */
 
+#include "LinearTransitionSystem.h"
+
 #include <iostream>
 
 /**
  * The main entry point for the program.
  */
-int main(int numOfArguments, char** args)
+int main(int argc, char* argv[])
 {
-    std::cout << "Hello world.";
+    if (argc < 3) {
+        std::cout << "Usage: [--algo=naive|improved] <aldebaran filename> <mu-calculus filename>" << std::endl;
+        std::cin.get();
+    }
 
-    int i;
-    std::cin >> i;
+    int argumentIndex = 1; // The zeroed argument is the filename itself.
+    bool naiveAlgorithm = false; // Using the naive algorithm.
+
+
+    if (argc = 4) {
+        // Check which algorithm was specified, otherwise default to improved.
+        if (strcmp(argv[argumentIndex], "--algo=naive") == 0) {
+            naiveAlgorithm = true;
+        }
+        ++argumentIndex; // The first filename is actually the third argument.
+    }
+
+    // Parse the LTS file directly.
+    LinearTransitionSystem system = LinearTransitionSystem::parseAldebaranFormat(argv[argumentIndex++]);
+
+    // Parse the mu-calculus file.
+
+    // Evaluate the linear transition system with the given mu-calculus.
+    if (naiveAlgorithm) {
+        std::cout << "Using the naive algorithm." << std::endl;
+    }
+    else {
+        std::cout << "Using the improved algorithm." << std::endl;
+    }
+
+    // It holds when it holds in all states and other it was false.
+    std::cout << "The given mu-calculus is the false prophet.";
+    std::cin.get();
+
+    return 0;
 }
