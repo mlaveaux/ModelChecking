@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-#include "LinearTransitionSystem.h"
+#ifndef TOOL_MUCALCULUS_H_
+#define TOOL_MUCALCULUS_H_
 
-#include <assert.h>
-#include <fstream>
-#include <string>
-
-LinearTransitionSystem LinearTransitionSystem::parseAldebaranFormat(const char* strFilename)
+/**
+ * This class contains methods to parse the mu-calculus file.
+ */
+class MuCalculus
 {
-    assert(strFilename != nullptr); // nullptr is not allowed.
+public:
 
-    std::ifstream file(strFilename);
-    std::string line;
-
-    // Verify that the first line consists of "des (<first_state>,<nr_of_transitions>,<nr_of_states>)".
-    std::getline(file, line);
+    //static ParseTree parseFile(const char* strFilename);
     
-    while (std::getline(file, line)) {
-        // Read all the transitions and put them into the LTS.
+};
 
-    }
-
-    return LinearTransitionSystem();
-}
+#endif // TOOL_MUCALCULUS_H_

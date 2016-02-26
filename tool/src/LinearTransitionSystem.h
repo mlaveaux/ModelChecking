@@ -18,6 +18,14 @@
 #define TOOL_LINEARTRANSITIONSYSTEM_H_
 
 /**
+ * Represents a single state.
+ */
+class State
+{
+
+};
+
+/**
  * Contains the description of a linear transition system, consisting of initial state,
  * the set of states and transition relations.
  */
@@ -31,6 +39,7 @@ public:
     static LinearTransitionSystem parseAldebaranFormat(const char* strFilename);
 
 private:
+    State m_initialState; // The initial state of the program.
 
 };
 
