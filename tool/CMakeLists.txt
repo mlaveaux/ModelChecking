@@ -20,11 +20,13 @@ project(tool)
 # Set the headers and source files to build the target.
 set(HEADERS 
     src/LinearTransitionSystem.h
+	src/MuCalculus.h
     )   
     
 set(SOURCES
     src/LinearTransitionSystem.cpp
     src/main.cpp
+	src/MuCalculus.cpp
     )
 
 # Build a shared library with the corresponding import library for window.
