@@ -1,14 +1,22 @@
 #include "MuCalculus.h"
-#include "LinearTransitionSystem.h"
+#include "LabelledTransitionSystem.h"
 
 #include <fstream>
 #include <string>
 
+/*Constructor*/
+MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string label, char pfp){
+	subformula = f1;
+	subformula2 = f2;
+	operation = op;
+	varlabel = label;
+	prevFixedPoint = pfp;
+}
 
 
 //solves a mu calculus formula
-void MuFormula::solve(LinearTransitionSystem){
-	switch (op){
+void MuFormula::solve(LabelledTransitionSystem){
+	switch (operation){
 	case FALSE:
 		//return empty set/list of states
 		break;

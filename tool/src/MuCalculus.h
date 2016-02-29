@@ -17,7 +17,7 @@
 #ifndef TOOL_MUCALCULUS_H_
 #define TOOL_MUCALCULUS_H_
 
-#include "LinearTransitionSystem.h"
+#include "LabelledTransitionSystem.h"
 
 #include <string>
 
@@ -57,15 +57,16 @@ class MuFormula
 {
 private:
 	MuFormula* subformula;
-	MuFormula* subformala2;
-	Op op;
+	MuFormula* subformula2;
+	Op operation;
 	std::string varlabel;
 	char prevFixedPoint;
 
 public:
+	MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string label, char pfp);
 	//solves this mu-calculus formula
 	//TODO: change void to data type used for collection of states
-	void solve(LinearTransitionSystem);
+	void solve(LabelledTransitionSystem);
 
 	static MuFormula parseMuFormula(const char* strFilename);
 };

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "LinearTransitionSystem.h"
+#include "LabelledTransitionSystem.h"
 
 #include <assert.h>
 #include <fstream>
 #include <string>
 
-LinearTransitionSystem LinearTransitionSystem::parseAldebaranFormat(const char* strFilename)
+LabelledTransitionSystem LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename)
 {
     assert(strFilename != nullptr); // nullptr is not allowed.
 
@@ -35,5 +35,5 @@ LinearTransitionSystem LinearTransitionSystem::parseAldebaranFormat(const char* 
 
     }
 
-    return LinearTransitionSystem();
+    return LabelledTransitionSystem();
 }

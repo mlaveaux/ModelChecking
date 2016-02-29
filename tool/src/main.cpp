@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "LinearTransitionSystem.h"
+#include "LabelledTransitionSystem.h"
 
 #include <iostream>
 
@@ -25,12 +25,11 @@ int main(int argc, char* argv[])
 {
     if (argc < 3) {
         std::cout << "Usage: [--algo=naive|improved] <aldebaran filename> <mu-calculus filename>" << std::endl;
-        std::cin.get();
+        std::cin.get(); return -1;
     }
 
     int argumentIndex = 1; // The zeroed argument is the filename itself.
     bool naiveAlgorithm = false; // Using the naive algorithm.
-
 
     if (argc == 4) {
         // Check which algorithm was specified, otherwise default to improved.
@@ -41,7 +40,8 @@ int main(int argc, char* argv[])
     }
 
     // Parse the LTS file directly.
-    //LinearTransitionSystem system = LinearTransitionSystem::parseAldebaranFormat(argv[argumentIndex++]);
+
+    LabelledTransitionSystem system = LabelledTransitionSystem::parseAldebaranFormat(argv[argumentIndex++]);
 
     // Parse the mu-calculus file.
 
