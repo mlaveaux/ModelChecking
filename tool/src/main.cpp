@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     bool naiveAlgorithm = false; // Using the naive algorithm.
 
 
-    if (argc = 4) {
+    if (argc == 4) {
         // Check which algorithm was specified, otherwise default to improved.
         if (strcmp(argv[argumentIndex], "--algo=naive") == 0) {
             naiveAlgorithm = true;
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
     }
 
     // Parse the LTS file directly.
-    LinearTransitionSystem system = LinearTransitionSystem::parseAldebaranFormat(argv[argumentIndex++]);
+    //LinearTransitionSystem system = LinearTransitionSystem::parseAldebaranFormat(argv[argumentIndex++]);
 
     // Parse the mu-calculus file.
 

@@ -36,6 +36,5 @@ void MuFormula::solve(LinearTransitionSystem){
 	case NU:
 		//fixed point magic
 		break;
-
 	}
 }
