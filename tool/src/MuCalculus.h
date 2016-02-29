@@ -17,7 +17,7 @@
 #ifndef TOOL_MUCALCULUS_H_
 #define TOOL_MUCALCULUS_H_
 
-#include "LinearTransitionSystem.h"
+#include "LabelledTransitionSystem.h"
 
 #include <string>
 
@@ -65,7 +65,7 @@ private:
 public:
 	//solves this mu-calculus formula
 	//TODO: change void to data type used for collection of states
-	void solve(LinearTransitionSystem);
+	void solve(LabelledTransitionSystem);
 
 	static MuFormula parseMuFormula(const char* strFilename);
 };

@@ -1,5 +1,4 @@
 #include "MuCalculus.h"
-#include "LinearTransitionSystem.h"
 
 #include <fstream>
 #include <string>
@@ -7,7 +6,7 @@
 
 
 //solves a mu calculus formula
-void MuFormula::solve(LinearTransitionSystem){
+void MuFormula::solve(LabelledTransitionSystem){
 	switch (op){
 	case FALSE:
 		//return empty set/list of states

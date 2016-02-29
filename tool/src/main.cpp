@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "LinearTransitionSystem.h"
+#include "LabelledTransitionSystem.h"
 
 #include <iostream>
 
@@ -32,8 +32,8 @@ int main(int argc, char* argv[])
     bool naiveAlgorithm = false; // Using the naive algorithm.
 
 
-    if (argc = 4) {
-        // Check which algorithm was specified, otherwise default to improved.
+    if (argc == 4) {
+        // Check which algorithm was specified, otherwise default to improved.g
         if (strcmp(argv[argumentIndex], "--algo=naive") == 0) {
             naiveAlgorithm = true;
         }
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
     }
 
     // Parse the LTS file directly.
-    LinearTransitionSystem system = LinearTransitionSystem::parseAldebaranFormat(argv[argumentIndex++]);
+    LabelledTransitionSystem system = LabelledTransitionSystem::parseAldebaranFormat(argv[argumentIndex++]);
 
     // Parse the mu-calculus file.
 

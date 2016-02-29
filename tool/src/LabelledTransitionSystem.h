@@ -29,14 +29,14 @@ class State
  * Contains the description of a linear transition system, consisting of initial state,
  * the set of states and transition relations.
  */
-class LinearTransitionSystem
+class LabelledTransitionSystem
 {
 public:
 
     /**
      * Read the file specified by strFilename and return the LinearTransitionSystem described in it.
      */
-    static LinearTransitionSystem parseAldebaranFormat(const char* strFilename);
+    static LabelledTransitionSystem parseAldebaranFormat(const char* strFilename);
 
 private:
     State m_initialState; // The initial state of the program.
