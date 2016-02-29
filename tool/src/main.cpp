@@ -25,13 +25,12 @@ int main(int argc, char* argv[])
 {
     if (argc < 3) {
         std::cout << "Usage: [--algo=naive|improved] <aldebaran filename> <mu-calculus filename>" << std::endl;
-        std::cin.get();
+        std::cin.get(); return -1;
     }
 
     int argumentIndex = 1; // The zeroed argument is the filename itself.
     bool naiveAlgorithm = false; // Using the naive algorithm.
-
-
+    
     if (argc == 4) {
         // Check which algorithm was specified, otherwise default to improved.g
         if (strcmp(argv[argumentIndex], "--algo=naive") == 0) {
