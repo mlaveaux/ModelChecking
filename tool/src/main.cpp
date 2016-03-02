@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     bool naiveAlgorithm = false; // Using the naive algorithm.
     
     if (argc == 4) {
-        // Check which algorithm was specified, otherwise default to improved.g
+        // Check which algorithm was specified, otherwise default to improved.
         if (strcmp(argv[argumentIndex], "--algo=naive") == 0) {
             naiveAlgorithm = true;
         }
