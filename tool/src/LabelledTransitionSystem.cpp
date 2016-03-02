@@ -16,24 +16,71 @@
 
 #include "LabelledTransitionSystem.h"
 
+#include <iostream>
+#include <regex>
 #include <assert.h>
 #include <fstream>
 #include <string>
 
-LabelledTransitionSystem LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename)
+bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, LabelledTransitionSystem& system)
 {
     assert(strFilename != nullptr); // nullptr is not allowed.
 
     std::ifstream file(strFilename);
-    std::string line;
-
-    // Verify that the first line consists of "des (<first_state>,<nr_of_transitions>,<nr_of_states>)".
-    std::getline(file, line);
-    
-    while (std::getline(file, line)) {
-        // Read all the transitions and put them into the LTS.
-
+    if (file.fail()) {
+        std::cerr << "Failed to open file " << strFilename << std::endl; return false;
     }
 
-    return LabelledTransitionSystem();
+    bool firstLine = true;
+
+    std::string line;    
+    while (std::getline(file, line)) {
+
+        if (firstLine) {
+            // des(<first_state> : int, <number_of_transitions> : int, <number_of_states> : int)
+            size_t firstBracket = line.find_first_of("(");
+            size_t firstComma = line.find_first_of(",");
+
+            // Convert the first substring to a number.
+            system.m_firstState = std::atoi(line.substr(firstBracket + 1, firstComma - firstBracket).c_str());
+
+            // Read the number of transitions.
+            std::string rest = line.substr(firstComma + 1);
+            size_t secondComma = rest.find_first_of(",");
+            int numberOfTransitions = std::atoi(rest.substr(0, secondComma).c_str());
+
+            // Read the number of states.
+            rest = rest.substr(secondComma + 1);
+            size_t secondBracket = rest.find_first_of(")");
+            system.m_stateTransitions = std::vector<std::set<Transition>>(std::atoi(rest.substr(0, secondBracket).c_str()));
+
+            firstLine = false;
+        }
+        else {
+            // (start_state : int, transition_label : string, end_state : int)
+            size_t firstBracket = line.find_first_of("(");
+            size_t firstComma = line.find_first_of(",");
+
+            // Read the first integer to start state.
+            int fromState = std::atoi(line.substr(firstBracket + 1, firstComma - firstBracket).c_str());
+
+            // Convert to transition label.
+            std::string rest = line.substr(firstComma + 1);
+            size_t secondComma = rest.find_first_of(",");
+            std::string transitionLabel = rest.substr(1, secondComma - 2);
+
+            // Read the last integer as going state.
+            rest = rest.substr(secondComma + 1);
+            size_t secondBracket = rest.find_first_of(")");
+            int toState = std::atoi(rest.substr(0, secondBracket).c_str());
+
+            // Check that state numbers do not exceed the state numbers (if they do change vector to map).
+            assert(fromState <= system.m_stateTransitions.size() && fromState >= 0);
+            assert(toState <= system.m_stateTransitions.size() && toState >= 0);
+
+            system.m_stateTransitions[fromState].insert(Transition(transitionLabel, toState));
+        }
+    }
+
+    return true;
 }

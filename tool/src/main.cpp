@@ -40,7 +40,10 @@ int main(int argc, char* argv[])
     }
 
     // Parse the LTS file directly.
-    LabelledTransitionSystem system = LabelledTransitionSystem::parseAldebaranFormat(argv[argumentIndex++]);
+    LabelledTransitionSystem system;
+    if (!LabelledTransitionSystem::parseAldebaranFormat(argv[argumentIndex++], system)) {
+        std::cin.get(); return -1;
+    }
 
     // Parse the mu-calculus file.
 

@@ -14,15 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef TOOL_LINEARTRANSITIONSYSTEM_H_
-#define TOOL_LINEARTRANSITIONSYSTEM_H_
+#ifndef TOOL_LABELLEDTRANSITIONSYSTEM_H_
+#define TOOL_LABELLEDTRANSITIONSYSTEM_H_
+
+#include <set>
+#include <vector>
 
 /**
- * Represents a single state.
+ * Stores a single transition inside a vector, where the fromState is the index.
  */
-class State
+struct Transition
 {
+    // Easier initialization.
+    Transition(std::string label, int toState) :
+        toState(toState),
+        label(label) {}
 
+    /** Make transitions comparable. */
+    bool operator< (const Transition& other) const {
+        return toState < other.toState;
+    }
+    
+    int toState;
+    std::string label;
 };
 
 /**
@@ -36,12 +50,13 @@ public:
     /**
      * Read the file specified by strFilename and return the LinearTransitionSystem described in it.
      */
-    static LabelledTransitionSystem parseAldebaranFormat(const char* strFilename);
+    static bool parseAldebaranFormat(const char* strFilename, LabelledTransitionSystem& system);
 
 private:
-    State m_initialState; // The initial state of the program.
+    int m_firstState;
+    std::vector<std::set<Transition>> m_stateTransitions;
 
 };
 
 
-#endif // TOOL_LINEARTRANSITIONSYSTEM_H_
+#endif // TOOL_LABELLEDTRANSITIONSYSTEM_H_
