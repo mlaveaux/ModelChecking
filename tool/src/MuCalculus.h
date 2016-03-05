@@ -68,7 +68,8 @@ public:
 	//TODO: change void to data type used for collection of states
 	void solve(LabelledTransitionSystem);
 
-	static MuFormula parseMuFormula(const char* strFilename);
+	static MuFormula* parseMuFormula(const char* strFilename);
+	std::string toString();
 };
 
 #endif // TOOL_MUCALCULUS_H_
