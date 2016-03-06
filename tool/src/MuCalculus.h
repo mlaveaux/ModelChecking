@@ -36,7 +36,7 @@ enum Op {
 	NU			//the greatest fixed point operator
 };
 
-/*
+/**
 Represents a mu-calculus formula, recursively
 
 subformula is only defined in case op in {AND, OR, DIAMOND, BOX, MU, NU}
@@ -55,21 +55,31 @@ this is needed for the Emerson-Lei expansion on the algorithm
 */
 class MuFormula
 {
-private:
-	MuFormula* subformula;
-	MuFormula* subformula2;
-	Op operation;
-	std::string varlabel;
-	char prevFixedPoint;
-
 public:
 	MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string label, char pfp);
-	//solves this mu-calculus formula
-	//TODO: change void to data type used for collection of states
-	void solve(LabelledTransitionSystem);
 
+	/**
+     * Solves this mu-calculus formula
+	 * TODO: change void to data type used for collection of states
+     */
+	void solve(LabelledTransitionSystem);
+    
+    /**
+     * Parses a file for a MuFormula and returns the biggest MuFormula
+     */
 	static MuFormula* parseMuFormula(const char* strFilename);
+
+    /**
+     * Converts a MuFormula to a string (for testing purposes)
+     */
 	std::string toString();
+
+private:
+    MuFormula* subformula;
+    MuFormula* subformula2;
+    Op operation;
+    std::string varlabel;
+    char prevFixedPoint;
 };
 
 #endif // TOOL_MUCALCULUS_H_
