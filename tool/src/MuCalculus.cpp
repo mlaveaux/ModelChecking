@@ -54,7 +54,7 @@ void MuFormula::solve(LabelledTransitionSystem){
 
 /*
  Parses a file for a MuFormula and returns the biggest MuFormula
- */
+*/
 MuFormula* MuFormula::parseMuFormula(const char*){
 	ifstream fin;
 	std::string line;
@@ -74,7 +74,7 @@ MuFormula* MuFormula::parseMuFormula(const char*){
 /*
  Parses a subformula (line)
  pfp is the last fixed point encountered (as defined in the header)
- */
+*/
 MuFormula* parseSubFormula(std::string line, char pfp){
 	switch (line.at(0)){
 	case 't':	//true
@@ -109,8 +109,8 @@ MuFormula* parseSubFormula(std::string line, char pfp){
 }
 
 /*
-  Parses a logic formula
-  */
+ Parses a logic formula
+*/
 MuFormula* parseLogicFormula(std::string line, char pfp){
 	
 	//get the operation
