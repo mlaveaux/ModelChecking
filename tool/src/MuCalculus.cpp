@@ -23,16 +23,16 @@ MuFormula* parseLogicFormula(std::string line, char pfp);
  */
 MuFormula* parseSubFormula(std::string line, char pfp);
 
-MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string label, char pfp) {
-    subformula = f1;
-    subformula2 = f2;
-    operation = op;
-    varlabel = label;
-    prevFixedPoint = pfp;
-}
+MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp) :
+    subformula(f1),
+    subformula2(f2),
+    operation(op),
+    prevFixedPoint(pfp),
+    varlabel(varlabel)
+{}
 
 //solves a mu calculus formula
-void MuFormula::solve(LabelledTransitionSystem) {
+void MuFormula::solve(const LabelledTransitionSystem& system) {
     switch (operation) {
     case FALSE:
         //return empty set/list of states
@@ -64,19 +64,17 @@ void MuFormula::solve(LabelledTransitionSystem) {
     }
 }
 
-MuFormula* MuFormula::parseMuFormula(const char*) {
-    ifstream fin;
-    std::string line;
-    fin.open("data.txt"); // open a file
-    if (!fin.good()) {
-        throw 1; // exit if file not found
+MuFormula* MuFormula::parseMuFormula(const char* strFilename) {
+    ifstream fin(strFilename);
+    if (fin.bad()) {
+        std::cout << "Could not open " << strFilename;
     }
 
-    bool done = false;
-
     // read the formula
+    std::string line;
     std::getline(fin, line);
     line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
+
     //parse the formula
     return parseSubFormula(line, 'x');
 }
@@ -104,6 +102,7 @@ std::string MuFormula::toString() {
     }
 
     assert(false); // All cases must be handled.
+    return "Failed to parse MuFormula";
 }
 
 MuFormula* parseLogicFormula(std::string line, char pfp)
@@ -155,22 +154,21 @@ MuFormula* parseLogicFormula(std::string line, char pfp)
     }
 
     //return the formula
-    return new MuFormula(sub1, sub2, opIsAnd ? AND : OR, NULL, pfp);
+    return new MuFormula(sub1, sub2, opIsAnd ? AND : OR, "", pfp);
 }
 
 MuFormula* parseSubFormula(std::string line, char pfp)
 {
     switch (line.at(0)) {
     case 't':	//true
-        return new MuFormula(nullptr, nullptr, TRUE, NULL, pfp);
+        return new MuFormula(nullptr, nullptr, TRUE, "", pfp);
     case 'f':	//false
-        return new MuFormula(nullptr, nullptr, FALSE, NULL, pfp);
+        return new MuFormula(nullptr, nullptr, FALSE, "", pfp);
     case '(':	//start of logic formula
-        parseLogicFormula(line, pfp);
-        break;
+        return parseLogicFormula(line, pfp);
     case '<': {	//diamond
         size_t end = line.find('>');
-        return new MuFormula(::parseSubFormula(line.substr(end + 1, line.length() - end - 1), pfp), nullptr, DIAMOND, line.substr(1, end - 1), pfp);
+        return new MuFormula(parseSubFormula(line.substr(end + 1, line.length() - end - 1), pfp), nullptr, DIAMOND, line.substr(1, end - 1), pfp);
     }
     case '[': {	//box
         size_t end = line.find(']');
@@ -189,4 +187,5 @@ MuFormula* parseSubFormula(std::string line, char pfp)
     }
 
     assert(false); // All cases must be handled.
+    return nullptr;
 }

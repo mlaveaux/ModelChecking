@@ -56,13 +56,13 @@ this is needed for the Emerson-Lei expansion on the algorithm
 class MuFormula
 {
 public:
-	MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string label, char pfp);
+	MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp);
 
 	/**
      * Solves this mu-calculus formula
 	 * TODO: change void to data type used for collection of states
      */
-	void solve(LabelledTransitionSystem);
+	void solve(const LabelledTransitionSystem& system);
     
     /**
      * Parses a file for a MuFormula and returns the biggest MuFormula

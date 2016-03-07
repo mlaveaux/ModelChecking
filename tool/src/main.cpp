@@ -15,6 +15,7 @@
  */
 
 #include "LabelledTransitionSystem.h"
+#include "MuCalculus.h"
 
 #include <iostream>
 
@@ -46,14 +47,17 @@ int main(int argc, char* argv[])
     }
 
     // Parse the mu-calculus file.
+    MuFormula* formula = MuFormula::parseMuFormula(argv[argumentIndex++]);
 
     // Evaluate the linear transition system with the given mu-calculus.
     if (naiveAlgorithm) {
-        std::cout << "Using the naive algorithm." << std::endl;
+        formula->solve(system);
     }
     else {
         std::cout << "Using the improved algorithm." << std::endl;
     }
+
+    std::cout << formula->toString() << std::endl;
 
     // It holds when it holds in all states and other it was false.
     std::cout << "The given mu-calculus is the false prophet.";
