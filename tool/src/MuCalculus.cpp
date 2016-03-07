@@ -32,7 +32,7 @@ MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, 
 {}
 
 //solves a mu calculus formula
-void MuFormula::solve(const LabelledTransitionSystem& system) {
+std::set<int> MuFormula::solve(const LabelledTransitionSystem& system) {
     switch (operation) {
     case FALSE:
         //return empty set/list of states
