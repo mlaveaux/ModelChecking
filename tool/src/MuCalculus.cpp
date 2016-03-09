@@ -32,23 +32,39 @@ MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, 
 {}
 
 //solves a mu calculus formula
-std::set<int> MuFormula::solve(const LabelledTransitionSystem& system) {
+std::set<int> MuFormula::solve(LabelledTransitionSystem& system) {
+
+	std::set<int> set1;
+	std::set<int> set2;
+	std::set<int> temp_set;
+
     switch (operation) {
     case FALSE:
-        //return empty set/list of states
-        break;
+		//return empty set of states
+		return std::set<int>();
     case TRUE:
-        //return full set/list of states
+		//return set of all states
+		return system.getSetOfStates();
         break;
     case VAR:
         //fixed point magic
         break;
     case AND:
-        //intersect set/list of states of the two subformula results
-        break;
+		//intersect set of states of the two subformula results
+		set1 = subformula->solve(system);
+		set2 = subformula2->solve(system);
+		std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(),
+			std::inserter(temp_set, temp_set.begin()));
+		set1.clear(); set2.clear();
+		return temp_set;
     case OR:
-        //unite set/list of states of the two subformula results
-        break;
+        //unite set of states of the two subformula results
+		set1 = subformula->solve(system);
+		set2 = subformula2->solve(system);
+		std::set_union(set1.begin(), set1.end(), set2.begin(), set2.end(),
+			std::inserter(temp_set, temp_set.begin()));
+		set1.clear(); set2.clear();
+		return temp_set;
     case DIAMOND:
         //diamond magic
         break;

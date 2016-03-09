@@ -60,9 +60,8 @@ public:
 
 	/**
      * Solves this mu-calculus formula
-	 * TODO: change void to data type used for collection of states
      */
-	std::set<int> solve(const LabelledTransitionSystem& system);
+	std::set<int> solve(LabelledTransitionSystem& system);
     
     /**
      * Parses a file for a MuFormula and returns the biggest MuFormula

@@ -52,7 +52,9 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
             // Read the number of states.
             rest = rest.substr(secondComma + 1);
             size_t secondBracket = rest.find_first_of(")");
-            system.m_stateTransitions = std::vector<std::set<Transition>>(std::atoi(rest.substr(0, secondBracket).c_str()));
+			int numStates = std::atoi(rest.substr(0, secondBracket).c_str());
+            system.m_stateTransitions = std::vector<std::set<Transition>>(numStates);
+			system.m_nrStates = numStates;
 
             firstLine = false;
         }
@@ -83,4 +85,12 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
     }
 
     return true;
+}
+
+std::set<int> LabelledTransitionSystem::getSetOfStates(){
+	std::set<int> s;
+	for (int i = 0; i < m_nrStates; i++){
+		s.insert(i);
+	}
+	return s;
 }
