@@ -64,7 +64,7 @@ public:
      *
      * variables contains a set for each fixpoint variable of the current approximation.
      */
-    std::set<int> solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables = std::map<std::string, std::set<int>>());
+    std::set<int> solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables);
     
     /**
      * Parses a file for a MuFormula and returns the biggest MuFormula
