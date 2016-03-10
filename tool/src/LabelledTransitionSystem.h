@@ -53,9 +53,19 @@ public:
     static bool parseAldebaranFormat(const char* strFilename, LabelledTransitionSystem& system);
 
 	/**
+	 * Returns the number of states
+	 */
+	int getNumStates();
+
+	/**
 	 * Returns a set of all states
 	 */
 	std::set<int> getSetOfStates();
+
+	/**
+	 * Returns all outgoing transitions of a given state
+	 */
+	std::set<Transition> getOutTransitions(int state);
 
 private:
     int m_firstState;

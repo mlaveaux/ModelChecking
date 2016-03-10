@@ -34,9 +34,9 @@ MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, 
 //solves a mu calculus formula
 std::set<int> MuFormula::solve(LabelledTransitionSystem& system) {
 
-	std::set<int> set1;
-	std::set<int> set2;
-	std::set<int> temp_set;
+	std::set<int> subResult1;
+	std::set<int> subResult2;
+	std::set<int> result;
 
     switch (operation) {
     case FALSE:
@@ -51,26 +51,51 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system) {
         break;
     case AND:
 		//intersect set of states of the two subformula results
-		set1 = subformula->solve(system);
-		set2 = subformula2->solve(system);
-		std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(),
-			std::inserter(temp_set, temp_set.begin()));
-		set1.clear(); set2.clear();
-		return temp_set;
+		subResult1 = subformula->solve(system);
+		subResult2 = subformula2->solve(system);
+		std::set_intersection(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
+			std::inserter(result, result.begin()));
+		subResult1.clear(); subResult2.clear();
+		return result;
     case OR:
         //unite set of states of the two subformula results
-		set1 = subformula->solve(system);
-		set2 = subformula2->solve(system);
-		std::set_union(set1.begin(), set1.end(), set2.begin(), set2.end(),
-			std::inserter(temp_set, temp_set.begin()));
-		set1.clear(); set2.clear();
-		return temp_set;
-    case DIAMOND:
-        //diamond magic
-        break;
+		subResult1 = subformula->solve(system);
+		subResult2 = subformula2->solve(system);
+		std::set_union(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
+			std::inserter(result, result.begin()));
+		subResult1.clear(); subResult2.clear();
+		return result;
+	case DIAMOND:
+		//diamond magic
+		subResult1 = subformula->solve(system);
+		//for each state
+		for (int i = 0; i < system.getNumStates(); i++){
+			//for each out transition
+			for (Transition trans : system.getOutTransitions(i)){
+				//if it has a transition with the correct label to a correct state, it complies with the formula
+				if (trans.label == varlabel && subResult1.count(trans.toState) == 1){
+					result.insert(i);
+					break;
+				}
+			}
+		}
+		return result;
     case BOX:
         //box magic
-        break;
+		subResult1 = subformula->solve(system);
+		result = system.getSetOfStates();
+		//for each state
+		for (int i = 0; i < system.getNumStates(); i++){
+			//for each out transition
+			for (Transition trans : system.getOutTransitions(i)){
+				//if it has a transition with the correct label to a wrong state, it does not comply with the formula
+				if (trans.label == varlabel && subResult1.count(trans.toState) == 0){
+					result.erase(i);
+					break;
+				}
+			}
+		}
+		return result;
     case MU:
         //fixed point magic
         break;

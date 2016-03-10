@@ -87,10 +87,18 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
     return true;
 }
 
+int LabelledTransitionSystem::getNumStates(){
+	return m_nrStates;
+}
+
 std::set<int> LabelledTransitionSystem::getSetOfStates(){
 	std::set<int> s;
 	for (int i = 0; i < m_nrStates; i++){
 		s.insert(i);
 	}
 	return s;
+}
+
+std::set<Transition> LabelledTransitionSystem::getOutTransitions(int state){
+	return m_stateTransitions[state];
 }
