@@ -18,6 +18,7 @@
 #define TOOL_LABELLEDTRANSITIONSYSTEM_H_
 
 #include <set>
+#include <string>
 #include <vector>
 
 /**

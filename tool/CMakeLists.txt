@@ -14,6 +14,8 @@
 
 cmake_minimum_required(VERSION 3.4)
 
+add_definitions(-std=c++11)
+
 # This file defines the renderer target.
 project(tool)
 

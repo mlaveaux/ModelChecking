@@ -18,6 +18,7 @@
 #include "MuCalculus.h"
 
 #include <iostream>
+#include <string.h>
 
 /**
  * The main entry point for the program.
