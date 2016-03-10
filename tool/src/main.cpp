@@ -55,22 +55,20 @@ int main(int argc, char* argv[])
     std::set<int> states; // The set of states in which the formula holds.
 
     // Evaluate the linear transition system with the given mu-calculus.
+    std::map<std::string, std::set<int>> variables;
     if (naiveAlgorithm) {
-        states = formula->solve(system);
+        states = formula->solve(system, variables);
     }
     else {
 
     }
 
     if (states == system.getSetOfStates()) {
-        std::cout << "holds";
+        std::cout << " holds" << std::endl;
     }
     else {
-        std::cout << " doesn't hold";
+        std::cout << " doesn't hold" << std::endl;
     }
-
-    // It holds when it holds in all states and other it was false.
-    std::cin.get();
 
     return 0;
 }
