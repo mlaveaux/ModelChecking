@@ -1,14 +1,13 @@
-#define _CRT_SECURE_NO_WARNINGS
-
 #include "MuCalculus.h"
 #include "LabelledTransitionSystem.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <exception>
 #include <fstream>
 #include <string>
-#include <algorithm>
 #include <iostream>
+#include <iterator>
 
 using std::ifstream;
 
@@ -32,42 +31,38 @@ MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, 
 {}
 
 //solves a mu calculus formula
-std::set<int> MuFormula::solve(LabelledTransitionSystem& system) {
-
-	std::set<int> subResult1;
-	std::set<int> subResult2;
-	std::set<int> result;
+std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
+    std::set<int> result;
 
     switch (operation) {
-    case FALSE:
-		//return empty set of states
-		return std::set<int>();
-    case TRUE:
-		//return set of all states
-		return system.getSetOfStates();
+    case FALSE:		
+		return std::set<int>(); // return empty set of states
+    case TRUE:		
+		return system.getSetOfStates(); // return set of all states
         break;
-    case VAR:
-        //fixed point magic
-        break;
-    case AND:
-		//intersect set of states of the two subformula results
-		subResult1 = subformula->solve(system);
-		subResult2 = subformula2->solve(system);
-		std::set_intersection(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
-			std::inserter(result, result.begin()));
-		subResult1.clear(); subResult2.clear();
-		return result;
-    case OR:
+    case VAR: {
+        auto it = variables.find(varlabel); // return the approximation of the varlabel.
+        assert(it != variables.end());
+        return it->second; 
+    }
+    case AND: {
+        //intersect set of states of the two subformula results
+        std::set<int> subResult1 = subformula->solve(system, variables);
+        std::set<int> subResult2 = subformula2->solve(system, variables);
+        std::set_intersection(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
+            std::inserter(result, result.begin()));
+        return result;
+    }
+    case OR: {
         //unite set of states of the two subformula results
-		subResult1 = subformula->solve(system);
-		subResult2 = subformula2->solve(system);
-		std::set_union(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
-			std::inserter(result, result.begin()));
-		subResult1.clear(); subResult2.clear();
-		return result;
-	case DIAMOND:
-		//diamond magic
-		subResult1 = subformula->solve(system);
+        std::set<int> subResult1 = subformula->solve(system, variables);
+        std::set<int> subResult2 = subformula2->solve(system, variables);
+        std::set_union(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
+            std::inserter(result, result.begin()));
+        return result;
+    }
+	case DIAMOND: {
+        std::set<int> subResult1 = subformula->solve(system, variables);
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++){
 			//for each out transition
@@ -80,29 +75,42 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system) {
 			}
 		}
 		return result;
-    case BOX:
-        //box magic
-		subResult1 = subformula->solve(system);
-		result = system.getSetOfStates();
+    }
+    case BOX: {
+        std::set<int> subResult1 = subformula->solve(system, variables);
+        result = system.getSetOfStates();
 		//for each state
-		for (int i = 0; i < system.getNumStates(); i++){
+		for (int i = 0; i < system.getNumStates(); i++) {
 			//for each out transition
-			for (Transition trans : system.getOutTransitions(i)){
+			for (Transition trans : system.getOutTransitions(i)) {
 				//if it has a transition with the correct label to a wrong state, it does not comply with the formula
-				if (trans.label == varlabel && subResult1.count(trans.toState) == 0){
+				if (trans.label == varlabel && subResult1.count(trans.toState) == 0) {
 					result.erase(i);
 					break;
 				}
 			}
 		}
 		return result;
-    case MU:
-        //fixed point magic
-        break;
-    case NU:
-        //fixed point magic
-        break;
     }
+    case NU:
+        result = system.getSetOfStates(); // Start with all sets.
+    case MU:
+        bool reachedFixpoint = false; // Start with the empty set.
+        // Result is the approximation for the varlabel.
+        variables[varlabel] = result;
+        do {
+            // Calculate the new approximation.
+            std::set<int> newApprox = subformula->solve(system, variables);
+            // Set the new approximation as the variable.
+            variables[varlabel] = newApprox;
+            reachedFixpoint = (newApprox == result);
+        } while (!reachedFixpoint);
+
+        return result;
+    }
+
+    assert(false); // All operations must return their own value;
+    return {};
 }
 
 MuFormula* MuFormula::parseMuFormula(const char* strFilename) {

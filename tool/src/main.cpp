@@ -50,18 +50,26 @@ int main(int argc, char* argv[])
     // Parse the mu-calculus file.
     MuFormula* formula = MuFormula::parseMuFormula(argv[argumentIndex++]);
 
+    std::cout << "Formula " << formula->toString();
+
+    std::set<int> states; // The set of states in which the formula holds.
+
     // Evaluate the linear transition system with the given mu-calculus.
     if (naiveAlgorithm) {
-        formula->solve(system);
+        states = formula->solve(system);
     }
     else {
-        std::cout << "Using the improved algorithm." << std::endl;
+
     }
 
-    std::cout << formula->toString() << std::endl;
+    if (states == system.getSetOfStates()) {
+        std::cout << "holds";
+    }
+    else {
+        std::cout << " doesn't hold";
+    }
 
     // It holds when it holds in all states and other it was false.
-    std::cout << "The given mu-calculus is the false prophet.";
     std::cin.get();
 
     return 0;

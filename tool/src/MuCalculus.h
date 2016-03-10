@@ -20,6 +20,7 @@
 #include "LabelledTransitionSystem.h"
 
 #include <string>
+#include <map>
 
 /*
 Represents the possible operations or values of the mu-calculus
@@ -60,8 +61,10 @@ public:
 
 	/**
      * Solves this mu-calculus formula
+     *
+     * variables contains a set for each fixpoint variable of the current approximation.
      */
-	std::set<int> solve(LabelledTransitionSystem& system);
+    std::set<int> solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables = std::map<std::string, std::set<int>>());
     
     /**
      * Parses a file for a MuFormula and returns the biggest MuFormula
