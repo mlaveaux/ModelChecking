@@ -49,24 +49,25 @@ int main(int argc, char* argv[])
 
     // Parse the mu-calculus file.
     MuFormula* formula = MuFormula::parseMuFormula(argv[argumentIndex++]);
+    if (formula != nullptr) {
+        std::cout << "Formula " << formula->toString();
 
-    std::cout << "Formula " << formula->toString();
+        std::set<int> states; // The set of states in which the formula holds.
 
-    std::set<int> states; // The set of states in which the formula holds.
+                              // Evaluate the linear transition system with the given mu-calculus.
+        if (naiveAlgorithm) {
+            states = formula->solve(system);
+        }
+        else {
 
-    // Evaluate the linear transition system with the given mu-calculus.
-    if (naiveAlgorithm) {
-        states = formula->solve(system);
-    }
-    else {
+        }
 
-    }
-
-    if (states == system.getSetOfStates()) {
-        std::cout << "holds";
-    }
-    else {
-        std::cout << " doesn't hold";
+        if (states == system.getSetOfStates()) {
+            std::cout << "holds";
+        }
+        else {
+            std::cout << " doesn't hold";
+        }
     }
 
     // It holds when it holds in all states and other it was false.

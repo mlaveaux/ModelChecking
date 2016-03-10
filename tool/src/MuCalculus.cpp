@@ -102,8 +102,8 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
             // Calculate the new approximation.
             std::set<int> newApprox = subformula->solve(system, variables);
             // Set the new approximation as the variable.
+            reachedFixpoint = (variables[varlabel] == newApprox);
             variables[varlabel] = newApprox;
-            reachedFixpoint = (newApprox == result);
         } while (!reachedFixpoint);
 
         return result;
@@ -117,6 +117,7 @@ MuFormula* MuFormula::parseMuFormula(const char* strFilename) {
     ifstream fin(strFilename);
     if (fin.bad()) {
         std::cout << "Could not open " << strFilename;
+        return nullptr;
     }
 
     // read the formula
