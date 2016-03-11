@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
         }
         else {
 
-	}
+	    }
 
         if (states == system.getSetOfStates()) {
             std::cout << " holds";

@@ -142,9 +142,9 @@ std::string MuFormula::toString() {
     case OR:
         return "(" + subformula->toString() + " || " + subformula2->toString() + ")";
     case DIAMOND:
-        return "<" + subformula->toString() + ">";
+        return "<" + varlabel + ">" + subformula->toString();
     case BOX:
-        return "[" + subformula->toString() + "]";
+        return "[" + varlabel + "]" + subformula->toString();
     case MU:
         return "mu " + varlabel + ". " + subformula->toString();
     case NU:
