@@ -1,0 +1,7 @@
+% there exists a sequence where all children other than the child are infinitely playing
+
+nu X. ((<ask>X || <wisdom>X) || <playing>X)
+
+% nesting depth: 1
+% alternation depth: 1
+% dependent alternation depth: 1

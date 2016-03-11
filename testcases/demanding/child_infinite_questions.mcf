@@ -1,0 +1,7 @@
+% there is a course of events where the child can ask an infinite number of questions
+
+nu X. mu Y. (((<ask>X || <i>Y) || <wisdom>Y) || <playing>Y)
+
+% nesting depth: 2
+% alternation depth: 2
+% dependent alternation depth: 2

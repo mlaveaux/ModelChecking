@@ -1,0 +1,7 @@
+% in every reachable state where the child is still playing, there will be an infinite sequence where the child is playing (not changing state)
+
+nu X. ([i]X && nu Y. <i>Y)
+
+% nesting depth: 2
+% alternation depth: 1
+% dependent alternation depth: 1
