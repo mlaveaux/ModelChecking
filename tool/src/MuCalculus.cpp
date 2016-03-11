@@ -41,9 +41,7 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 		return system.getSetOfStates(); // return set of all states
         break;
     case VAR: {
-        auto it = variables.find(varlabel); // return the approximation of the varlabel.
-        assert(it != variables.end());
-        return it->second; 
+        return variables[varlabel]; // return the approximation of the varlabel.
     }
     case AND: {
         //intersect set of states of the two subformula results
@@ -97,16 +95,22 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
     case MU:
         bool reachedFixpoint = false; // Start with the empty set.
         // Result is the approximation for the varlabel.
-        variables[varlabel] = result;
-        do {
+        std::set<int>& approximation = variables[varlabel];
+        approximation = result;
+        while (true) {
             // Calculate the new approximation.
             std::set<int> newApprox = subformula->solve(system, variables);
-            // Set the new approximation as the variable.
-            reachedFixpoint = (variables[varlabel] == newApprox);
-            variables[varlabel] = newApprox;
-        } while (!reachedFixpoint);
 
-        return result;
+            // Check whether the fixed point is reached.
+            if (approximation == newApprox) {
+                break;
+            }
+
+            // Set the new approximation as the variable.
+            approximation = newApprox;
+        } 
+
+        return variables[varlabel];
     }
 
     assert(false); // All operations must return their own value;

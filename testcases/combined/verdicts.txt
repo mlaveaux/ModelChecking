@@ -1,0 +1,5 @@
+nu X. (<tau>X && mu Y. (<tau>Y || [a]false)) : false
+nu X. <tau>X                                 :
+nu X. mu Y. ( <tau>Y || <a>X)                :
+nu X. mu Y. ( (<tau>Y || <a>Y) || <b>X)      :
+mu X. ([tau]X && (<tau>true || <a>true))     :
