@@ -33,6 +33,10 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
 
     bool firstLine = true;
 
+    // Temporarily set of transitions.
+    std::set<Transition> tempTransitions;
+    int tempState = -1;
+
     std::string line;    
     while (std::getline(file, line)) {
 
@@ -80,7 +84,22 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
             assert(fromState <= system.m_stateTransitions.size() && fromState >= 0);
             assert(toState <= system.m_stateTransitions.size() && toState >= 0);
 
-            system.m_stateTransitions[fromState].insert(Transition(transitionLabel, toState));
+            if (tempState = fromState) {
+                // Insert together with last states.
+                tempTransitions.insert(std::move(Transition(transitionLabel, toState)));
+            }
+            else {
+                // Insert all temporary states
+                system.m_stateTransitions[fromState].insert(tempTransitions.begin(), tempTransitions.end());
+
+                // Start a new list of temp states.
+                tempTransitions.clear();
+                tempTransitions.insert(std::move(Transition(transitionLabel, toState)));
+
+                tempState = fromState;
+            }
+
+
         }
     }
 

@@ -110,7 +110,7 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
             approximation = newApprox;
         } 
 
-        return variables[varlabel];
+        return approximation;
     }
 
     assert(false); // All operations must return their own value;
