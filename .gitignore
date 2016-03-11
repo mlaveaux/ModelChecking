@@ -1,2 +1,8 @@
+// Ignore temporary files produces by pdflatex
+*.aux
+*.log
+*.out
+*.pdf
+*.synctex.gz
 build/
 .DS_Store
