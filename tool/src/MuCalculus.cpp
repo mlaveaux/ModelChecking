@@ -128,7 +128,7 @@ MuFormula* MuFormula::parseMuFormula(const char* strFilename) {
     std::string line;
 	do {
 		std::getline(fin, line);
-	} while (line.at(0) == '%' || line.at(0) == ' ' || line == "");
+	} while (line == "" || line.at(0) == '%' || line.at(0) == ' ');
 	//remove spaces
     line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
 
