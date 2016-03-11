@@ -1,3 +1,7 @@
 % Invariantly, plato can eat in some future.
 
 nu X. (([i]X && ([plato]X && [others]X )) && mu Y. ((<i>Y || <others>Y) || <plato>true ))
+
+% nesting depth: 2
+% alternation depth: 2
+% dependent alternation depth: 1

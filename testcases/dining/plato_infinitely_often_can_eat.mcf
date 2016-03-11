@@ -1,3 +1,7 @@
 % There is a course of events in which Plato infinitely often eats
 
 nu X. mu Y. ( (<plato>X || <i>Y) || <others>Y)
+
+% nesting depth: 2
+% alternation depth: 2
+% dependent alternation depth: 2
