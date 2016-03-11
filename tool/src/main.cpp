@@ -64,10 +64,10 @@ int main(int argc, char* argv[])
 	    }
 
         if (states == system.getSetOfStates()) {
-            std::cout << " holds";
+            std::cout << " holds" << std::endl;
         }
         else {
-            std::cout << " doesn't hold";
+            std::cout << " doesn't hold" << std::endl;
         }
     }
 
