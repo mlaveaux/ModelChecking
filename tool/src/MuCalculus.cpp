@@ -124,9 +124,12 @@ MuFormula* MuFormula::parseMuFormula(const char* strFilename) {
         return nullptr;
     }
 
-    // read the formula
+    // read the formula, skipping comments (starting with %) and whitelines
     std::string line;
-    std::getline(fin, line);
+	do {
+		std::getline(fin, line);
+	} while (line.at(0) == '%' || line.at(0) == ' ' || line == "");
+	//remove spaces
     line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
 
     //parse the formula
