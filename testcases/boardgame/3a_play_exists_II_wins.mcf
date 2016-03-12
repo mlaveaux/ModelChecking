@@ -1,0 +1,7 @@
+% there is a play such that player II can win
+
+mu X. (<choose1><choose2>X || <won>true)
+
+% nesting depth: 1
+% alternation depth: 1
+% dependent alternation depth: 1

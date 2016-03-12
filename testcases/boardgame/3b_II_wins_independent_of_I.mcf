@@ -1,0 +1,18 @@
+% player II wins the game (with a certain strategy)
+
+mu X. ([choose1]<choose2>X || <won>true)
+
+% [choose1]: for all choices of player 1
+% (independent of what player 1 chooses...)
+% <choose2>: for a certain choice of player 2
+% (...player 2 has a strategy...)
+% X: iterate over rounds
+% (...such that the game will have a sequence...)
+% <won>true: the win condition for player 2 is true
+% (...such that player 2 will win)
+
+% Note that in a state either player 1 or player 2 can make a choice, not both
+
+% nesting depth: 1
+% alternation depth: 1
+% dependent alternation depth: 1

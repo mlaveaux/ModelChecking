@@ -1,0 +1,18 @@
+% player II wins the game (with a certain strategy) by moving the token to place (N, N) infinitely often
+
+nu Y. mu X. ([choose1]<choose2>X || (<won>true && [choose1]<choose2>Y))
+
+% [choose1]: for all choices of player 1 			
+% (independent of what player 1 chooses...)
+% <choose2>: for a certain choice of player 2
+% (...player 2 has a strategy...)
+% X: iterate over rounds
+% (...such that the game will have a sequence...)
+% <won>true && [choose1]<choose2>Y: the game is in (N, N) and player II can do it again
+% (...such that player 2 will win)
+
+% Note that in a state either player 1 or player 2 can make a choice, not both
+
+% nesting depth: 2
+% alternation depth: 2
+% dependent alternation depth: 2
