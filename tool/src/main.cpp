@@ -42,15 +42,18 @@ int main(int argc, char* argv[])
     }
 
     // Parse the LTS file directly.
+	std::cout << "Parsing the LTS...\n";
     LabelledTransitionSystem system;
     if (!LabelledTransitionSystem::parseAldebaranFormat(argv[argumentIndex++], system)) {
         std::cin.get(); return -1;
     }
+	std::cout << "Parsed the LTS!\n";
 
     // Parse the mu-calculus file.
+	std::cout << "Parsing the mu-calculus formula...\n";
     MuFormula* formula = MuFormula::parseMuFormula(argv[argumentIndex++]);
     if (formula != nullptr) {
-        std::cout << "Formula " << formula->toString();
+        std::cout << "Parsed the formula: " << formula->toString() << "\n";
 
         std::set<int> states; // The set of states in which the formula holds.
 

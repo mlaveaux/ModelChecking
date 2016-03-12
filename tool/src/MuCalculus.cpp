@@ -119,16 +119,17 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 
 MuFormula* MuFormula::parseMuFormula(const char* strFilename) {
     ifstream fin(strFilename);
-    if (fin.bad()) {
+    if (fin.fail()) {
         std::cout << "Could not open " << strFilename;
         return nullptr;
     }
 
-    // read the formula, skipping comments (starting with %) and whitelines
+    // read the formula, skipping whitelines and comments (starting with %) 
     std::string line;
 	do {
 		std::getline(fin, line);
-	} while (line == "" || line.at(0) == '%' || line.at(0) == ' ');
+		std::cout << line << "\n";
+	} while (line.length() < 2 || line.at(0) == '%');
 	//remove spaces
     line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
 
