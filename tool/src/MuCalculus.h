@@ -53,11 +53,14 @@ prevFixedPoint is either
 - 'n' if the previous fixed point was a greatest fixed point
 - 'x' if there is no previous fixed point
 this is needed for the Emerson-Lei expansion on the algorithm
+
+fixedPoints maps all variables to the fixed point type they are bounded by
+all variables are included that are within this formula
 */
 class MuFormula
 {
 public:
-	MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp);
+	MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp, std::map<std::string, char> vars);
 
 	/**
      * Solves this mu-calculus formula
@@ -82,6 +85,7 @@ private:
     Op operation;
     std::string varlabel;
     char prevFixedPoint;
+	std::map<std::string, char> fixedPoints;
 };
 
 #endif // TOOL_MUCALCULUS_H_

@@ -14,26 +14,28 @@ using std::ifstream;
 /**
  * Parses a logic formula
  */
-MuFormula* parseLogicFormula(std::string line, char pfp);
+MuFormula* parseLogicFormula(std::string line, char pfp, std::map<std::string, char> vars);
 
 /**
  * Parses a subformula (line)
  * pfp is the last fixed point encountered (as defined in the header)
  */
-MuFormula* parseSubFormula(std::string line, char pfp);
+MuFormula* parseSubFormula(std::string line, char pfp, std::map<std::string, char> vars);
 
-MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp) :
-    subformula(f1),
-    subformula2(f2),
-    operation(op),
-    prevFixedPoint(pfp),
-    varlabel(varlabel)
+MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp, std::map<std::string, char> vars) :
+	subformula(f1),
+	subformula2(f2),
+	operation(op),
+	prevFixedPoint(pfp),
+	varlabel(varlabel),
+	fixedPoints(vars)
 {}
 
 //solves a mu calculus formula
 std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
     std::set<int> result;
 
+	for (auto mapelement : fixedPoints) { std::cout << mapelement.second << mapelement.first << "\n"; }
     switch (operation) {
     case FALSE:		
 		return std::set<int>(); // return empty set of states
@@ -112,7 +114,6 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 
         return approximation;
     }
-
     assert(false); // All operations must return their own value;
     return {};
 }
@@ -134,7 +135,7 @@ MuFormula* MuFormula::parseMuFormula(const char* strFilename) {
     line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
 
     //parse the formula
-    return parseSubFormula(line, 'x');
+	return parseSubFormula(line, 'x', std::map<std::string, char>());
 }
 
 std::string MuFormula::toString() {
@@ -163,7 +164,7 @@ std::string MuFormula::toString() {
     return "Failed to parse MuFormula";
 }
 
-MuFormula* parseLogicFormula(std::string line, char pfp)
+MuFormula* parseLogicFormula(std::string line, char pfp, std::map<std::string, char> vars)
 {
     //get the operation
     int opIndex = -1;
@@ -199,49 +200,53 @@ MuFormula* parseLogicFormula(std::string line, char pfp)
     std::string subformula2 = line.substr(opIndex + 2, line.length() - opIndex - 3);
 
     if (subformula1.at(0) == '(') {
-        sub1 = parseLogicFormula(subformula1, pfp);
+        sub1 = parseLogicFormula(subformula1, pfp, vars);
     }
     else {
-        sub1 = parseSubFormula(subformula1, pfp);
+        sub1 = parseSubFormula(subformula1, pfp, vars);
     }
     if (subformula2.at(0) == '(') {
-        sub2 = parseLogicFormula(subformula2, pfp);
+        sub2 = parseLogicFormula(subformula2, pfp, vars);
     }
     else {
-        sub2 = parseSubFormula(subformula2, pfp);
+        sub2 = parseSubFormula(subformula2, pfp, vars);
     }
 
     //return the formula
-    return new MuFormula(sub1, sub2, opIsAnd ? AND : OR, "", pfp);
+    return new MuFormula(sub1, sub2, opIsAnd ? AND : OR, "", pfp, vars);
 }
 
-MuFormula* parseSubFormula(std::string line, char pfp)
+MuFormula* parseSubFormula(std::string line, char pfp, std::map<std::string, char> vars)
 {
     switch (line.at(0)) {
     case 't':	//true
-        return new MuFormula(nullptr, nullptr, TRUE, "", pfp);
+        return new MuFormula(nullptr, nullptr, TRUE, "", pfp, vars);
     case 'f':	//false
-        return new MuFormula(nullptr, nullptr, FALSE, "", pfp);
+        return new MuFormula(nullptr, nullptr, FALSE, "", pfp, vars);
     case '(':	//start of logic formula
-        return parseLogicFormula(line, pfp);
+        return parseLogicFormula(line, pfp, vars);
     case '<': {	//diamond
         size_t end = line.find('>');
-        return new MuFormula(parseSubFormula(line.substr(end + 1, line.length() - end - 1), pfp), nullptr, DIAMOND, line.substr(1, end - 1), pfp);
+        return new MuFormula(parseSubFormula(line.substr(end + 1, line.length() - end - 1), pfp, vars), nullptr, DIAMOND, line.substr(1, end - 1), pfp, vars);
     }
     case '[': {	//box
         size_t end = line.find(']');
-        return new MuFormula(parseSubFormula(line.substr(end + 1, line.length() - end - 1), pfp), nullptr, BOX, line.substr(1, end - 1), pfp);
+        return new MuFormula(parseSubFormula(line.substr(end + 1, line.length() - end - 1), pfp, vars), nullptr, BOX, line.substr(1, end - 1), pfp, vars);
     }
     case 'm': { //greatest fixed point
         size_t dot = line.find('.');
-        return new MuFormula(parseSubFormula(line.substr(dot + 1, line.length() - dot - 1), 'm'), nullptr, MU, line.substr(2, dot - 2), pfp);
+		std::string var = line.substr(2, dot - 2);
+		vars[var] = 'm';
+        return new MuFormula(parseSubFormula(line.substr(dot + 1, line.length() - dot - 1), 'm', vars), nullptr, MU, var, pfp, vars);
     }
     case 'n': { //least fixed point
         size_t dot = line.find('.');
-        return new MuFormula(parseSubFormula(line.substr(dot + 1, line.length() - dot - 1), 'n'), nullptr, NU, line.substr(2, dot - 2), pfp);
+		std::string var = line.substr(2, dot - 2);
+		vars[var] = 'n';
+        return new MuFormula(parseSubFormula(line.substr(dot + 1, line.length() - dot - 1), 'n', vars), nullptr, NU, var, pfp, vars);
     }
     default:	//variable
-        return new MuFormula(nullptr, nullptr, VAR, line, pfp);
+        return new MuFormula(nullptr, nullptr, VAR, line, pfp, vars);
     }
 
     assert(false); // All cases must be handled.
