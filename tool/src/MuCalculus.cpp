@@ -35,7 +35,6 @@ MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, 
 std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
     std::set<int> result;
 
-	for (auto mapelement : fixedPoints) { std::cout << mapelement.second << mapelement.first << "\n"; }
     switch (operation) {
     case FALSE:		
 		return std::set<int>(); // return empty set of states
