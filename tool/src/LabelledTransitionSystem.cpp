@@ -84,13 +84,18 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
             assert(fromState <= system.m_stateTransitions.size() && fromState >= 0);
             assert(toState <= system.m_stateTransitions.size() && toState >= 0);
 
-            if (tempState = fromState) {
+            // Set it to the first state.
+            if (tempState == -1) {
+                tempState = fromState;
+            }
+
+            if (tempState == fromState) {
                 // Insert together with last states.
                 tempTransitions.insert(std::move(Transition(transitionLabel, toState)));
             }
             else {
                 // Insert all temporary states
-                system.m_stateTransitions[fromState].insert(tempTransitions.begin(), tempTransitions.end());
+                system.m_stateTransitions[tempState].insert(tempTransitions.begin(), tempTransitions.end());
 
                 // Start a new list of temp states.
                 tempTransitions.clear();
