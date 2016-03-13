@@ -54,13 +54,15 @@ prevFixedPoint is either
 - 'x' if there is no previous fixed point
 this is needed for the Emerson-Lei expansion on the algorithm
 
-fixedPoints maps all variables to the fixed point type they are bounded by
-all variables are included that are within this formula
+fixedPoints maps all variables of fixed point formulas within the formula (including itself)
+each variable is mapped to a pair containing
+ - the fixed point it is bounded with
+ - whether the formula is open (true = open, false = closed)
 */
 class MuFormula
 {
 public:
-	MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp, std::map<std::string, char> vars, bool open);
+	MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp, std::map<std::string, std::pair<char, bool>> fixedPoints);
 
 	/**
      * Solves this mu-calculus formula
@@ -96,14 +98,18 @@ public:
 	 */
 	void* initVarMaps(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables);
 
+	/**
+	 * Getter for the included fixedpoints
+	 */
+	std::map<std::string, std::pair<char, bool>> getFixedPoints();
+
 private:
     MuFormula* subformula;
     MuFormula* subformula2;
     Op operation;
     std::string varlabel;
     char prevFixedPoint;
-	std::map<std::string, char> fixedPoints;
-	bool open;
+	std::map<std::string, std::pair<char, bool>> fixedPoints;
 };
 
 #endif // TOOL_MUCALCULUS_H_
