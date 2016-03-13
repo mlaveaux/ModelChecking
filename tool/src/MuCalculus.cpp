@@ -33,10 +33,8 @@ MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, 
 {}
 
 //solves a mu calculus formula
-std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
+std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, bool naive) {
 	std::set<int> result;
-
-	//for (auto mapelement : fixedPoints) { std::cout << mapelement.second << mapelement.first << "\n"; }
 
 	switch (operation) {
 	case FALSE:
@@ -49,22 +47,22 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 	}
 	case AND: {
 		//intersect set of states of the two subformula results
-		std::set<int> subResult1 = subformula->solve(system, variables);
-		std::set<int> subResult2 = subformula2->solve(system, variables);
+		std::set<int> subResult1 = subformula->solve(system, variables, naive);
+		std::set<int> subResult2 = subformula2->solve(system, variables, naive);
 		std::set_intersection(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
 			std::inserter(result, result.begin()));
 		return result;
 	}
 	case OR: {
 		//unite set of states of the two subformula results
-		std::set<int> subResult1 = subformula->solve(system, variables);
-		std::set<int> subResult2 = subformula2->solve(system, variables);
+		std::set<int> subResult1 = subformula->solve(system, variables, naive);
+		std::set<int> subResult2 = subformula2->solve(system, variables, naive);
 		std::set_union(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
 			std::inserter(result, result.begin()));
 		return result;
 	}
 	case DIAMOND: {
-		std::set<int> subResult1 = subformula->solve(system, variables);
+		std::set<int> subResult1 = subformula->solve(system, variables, naive);
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++) {
 			//for each out transition
@@ -79,7 +77,7 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 		return result;
 	}
 	case BOX: {
-		std::set<int> subResult1 = subformula->solve(system, variables);
+		std::set<int> subResult1 = subformula->solve(system, variables, naive);
 		result = system.getSetOfStates();
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++) {
@@ -95,15 +93,34 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 		return result;
 	}
 	case NU:
-		result = system.getSetOfStates(); // Start with all sets.
+		if (naive){
+			result = system.getSetOfStates(); // Start with all sets.
+		}
+		else{
+			if (subformula->open) {
+				if (prevFixedPoint == 'm') {
+					subformula->openFormulaReset(system, variables);
+				}
+			}
+		}
 	case MU:
 		bool reachedFixpoint = false; // Start with the empty set.
 		// Result is the approximation for the varlabel.
-		std::set<int>& approximation = variables[varlabel];
-		approximation = result;
+		std::set<int> approximation;
+		if (naive){
+			approximation = result;
+		}
+		else{
+			if (subformula->open && operation != NU) {
+				if (prevFixedPoint == 'n') {
+					subformula->openFormulaReset(system, variables);
+				}
+			}
+			approximation = variables[varlabel];
+		}
 		while (true) {
 			// Calculate the new approximation.
-			std::set<int> newApprox = subformula->solve(system, variables);
+			std::set<int> newApprox = subformula->solve(system, variables, naive);
 
 			// Check whether the fixed point is reached.
 			if (approximation == newApprox) {
@@ -115,96 +132,6 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 		}
 
 		return approximation;
-	}
-	assert(false); // All operations must return their own value;
-	return{};
-}
-
-std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
-	std::set<int> result;
-
-	// for (auto mapelement : fixedPoints) { std::cout << mapelement.second << mapelement.first << "\n"; }
-
-	switch (operation) {
-	case FALSE:// return empty set of states
-	case TRUE: // return set of all states
-	case VAR: {
-		// return the approximation of the varlabel.
-		return variables[varlabel]; 
-	}
-	case AND: {
-		//intersect set of states of the two subformula results
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables);
-		std::set<int> subResult2 = subformula2->emersonLeiSolve(system, variables);
-		std::set_intersection(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
-			std::inserter(result, result.begin()));
-		return result;
-	}
-	case OR: {
-		//unite set of states of the two subformula results
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables);
-		std::set<int> subResult2 = subformula2->emersonLeiSolve(system, variables);
-		std::set_union(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
-			std::inserter(result, result.begin()));
-		return result;
-	}
-	case DIAMOND: {
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables);
-		//for each state
-		for (int i = 0; i < system.getNumStates(); i++) {
-			//for each out transition
-			for (Transition trans : system.getOutTransitions(i)) {
-				//if it has a transition with the correct label to a correct state, it complies with the formula
-				if (trans.label == varlabel && subResult1.count(trans.toState) == 1) {
-					result.insert(i);
-					break;
-				}
-			}
-		}
-		return result;
-	}
-	case BOX: {
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables);
-		result = variables[varlabel];
-		//for each state
-		for (int i = 0; i < system.getNumStates(); i++) {
-			//for each out transition
-			for (Transition trans : system.getOutTransitions(i)) {
-				//if it has a transition with the correct label to a wrong state, it does not comply with the formula
-				if (trans.label == varlabel && subResult1.count(trans.toState) == 0) {
-					result.erase(i);
-					break;
-				}
-			}
-		}
-		return result;
-	}
-	case NU: { //max fixpoint
-		if (subformula->open) {
-			if (prevFixedPoint == MU) {
-				subformula->openFormulaReset(system, variables);
-			} 
-		}
-	}
-	case MU:{ //min fixpoint
-		if (subformula->open && operation != NU) {
-			if (prevFixedPoint == NU) {
-				subformula->openFormulaReset(system, variables);
-			}
-		}
-
-		bool reachedFixpoint = false;
-		std::set<int> currentApprox;
-
-		while (true) {
-			currentApprox = variables[varlabel];
-			variables[varlabel] = subformula->emersonLeiSolve(system, variables);
-			if (currentApprox == variables[varlabel]) {
-				break;
-			}
-		}
-		return variables[varlabel];
-	}
 	}
 	assert(false); // All operations must return their own value;
 	return{};

@@ -67,7 +67,7 @@ public:
      *
      * variables contains a set for each fixpoint variable of the current approximation.
      */
-    std::set<int> solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables);
+    std::set<int> solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, bool naive);
 
 	/**
 	 * Computes the result of a mu-calculus formula 
