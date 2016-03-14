@@ -6,6 +6,7 @@
 \usepackage{amssymb}
 \usepackage{tikz}
 \usepackage{pgf}
+\usepackage{hyperref}
 \usetikzlibrary{arrows,automata}
 
 \title{Implementation and evaluation of model checking using modal mu-calculus}
@@ -24,7 +25,9 @@ In section \ref{design} we will explain our design of the algorithm. The testcas
 \section{Design}\label{design}
 In this section the design of our model checking algorithm is given, which we have coded in C++. First we will show the data structure of modal mu-calculus formulas and how they are constructed. Then we elaborate on the design of the solving algorithm divided in what the two versions of the algorithm have in common and what is special to each version.
 
-% data structure of formula, parsing
+\subsection{Labelled transition system}
+The labelled transition system is stored in the aldebaran format cite{aldebaran}. In this format the first line describes the initial state, combined with the number of states and transitions. All consecutive lines define a state transition relation. These are stored in an array where the from state is indicated by its index, which is possible as long as each state exists within the number of states defined before. Also the transitions are stored as a map with their label as key mapping to a set of outgoing states for that label. The parsing itself is done quite straight forward reading line by line and inserting the transition in the corresponding set.
+
 \subsection{Modal mu-calculus formulas}
 Since the modal mu-calculus is defined recursively, we have decided to store mu-calculus formulas the same way. To do so we've implemented a class \texttt{MuFormula}, which represent a subformula of the given mu-calculus formula. This \texttt{MuFormula} can hold up to two pointers two other subformulas, which are its direct subformulas. These subformulas combined by an operation form the \texttt{MuFormula}, as it is defined in the modal mu-calculus grammar. This operation is implemented as the enum \texttt{Op} which can have the following values:
 \begin{itemize}
@@ -132,5 +135,9 @@ A picture of the labelled transition system.
  	   (6) edge [bend right] node {$\tau$} (2)
  	   (7) edge [bend right] node {$b$}    (1);
 \end{tikzpicture}
+
+\begin{thebibliography}{9}
+	\bibitem{aldebaran} \url{http://www.mcrl2.org/dev/user_manual/language_reference/lts.html#aldebaran-format}
+\end{thebibliography}
 
 \end{document}
