@@ -73,7 +73,7 @@ public:
 	 * Computes the result of a mu-calculus formula 
 	 * using Emerson and Lei's optimisation to compute fixed points.
 	 */
-	std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, std::set<std::string> boundedVars);
+	std::set<int> emersonLeiSolve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, std::set<std::string> boundedVars);
     
     /**
      * Parses a file for a MuFormula and returns the biggest MuFormula.
