@@ -21,8 +21,6 @@
 This report elaborates on our work and findings of assignment on, which is split in two parts. The first part of the assignment is to implement two versions of the model checking algorithm for modal mu-calculus: a naive version and the Emerson-Lei version. The second part is to evaluate these two versions using provided testcases supplemented with modal mu-calculus formulas of our own.\\
 In section \ref{design} we will explain our design of the algorithm. The testcases and their result when used on the algorithm is shown in section 3. Lastly, we conclude this report in section 4.
 
-\section{Implementation}
-
 \section{Design}\label{design}
 In this section the design of our model checking algorithm is given, which we have coded in C++. First we will show the data structure of modal mu-calculus formulas and how they are constructed. Then we elaborate on the design of the solving algorithm divided in what the two versions of the algorithm have in common and what is special to each version.
 
@@ -41,12 +39,14 @@ Since the modal mu-calculus is defined recursively, we have decided to store mu-
 \item NU: the greatest fixed point operator
 \end{itemize}
 When $\texttt{Op} \in \{\text{FALSE}, \text{TRUE}, \text{VAR}\}$ no subformula is defined, when $\texttt{Op} \in \{\text{AND}, \text{OR}\}$ both subformulas are defined and else only the first subformula is defined.\\
-For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFormula} needs to know the transition label and for the cases $\texttt{Op} \in \{\text{VAR}, \text{MU}, \text{NU}\}$ the \texttt{MuFormula} needs to know the name of the variable. These labels and variable names are stored as a string. Since these cases are distinct, we have decided to store these values in the same string variable, named \texttt{varlabel}, to reduce memory usage.
+For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFormula} needs to know the transition label and for the cases $\texttt{Op} \in \{\text{VAR}, \text{MU}, \text{NU}\}$ the \texttt{MuFormula} needs to know the name of the variable. These labels and variable names are stored as a string. Since these cases are distinct, we have decided to store these values in the same string variable, named \texttt{varlabel}, to reduce memory usage.\\
+These values are filled for every subformula during the parsing of the file with the mu-calculus formula. This parsing is implemented in the same recursive fashion as in the provided pseudocode \cite{muparse}.
 
 
 % basis (solve method), what naive and EL have in common
 \subsection{Solving algorithm}
-
+As in the slides, the basis of the algorithm is a sequence of conditions, one for each possible \texttt{Op}. If the subformula to be solved has direct subformulas, these are solved first after which the \texttt{Op} is applied to the resultset(s) of states.\\
+The naive and the Emerson-Lei versions differ in how they handle the fixed point operators. These differences are explained below.
 
 % what is special to naive
 \subsubsection{Naive algorithm}
@@ -55,8 +55,53 @@ For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFor
 % what is special to EL
 \subsubsection{Emerson-Lei algorithm}
 
-\section{Conclusion}
 
+
+\section{Evaluation}\label{eval}
+In this section we will elaborate on the mu calculus formulas provided and made for the experiments in the second part of the assignment. For each of these formulas it will be explained why this is the correct formula for the given problem and its nesting ($ND$), alternation ($AD$) and dependent alternation depth ($DAD$) will be given.\\
+Afterwards the result of our solver will be given for each formula. The performance results for each formula and each corresponding LTS will be shown as well.
+
+\subsection{Dining philosophers}
+
+
+\subsubsection{Mu-calculus formulas}
+The mu-calculus formulas for this assignment were provided. They are given below.
+\\\\
+\textbf{In every reachable state, someone must start eating}\\
+This can be expressed with the formula:\\
+{\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) \&\& mu Y. ([i]Y \&\& (<plato>true || <others>true)))}\\
+The part {\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) ..)} iterates over all outgoing transitions, getting to each reachable state. The other part says that for each of these states it must hold that within any finite sequence of states of no-one eating ({\tt mu Y. ([i]Y ..)}) either Plato or another philosopher will be able to eat ({\tt (<plato>true || <others>true)}).\\
+The depths for this formula are: $ND = 2$, $AD = 2$ and $DAD = 1$.
+\\\\
+\textbf{In every state, reachable by Plato not eating, Plato has the chance to starve}\\
+This can be expressed with the formula:\\
+{\tt nu X. (([i]X \&\& [others]X ) \&\& nu Y. (<i>Y || <others>Y))}
+
+\subsubsection{Solver and performance results}
+
+
+\subsection{Demanding children}
+
+\subsubsection{Mu-calculus formulas}
+
+\subsubsection{Solver and performance results}
+
+
+\subsection{Boardgame}
+
+\subsubsection{Mu-calculus formulas}
+
+\subsubsection{Solver and performance results}
+
+
+\section{Conclusion}\label{conc}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{muparse} http://www.win.tue.nl/~timw/downloads/parser.pdf
+
+\end{thebibliography}
 
 A picture of the labelled transition system.
 
