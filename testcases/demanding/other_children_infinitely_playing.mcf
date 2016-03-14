@@ -1,7 +1,7 @@
-% there exists a sequence where all children other than the child are infinitely playing
+% It is possible for all other children than the child to never ask a question
 
-nu X. ((<ask>X || <wisdom>X) || <playing>X)
+nu X. ((([ask]X && [wisdom]X) && [playing]X) && nu Y. ((<ask>Y || <wisdom>Y) || <playing>Y))
 
-% nesting depth: 1
+% nesting depth: 2
 % alternation depth: 1
 % dependent alternation depth: 1

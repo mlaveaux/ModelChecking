@@ -67,9 +67,9 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++) {
 			//for each out transition
-			for (Transition trans : system.getOutTransitions(i)) {
+			for (auto& toState : system.getToStates(i, varlabel)) {
 				//if it has a transition with the correct label to a correct state, it complies with the formula
-				if (trans.label == varlabel && subResult1.count(trans.toState) == 1) {
+				if (subResult1.count(toState) == 1) {
 					result.insert(i);
 					break;
 				}
@@ -83,9 +83,9 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++) {
 			//for each out transition
-			for (Transition trans : system.getOutTransitions(i)) {
+			for (auto& toState : system.getToStates(i, varlabel)) {
 				//if it has a transition with the correct label to a wrong state, it does not comply with the formula
-				if (trans.label == varlabel && subResult1.count(trans.toState) == 0) {
+				if (subResult1.count(toState) == 0) {
 					result.erase(i);
 					break;
 				}
@@ -154,9 +154,9 @@ std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++) {
 			//for each out transition
-			for (Transition trans : system.getOutTransitions(i)) {
+			for (auto& toState : system.getToStates(i, varlabel)) {
 				//if it has a transition with the correct label to a correct state, it complies with the formula
-				if (trans.label == varlabel && subResult1.count(trans.toState) == 1) {
+				if (subResult1.count(toState) == 1) {
 					result.insert(i);
 					break;
 				}
@@ -170,9 +170,9 @@ std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++) {
 			//for each out transition
-			for (Transition trans : system.getOutTransitions(i)) {
+			for (auto& toState : system.getToStates(i, varlabel)) {
 				//if it has a transition with the correct label to a wrong state, it does not comply with the formula
-				if (trans.label == varlabel && subResult1.count(trans.toState) == 0) {
+				if (subResult1.count(toState) == 0) {
 					result.erase(i);
 					break;
 				}

@@ -32,11 +32,8 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
     }
 
     bool firstLine = true;
-
-    // Temporarily set of transitions.
-    std::set<Transition> tempTransitions;
-    int tempState = -1;
-
+    int numOfStates;
+    
     std::string line;    
     while (std::getline(file, line)) {
 
@@ -57,8 +54,8 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
             rest = rest.substr(secondComma + 1);
             size_t secondBracket = rest.find_first_of(")");
 			int numStates = std::atoi(rest.substr(0, secondBracket).c_str());
-            system.m_stateTransitions = std::vector<std::set<Transition>>(numStates);
-			system.m_nrStates = numStates;
+            system.m_stateTransitions = std::vector<std::map<std::string, std::set<int>>>(numStates);
+            numOfStates = numStates;
 
             firstLine = false;
         }
@@ -84,45 +81,32 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
             assert(fromState <= system.m_stateTransitions.size() && fromState >= 0);
             assert(toState <= system.m_stateTransitions.size() && toState >= 0);
 
-            // Set it to the first state.
-            if (tempState == -1) {
-                tempState = fromState;
-            }
-
-            if (tempState == fromState) {
-                // Insert together with last states.
-                tempTransitions.insert(std::move(Transition(transitionLabel, toState)));
-            }
-            else {
-                // Insert all temporary states
-                system.m_stateTransitions[tempState].insert(tempTransitions.begin(), tempTransitions.end());
-
-                // Start a new list of temp states.
-                tempTransitions.clear();
-                tempTransitions.insert(std::move(Transition(transitionLabel, toState)));
-
-                tempState = fromState;
-            }
-
-
+            system.m_stateTransitions[fromState][transitionLabel].insert(toState);
         }
+    }
+
+    // Generate a set of a states that is accessed later on.
+    for (int i = 0; i < numOfStates; i++) {
+        system.m_setOfStates.insert(i);
     }
 
     return true;
 }
 
 int LabelledTransitionSystem::getNumStates(){
-	return m_nrStates;
+	return (int)m_setOfStates.size();
 }
 
-std::set<int> LabelledTransitionSystem::getSetOfStates(){
-	std::set<int> s;
-	for (int i = 0; i < m_nrStates; i++){
-		s.insert(i);
-	}
-	return s;
+int LabelledTransitionSystem::getInitialState()
+{
+    return m_firstState;
 }
 
-std::set<Transition> LabelledTransitionSystem::getOutTransitions(int state){
-	return m_stateTransitions[state];
+std::set<int>& LabelledTransitionSystem::getSetOfStates(){
+	return m_setOfStates;
+}
+
+std::set<int>& LabelledTransitionSystem::getToStates(int state, const std::string& varLabel)
+{
+    return m_stateTransitions[state][varLabel];
 }
