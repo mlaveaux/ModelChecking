@@ -60,7 +60,7 @@ all variables are included that are within this formula
 class MuFormula
 {
 public:
-	MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp, std::map<std::string, char> vars, bool open);
+	MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp, std::map<std::string, char> vars);
 
 	/**
      * Solves this mu-calculus formula
@@ -73,7 +73,7 @@ public:
 	 * Computes the result of a mu-calculus formula 
 	 * using Emerson and Lei's optimisation to compute fixed points.
 	 */
-	std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables);
+	std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, std::set<std::string> boundedVars);
     
     /**
      * Parses a file for a MuFormula and returns the biggest MuFormula.
@@ -83,7 +83,7 @@ public:
 	/**
 	 * If the formula is open we reset the state of its varlabel
 	 */
-	void * openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables);
+	void openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, std::set<std::string> boundedVars, Op& op);
 
     /**
      * Converts a MuFormula to a string (for testing purposes)
@@ -94,7 +94,7 @@ public:
 	 * Initialises the variables map.
 	 *
 	 */
-	void* initVarMaps(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables);
+	void initVarMaps(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables);
 
 private:
     MuFormula* subformula;
@@ -103,7 +103,6 @@ private:
     std::string varlabel;
     char prevFixedPoint;
 	std::map<std::string, char> fixedPoints;
-	bool open;
 };
 
 #endif // TOOL_MUCALCULUS_H_

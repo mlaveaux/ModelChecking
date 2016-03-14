@@ -22,14 +22,13 @@ MuFormula* parseLogicFormula(std::string line, char pfp, std::map<std::string, c
  */
 MuFormula* parseSubFormula(std::string line, char pfp, std::map<std::string, char> vars);
 
-MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp, std::map<std::string, char> vars, bool open) :
+MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, char pfp, std::map<std::string, char> vars) :
 	subformula(f1),
 	subformula2(f2),
 	operation(op),
 	prevFixedPoint(pfp),
 	varlabel(varlabel),
-	fixedPoints(vars),
-	open(open)
+	fixedPoints(vars)
 {}
 
 //solves a mu calculus formula
@@ -120,36 +119,38 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 	return{};
 }
 
-std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
+std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, std::set<std::string> boundedVars) {
 	std::set<int> result;
 
 	// for (auto mapelement : fixedPoints) { std::cout << mapelement.second << mapelement.first << "\n"; }
 
 	switch (operation) {
-	case FALSE:// return empty set of states
-	case TRUE: // return set of all states
+	case FALSE:
+		return std::set<int>(); // return empty set of states
+	case TRUE:
+		return system.getSetOfStates(); // return set of all states
 	case VAR: {
 		// return the approximation of the varlabel.
 		return variables[varlabel]; 
 	}
 	case AND: {
 		//intersect set of states of the two subformula results
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables);
-		std::set<int> subResult2 = subformula2->emersonLeiSolve(system, variables);
+		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables, boundedVars);
+		std::set<int> subResult2 = subformula2->emersonLeiSolve(system, variables, boundedVars);
 		std::set_intersection(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
 			std::inserter(result, result.begin()));
 		return result;
 	}
 	case OR: {
 		//unite set of states of the two subformula results
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables);
-		std::set<int> subResult2 = subformula2->emersonLeiSolve(system, variables);
+		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables, boundedVars);
+		std::set<int> subResult2 = subformula2->emersonLeiSolve(system, variables, boundedVars);
 		std::set_union(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
 			std::inserter(result, result.begin()));
 		return result;
 	}
 	case DIAMOND: {
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables);
+		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables, boundedVars);
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++) {
 			//for each out transition
@@ -164,7 +165,7 @@ std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::
 		return result;
 	}
 	case BOX: {
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables);
+		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables, boundedVars);
 		result = variables[varlabel];
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++) {
@@ -180,25 +181,23 @@ std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::
 		return result;
 	}
 	case NU: { //max fixpoint
-		if (subformula->open) {
-			if (prevFixedPoint == MU) {
-				subformula->openFormulaReset(system, variables);
-			} 
-		}
+		if (prevFixedPoint == MU) {
+			subformula->openFormulaReset(system, variables, boundedVars, operation);
+		} 
 	}
-	case MU:{ //min fixpoint
-		if (subformula->open && operation != NU) {
-			if (prevFixedPoint == NU) {
-				subformula->openFormulaReset(system, variables);
-			}
+	case MU:{ // min fixpoint
+		if (prevFixedPoint == NU && operation != NU) {
+			subformula->openFormulaReset(system, variables, boundedVars, operation);
 		}
+
+		boundedVars.insert(varlabel);
 
 		bool reachedFixpoint = false;
 		std::set<int> currentApprox;
 
 		while (true) {
 			currentApprox = variables[varlabel];
-			variables[varlabel] = subformula->emersonLeiSolve(system, variables);
+			variables[varlabel] = subformula->emersonLeiSolve(system, variables, boundedVars);
 			if (currentApprox == variables[varlabel]) {
 				break;
 			}
@@ -230,14 +229,14 @@ MuFormula* MuFormula::parseMuFormula(const char* strFilename) {
 	return parseSubFormula(line, 'x', std::map<std::string, char>());
 }
 
-void * MuFormula::openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
-	if (operation == MU) {
-		variables[varlabel] = std::set<int>();
-	} else {
-		variables[varlabel] = system.getSetOfStates();
+void MuFormula::openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, std::set<std::string> boundedVars, Op& originalOp) {
+	if (operation == MU || operation == NU) {
+		if (originalOp == MU) {
+			// TODO reset accordingly
+		} else {
+			// TODO reset accordingly
+		}
 	}
-	
-	return nullptr;
 }
 
 std::string MuFormula::toString() {
@@ -315,47 +314,47 @@ MuFormula* parseLogicFormula(std::string line, char pfp, std::map<std::string, c
 	}
 
 	//return the formula
-	return new MuFormula(sub1, sub2, opIsAnd ? AND : OR, "", pfp, vars, true);
+	return new MuFormula(sub1, sub2, opIsAnd ? AND : OR, "", pfp, vars);
 }
 
 MuFormula* parseSubFormula(std::string line, char pfp, std::map<std::string, char> vars)
 {
 	switch (line.at(0)) {
 	case 't':	//true
-		return new MuFormula(nullptr, nullptr, TRUE, "", pfp, vars, true);
+		return new MuFormula(nullptr, nullptr, TRUE, "", pfp, vars);
 	case 'f':	//false
-		return new MuFormula(nullptr, nullptr, FALSE, "", pfp, vars, true);
+		return new MuFormula(nullptr, nullptr, FALSE, "", pfp, vars);
 	case '(':	//start of logic formula
 		return parseLogicFormula(line, pfp, vars);
 	case '<': {	//diamond
 		size_t end = line.find('>');
-		return new MuFormula(parseSubFormula(line.substr(end + 1, line.length() - end - 1), pfp, vars), nullptr, DIAMOND, line.substr(1, end - 1), pfp, vars, true);
+		return new MuFormula(parseSubFormula(line.substr(end + 1, line.length() - end - 1), pfp, vars), nullptr, DIAMOND, line.substr(1, end - 1), pfp, vars);
 	}
 	case '[': {	//box
 		size_t end = line.find(']');
-		return new MuFormula(parseSubFormula(line.substr(end + 1, line.length() - end - 1), pfp, vars), nullptr, BOX, line.substr(1, end - 1), pfp, vars, true);
+		return new MuFormula(parseSubFormula(line.substr(end + 1, line.length() - end - 1), pfp, vars), nullptr, BOX, line.substr(1, end - 1), pfp, vars);
 	}
 	case 'm': { //greatest fixed point
 		size_t dot = line.find('.');
 		std::string var = line.substr(2, dot - 2);
 		vars[var] = 'm';
-		return new MuFormula(parseSubFormula(line.substr(dot + 1, line.length() - dot - 1), 'm', vars), nullptr, MU, var, pfp, vars, true);
+		return new MuFormula(parseSubFormula(line.substr(dot + 1, line.length() - dot - 1), 'm', vars), nullptr, MU, var, pfp, vars);
 	}
 	case 'n': { //least fixed point
 		size_t dot = line.find('.');
 		std::string var = line.substr(2, dot - 2);
 		vars[var] = 'n';
-		return new MuFormula(parseSubFormula(line.substr(dot + 1, line.length() - dot - 1), 'n', vars), nullptr, NU, var, pfp, vars, true);
+		return new MuFormula(parseSubFormula(line.substr(dot + 1, line.length() - dot - 1), 'n', vars), nullptr, NU, var, pfp, vars);
 	}
 	default:	//variable
-		return new MuFormula(nullptr, nullptr, VAR, line, pfp, vars, true);
+		return new MuFormula(nullptr, nullptr, VAR, line, pfp, vars);
 	}
 
 	assert(false); // All cases must be handled.
 	return nullptr;
 }
 
-void * MuFormula::initVarMaps(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
+void MuFormula::initVarMaps(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
 	switch (operation) {
 	case FALSE:
 	case TRUE:
@@ -378,5 +377,4 @@ void * MuFormula::initVarMaps(LabelledTransitionSystem& system, std::map<std::st
 		subformula->initVarMaps(system, variables);
 		break;
 	}
-	return nullptr;
 }

@@ -66,16 +66,19 @@ int main(int argc, char* argv[])
         else {
 			std::cout << "Running procedure with Emerson-Lei optimisation..\n";
 
+			// keeps track of which variables are bounded at the current depth of the algorithm
+			std::set<std::string> boundedVars;
+
 			// initalise the variables map
 			formula->initVarMaps(system, variables);
 
 			//for (auto v : variables) { std::cout << "variables[" << v.first << "]={"; for(auto s : v.second) { std::cout << s << " "; } std::cout <<"}\n"; }
 
 			// run the Emerson-Lei improved algorithm
-			states = formula->emersonLeiSolve(system, variables);
+			states = formula->emersonLeiSolve(system, variables, boundedVars);
 	    }
 
-		std::cout << "states = {"; for (auto s : states) { std::cout << s << " "; } std::cout << "}\n";
+		std::cout << "result states = {"; for (auto s : states) { std::cout << s << " "; } std::cout << "}\n";
 
         if (states.empty()) {
             std::cout << " doesn't hold" << std::endl;
