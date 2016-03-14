@@ -21,15 +21,39 @@
 This report elaborates on our work and findings of assignment on, which is split in two parts. The first part of the assignment is to implement two versions of the model checking algorithm for modal mu-calculus: a naive version and the Emerson-Lei version. The second part is to evaluate these two versions using provided testcases supplemented with modal mu-calculus formulas of our own.\\
 In section \ref{design} we will explain our design of the algorithm. The testcases and their result when used on the algorithm is shown in section 3. Lastly, we conclude this report in section 4.
 
-\input{implementation}
+\section{Implementation}
 
-\section{Evaluation}
+\section{Design}\label{design}
+In this section the design of our model checking algorithm is given, which we have coded in C++. First we will show the data structure of modal mu-calculus formulas and how they are constructed. Then we elaborate on the design of the solving algorithm divided in what the two versions of the algorithm have in common and what is special to each version.
 
-\input{dining}
+% data structure of formula, parsing
+\subsection{Modal mu-calculus formulas}
+Since the modal mu-calculus is defined recursively, we have decided to store mu-calculus formulas the same way. To do so we've implemented a class \texttt{MuFormula}, which represent a subformula of the given mu-calculus formula. This \texttt{MuFormula} can hold up to two pointers two other subformulas, which are its direct subformulas. These subformulas combined by an operation form the \texttt{MuFormula}, as it is defined in the modal mu-calculus grammar. This operation is implemented as the enum \texttt{Op} which can have the following values:
+\begin{itemize}
+\item FALSE: the value false
+\item TRUE: the value true
+\item VAR: a variable
+\item AND: logical and
+\item OR: logical or
+\item DIAMOND: the diamond operator
+\item BOX: the box operator
+\item MU: the least fixed point operator
+\item NU: the greatest fixed point operator
+\end{itemize}
+When $\texttt{Op} \in \{\text{FALSE}, \text{TRUE}, \text{VAR}\}$ no subformula is defined, when $\texttt{Op} \in \{\text{AND}, \text{OR}\}$ both subformulas are defined and else only the first subformula is defined.\\
+For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFormula} needs to know the transition label and for the cases $\texttt{Op} \in \{\text{VAR}, \text{MU}, \text{NU}\}$ the \texttt{MuFormula} needs to know the name of the variable. These labels and variable names are stored as a string. Since these cases are distinct, we have decided to store these values in the same string variable, named \texttt{varlabel}, to reduce memory usage.
 
-\input{demanding}
 
-\input{boardgame}
+% basis (solve method), what naive and EL have in common
+\subsection{Solving algorithm}
+
+
+% what is special to naive
+\subsubsection{Naive algorithm}
+
+
+% what is special to EL
+\subsubsection{Emerson-Lei algorithm}
 
 \section{Conclusion}
 
