@@ -1,0 +1,5 @@
+nu X. X                 : true
+mu Y. Y                 : false
+nu X. mu Y. (X || Y)    : true
+nu X. mu Y. (X && Y)    : false
+nu X. (X &&  mu Y. Y)   : false
