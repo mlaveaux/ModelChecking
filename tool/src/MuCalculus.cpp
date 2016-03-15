@@ -184,7 +184,7 @@ void MuFormula::openFormulaReset(LabelledTransitionSystem& system, std::map<std:
 
 void MuFormula::resetFormula(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, char& surroundingBinder, Op &originalFixpoint) {
 	if (operation == originalFixpoint) {
-		if (surroundingBinder == 'nu') {
+		if (surroundingBinder == 'n') {
 			variables[varlabel] = system.getSetOfStates();
 		} else {
 			variables[varlabel] = std::set<int>();
