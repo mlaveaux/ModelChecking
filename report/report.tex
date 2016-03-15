@@ -7,6 +7,7 @@
 \usepackage{tikz}
 \usepackage{pgf}
 \usepackage{pgfplots}
+\usepackage{comment}
 
 \title{Implementation and evaluation of model checking using modal mu-calculus}
 
@@ -56,7 +57,6 @@ The naive and the Emerson-Lei versions differ in how they handle the fixed point
 \subsubsection{Emerson-Lei algorithm}
 
 
-
 \section{Evaluation}\label{eval}
 In this section we will elaborate on the mu-calculus formulas provided and made for the experiments in the second part of the assignment. For each of these formulas it will be explained why this is the correct formula for the given problem and its nesting ($ND$), alternation ($AD$) and dependent alternation depth ($DAD$) will be given.\\
 Afterwards the result of our solver will be given for each formula. The performance results for each formula and each corresponding LTS will be shown as well.
@@ -101,9 +101,9 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \subsubsection{Solver and performance results}
 
-The graph below shows the time in seconds that the program runs using labelled transition systems from one up to 11 dining philosophers. The formulas to be checked are the four formulas explained before. In the graphs show below the blue line is the naive algorithm and red indicates the timing for the improved algorithm.
+The graph below shows the time in seconds that the program runs using labelled transition systems from two up to 11 dining philosophers. The formulas to be checked are the four formulas explained before. In the graphs show below the blue line is the naive algorithm and red indicates the timing for the improved algorithm.
 
-Invariantly inevitably eat:
+Invariantly inevitably eat (doesn't hold):
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -116,7 +116,7 @@ Invariantly inevitably eat:
   	\end{axis}
 \end{tikzpicture}
 
-Invariantly plato starves:
+Invariantly plato starves (doesn't hold):
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -129,10 +129,9 @@ Invariantly plato starves:
   	\end{axis}
 \end{tikzpicture}
 
-Invariantly plato can eat in the future:
+Invariantly plato can eat in the future (doesn't hold):
 
 \begin{tikzpicture}
-The second experiment is about children that are initially playing. A child can ask a question, get the answer and return to playing (in that order). 
   	\begin{axis}[ 
     	xlabel={Number of philosophers},
     	ylabel={Duration (Seconds)}
@@ -143,10 +142,9 @@ The second experiment is about children that are initially playing. A child can 
   	\end{axis}
 \end{tikzpicture}
 
-There is a course of events in which Plato infinitely often eats:
+There is a course of events in which Plato infinitely often eats (holds):
 
 \begin{tikzpicture}
-The second experiment is about children that are initially playing. A child can ask a question, get the answer and return to playing (in that order). 
   	\begin{axis}[ 
     	xlabel={Number of philosophers},
     	ylabel={Duration (Seconds)}
@@ -157,7 +155,8 @@ The second experiment is about children that are initially playing. A child can 
   	\end{axis}
 \end{tikzpicture}
 
-\subsection{Demanding children}Only for one child the actions are named, this child will simply be referred to as 'the child'. For this experiment four mu-calculus formulas were made which are elaborated on below. Afterwards the results of this experiment are given.
+\subsection{Demanding children}
+The second experiment is about children that are initially playing. A child can ask a question, get the answer and return to playing (in that order). Only for one child the actions are named, this child will simply be referred to as 'the child'. For this experiment four mu-calculus formulas were made which are elaborated on below. Afterwards the results of this experiment are given.
 
 \subsubsection{Mu-calculus formulas}
 \textbf{It is possible for the child to never ask a question}\\
@@ -187,10 +186,27 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 \subsubsection{Solver and performance results}
 
 
-
 \subsection{Boardgame}
+The third and last experiment is about two players playing a board game. The game is played on a $N$ by $N$ board and they start at state $(0, 0)$. Each player alternatively can choose to make a move, starting with player I. Player II wins whenever the game reaches state $(N, N)$. In the LTS being in the state $(N, N)$ is denoted by being able to do the transition {\tt won}. For this experiment three mu-calculus formulas are made which are elaborated on below. Afterwards the results of this experiment are given.
 
 \subsubsection{Mu-calculus formulas}
+\textbf{3a: There is a play such that player II can win}\\
+This can be expressed with the formula:\\
+{\tt mu X. (<choose1><choose2>X || <won>true)}\\
+This formula states that there must be a finite sequence of states in which first player I makes a choice and then player II ({\tt mu X. (<choose1><choose2>X ..)}) after which the game will end up in state $(N, N)$, causing player II to win ({\tt || <won>true}).\\
+The depths of this formula are: $ND = 1$, $AD = 1$ and $DAD = 1$.
+\\\\
+\textbf{3b: Player II wins the game}\\
+This can be expressed with the formula:\\
+{\tt mu X. ([choose1]<choose2>X || <won>true)}\\
+This formula states that whatever move player I chooses ({\tt [choose1]}) player II can choose a move (player II has a strategy, {\tt <choose2>}) such that the game will have a finite sequence of states ({\tt mu X. ([choose1]<choose2>X ..)}) such that the game ends up in state $(N, N)$, causing player II to win ({\tt || <won>true}).\\
+The depths of this formula are: $ND = 1$, $AD = 1$ and $DAD = 1$.
+\\\\
+\textbf{3c: Player II wins the game by being able to move the token to place (N, N) infinitely often}\\
+This can be expressed with the formula:\\
+{\tt nu Y. mu X. ([choose1]<choose2>X || ([choose1]<choose2><won>true \&\& [choose1]<choose2>Y))}\\
+The part {\tt mu X. ([choose1]<choose2>X ..)} states that there must be a finite sequence of states in which player I chooses any step and player II does a certain step (according to a strategy). The other part says that after this finite sequence player II will be able to move to state $(N, N)$ within a turn independent of what player I does ({\tt || ([choose1]<choose2><won>true ..)}) and after one turn it is possible to repeat this sequence ({\tt nu Y. .. (.. (.. \&\& [choose1]<choose2>Y))}), causing the game to get to state $(N, N)$ infinitely often, causing player II to win.\\
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \subsubsection{Solver and performance results}
 
@@ -204,9 +220,10 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \end{thebibliography}
 
+
+\begin{comment}
 A picture of the labelled transition system.
 
-\usetikzlibrary{arrows,automata}
 \begin{tikzpicture}[->,>=stealth', shorten >=1pt,auto, node distance=2.8cm, semithick]
   \tikzstyle{every state}=[text=black]
 
@@ -234,5 +251,5 @@ A picture of the labelled transition system.
  	   (6) edge [bend right] node {$\tau$} (2)
  	   (7) edge [bend right] node {$b$}    (1);
 \end{tikzpicture}
-
+\end{comment}
 \end{document}
