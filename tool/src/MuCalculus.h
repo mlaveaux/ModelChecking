@@ -67,13 +67,7 @@ public:
      *
      * variables contains a set for each fixpoint variable of the current approximation.
      */
-    std::set<int> solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables);
-
-	/**
-	 * Computes the result of a mu-calculus formula 
-	 * using Emerson and Lei's optimisation to compute fixed points.
-	 */
-	std::set<int> emersonLeiSolve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, std::set<std::string> boundedVars);
+    std::set<int> solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, bool naive);
     
     /**
      * Parses a file for a MuFormula and returns the biggest MuFormula.
@@ -83,7 +77,12 @@ public:
 	/**
 	 * If the formula is open we reset the state of its varlabel
 	 */
-	void openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, std::set<std::string> boundedVars, Op& op);
+	void openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, char surroundingBinder, Op originalFixpoint);
+
+	/**
+	* openFormulaReset utility function.
+	*/
+	void resetFormula(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, char surroundingBinder, Op originalFixpoint);
 
     /**
      * Converts a MuFormula to a string (for testing purposes)
@@ -96,6 +95,26 @@ public:
 	 */
 	void initVarMaps(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables);
 
+	/**
+	 * Computes whether the formula is closed or not and sets the variable open accordingly.
+	 */
+	void setFormulaClosedness();
+
+	/**
+ 	 * Returns the names of all of the used variables in the nested (sub-)formuli of this formula.
+	 */
+	void getChildVars(std::set<std::string> &childVars);
+
+	/**
+	* Returns the names of the bound variables in the nested (sub-)formuli of this formula.
+	*/
+	void getBoundVars(std::set<std::string> &boundVars);
+
+	/**
+	 * Setter for the bool open.
+	 */
+	void setOpen(bool open);
+
 private:
     MuFormula* subformula;
     MuFormula* subformula2;
@@ -103,6 +122,7 @@ private:
     std::string varlabel;
     char prevFixedPoint;
 	std::map<std::string, char> fixedPoints;
+	bool open;
 };
 
 #endif // TOOL_MUCALCULUS_H_
