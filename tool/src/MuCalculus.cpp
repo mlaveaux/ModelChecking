@@ -28,11 +28,12 @@ MuFormula::MuFormula(MuFormula* f1, MuFormula* f2, Op op, std::string varlabel, 
 	operation(op),
 	prevFixedPoint(pfp),
 	varlabel(varlabel),
-	fixedPoints(vars)
+	fixedPoints(vars),
+	open(NULL)
 {}
 
 //solves a mu calculus formula
-std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
+std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, bool naive) {
 	std::set<int> result;
 
 	//for (auto mapelement : fixedPoints) { std::cout << mapelement.second << mapelement.first << "\n"; }
@@ -48,22 +49,22 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 	}
 	case AND: {
 		//intersect set of states of the two subformula results
-		std::set<int> subResult1 = subformula->solve(system, variables);
-		std::set<int> subResult2 = subformula2->solve(system, variables);
+		std::set<int> subResult1 = subformula->solve(system, variables, naive);
+		std::set<int> subResult2 = subformula2->solve(system, variables, naive);
 		std::set_intersection(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
 			std::inserter(result, result.begin()));
 		return result;
 	}
 	case OR: {
 		//unite set of states of the two subformula results
-		std::set<int> subResult1 = subformula->solve(system, variables);
-		std::set<int> subResult2 = subformula2->solve(system, variables);
+		std::set<int> subResult1 = subformula->solve(system, variables, naive);
+		std::set<int> subResult2 = subformula2->solve(system, variables, naive);
 		std::set_union(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
 			std::inserter(result, result.begin()));
 		return result;
 	}
 	case DIAMOND: {
-		std::set<int> subResult1 = subformula->solve(system, variables);
+		std::set<int> subResult1 = subformula->solve(system, variables, naive);
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++) {
 			//for each out transition
@@ -78,7 +79,7 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 		return result;
 	}
 	case BOX: {
-		std::set<int> subResult1 = subformula->solve(system, variables);
+		std::set<int> subResult1 = subformula->solve(system, variables, naive);
 		result = system.getSetOfStates();
 		//for each state
 		for (int i = 0; i < system.getNumStates(); i++) {
@@ -94,15 +95,28 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 		return result;
 	}
 	case NU:
-		result = system.getSetOfStates(); // Start with all sets.
+		if (naive) {
+			result = system.getSetOfStates(); // Start with all sets.
+		} else {
+			if (prevFixedPoint == 'm') {
+				subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+			} 
+		}
 	case MU:
-		bool reachedFixpoint = false; // Start with the empty set.
 		// Result is the approximation for the varlabel.
 		std::set<int>& approximation = variables[varlabel];
-		approximation = result;
+
+		if (naive) {
+			approximation = result;
+		} else {
+			if (prevFixedPoint == 'n') {
+				subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+			} 
+		}
+
 		while (true) {
 			// Calculate the new approximation.
-			std::set<int> newApprox = subformula->solve(system, variables);
+			std::set<int> newApprox = subformula->solve(system, variables, naive);
 
 			// Check whether the fixed point is reached.
 			if (approximation == newApprox) {
@@ -113,97 +127,7 @@ std::set<int> MuFormula::solve(LabelledTransitionSystem& system, std::map<std::s
 			approximation = newApprox;
 		}
 
-		return approximation;
-	}
-	assert(false); // All operations must return their own value;
-	return{};
-}
-
-std::set<int> MuFormula::emersonLeiSolve(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, std::set<std::string> boundedVars) {
-	std::set<int> result;
-
-	// for (auto mapelement : fixedPoints) { std::cout << mapelement.second << mapelement.first << "\n"; }
-
-	switch (operation) {
-	case FALSE:
-		return std::set<int>(); // return empty set of states
-	case TRUE:
-		return system.getSetOfStates(); // return set of all states
-	case VAR: {
-		// return the approximation of the varlabel.
-		return variables[varlabel]; 
-	}
-	case AND: {
-		//intersect set of states of the two subformula results
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables, boundedVars);
-		std::set<int> subResult2 = subformula2->emersonLeiSolve(system, variables, boundedVars);
-		std::set_intersection(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
-			std::inserter(result, result.begin()));
-		return result;
-	}
-	case OR: {
-		//unite set of states of the two subformula results
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables, boundedVars);
-		std::set<int> subResult2 = subformula2->emersonLeiSolve(system, variables, boundedVars);
-		std::set_union(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
-			std::inserter(result, result.begin()));
-		return result;
-	}
-	case DIAMOND: {
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables, boundedVars);
-		//for each state
-		for (int i = 0; i < system.getNumStates(); i++) {
-			//for each out transition
-			for (Transition trans : system.getOutTransitions(i)) {
-				//if it has a transition with the correct label to a correct state, it complies with the formula
-				if (trans.label == varlabel && subResult1.count(trans.toState) == 1) {
-					result.insert(i);
-					break;
-				}
-			}
-		}
-		return result;
-	}
-	case BOX: {
-		std::set<int> subResult1 = subformula->emersonLeiSolve(system, variables, boundedVars);
-		result = variables[varlabel];
-		//for each state
-		for (int i = 0; i < system.getNumStates(); i++) {
-			//for each out transition
-			for (Transition trans : system.getOutTransitions(i)) {
-				//if it has a transition with the correct label to a wrong state, it does not comply with the formula
-				if (trans.label == varlabel && subResult1.count(trans.toState) == 0) {
-					result.erase(i);
-					break;
-				}
-			}
-		}
-		return result;
-	}
-	case NU: { //max fixpoint
-		if (prevFixedPoint == MU) {
-			subformula->openFormulaReset(system, variables, boundedVars, operation);
-		} 
-	}
-	case MU:{ // min fixpoint
-		if (prevFixedPoint == NU && operation != NU) {
-			subformula->openFormulaReset(system, variables, boundedVars, operation);
-		}
-
-		boundedVars.insert(varlabel);
-
-		bool reachedFixpoint = false;
-		std::set<int> currentApprox;
-
-		while (true) {
-			currentApprox = variables[varlabel];
-			variables[varlabel] = subformula->emersonLeiSolve(system, variables, boundedVars);
-			if (currentApprox == variables[varlabel]) {
-				break;
-			}
-		}
 		return variables[varlabel];
-	}
 	}
 	assert(false); // All operations must return their own value;
 	return{};
@@ -229,14 +153,44 @@ MuFormula* MuFormula::parseMuFormula(const char* strFilename) {
 	return parseSubFormula(line, 'x', std::map<std::string, char>());
 }
 
-void MuFormula::openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, std::set<std::string> boundedVars, Op& originalOp) {
-	if (operation == MU || operation == NU) {
-		if (originalOp == MU) {
-			// TODO reset accordingly
-		} else {
-			// TODO reset accordingly
+void MuFormula::openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, char& surroundingBinder, Op &originalFixpoint) {
+	if (open && (operation == NU || operation == MU)) {
+		resetFormula(system, variables, surroundingBinder, originalFixpoint);
+	} else {
+		switch (operation) {
+		case FALSE:
+		case TRUE:
+		case VAR:
+			break;
+		case AND:
+		case OR:
+			subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+			subformula2->openFormulaReset(system, variables, prevFixedPoint, operation);
+			break;
+		case BOX:
+		case DIAMOND:
+			subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+			break;
+		case MU:
+			subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+			break;
+		case NU:
+			subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+			break;
 		}
 	}
+}
+
+void MuFormula::resetFormula(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, char& surroundingBinder, Op &originalFixpoint) {
+	if (operation == originalFixpoint) {
+		if (surroundingBinder == 'nu') {
+			variables[varlabel] = system.getSetOfStates();
+		} else {
+			variables[varlabel] = std::set<int>();
+		}
+		subformula->openFormulaReset(system, variables, surroundingBinder, originalFixpoint);
+	} 
+	subformula->openFormulaReset(system, variables, surroundingBinder, originalFixpoint);
 }
 
 std::string MuFormula::toString() {
@@ -355,6 +309,59 @@ MuFormula* parseSubFormula(std::string line, char pfp, std::map<std::string, cha
 }
 
 void MuFormula::initVarMaps(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables) {
+	if (operation == MU) {
+		variables[varlabel] = std::set<int>();
+	} else if (operation == NU) {
+		variables[varlabel] = system.getSetOfStates();
+	}
+
+	if (operation == MU || operation == NU || operation == BOX || operation == DIAMOND) {
+		subformula->initVarMaps(system, variables);
+	} else if (operation == AND || operation == OR) {
+		subformula->initVarMaps(system, variables);
+		subformula2->initVarMaps(system, variables);
+	}
+}
+
+void MuFormula::setFormulaClosedness(){
+	if (open == NULL && (operation == MU || operation == NU)){
+		std::set<std::string> childVars;
+		std::set<std::string> boundVars;
+		this->getChildVars(childVars);
+		this->getBoundVars(boundVars);
+		std::set<std::string> looseVars;
+		std::set_difference(childVars.begin(), childVars.end(), boundVars.begin(), boundVars.end(),
+			std::inserter(looseVars, looseVars.begin()));
+
+		//std::cout << "--------------\nbinder:\n" << operation << varlabel << "\nchildren:\n";
+
+		//for (auto child : childVars) { std::cout << child << "\n";}
+
+		//std::cout << "bound vars: \n";
+
+		//for (auto binder : boundVars) { std::cout << binder << "\n";}
+
+		//std::cout << "loose vars: \n";
+
+		//for (auto lv : looseVars) { std::cout << lv << "\n"; }
+
+		//std::cout << "open: " << !looseVars.empty() << "\n";
+
+		this->setOpen(!looseVars.empty());
+		subformula->setFormulaClosedness();
+	} else if (operation == BOX || operation == DIAMOND) {
+		subformula->setFormulaClosedness();
+	} else if (operation == AND || operation == OR) {
+		subformula->setFormulaClosedness();
+		subformula2->setFormulaClosedness();
+	}
+}
+
+void MuFormula::getChildVars(std::set<std::string> &childVars){
+	if (operation == MU || operation == NU || operation == VAR) {
+		childVars.insert(varlabel);
+	}
+
 	switch (operation) {
 	case FALSE:
 	case TRUE:
@@ -362,19 +369,50 @@ void MuFormula::initVarMaps(LabelledTransitionSystem& system, std::map<std::stri
 		break;
 	case AND:
 	case OR:
-		subformula->initVarMaps(system, variables);
-		subformula2->initVarMaps(system, variables);
+		subformula->getChildVars(childVars);
+		subformula2->getChildVars(childVars);
 		break;
 	case BOX:
 	case DIAMOND:
-		subformula->initVarMaps(system, variables);
+		subformula->getChildVars(childVars);
 		break;
 	case MU:
-		variables[varlabel] = std::set<int>();
-		subformula->initVarMaps(system, variables);
+		subformula->getChildVars(childVars);
 		break;
-	case NU:variables[varlabel] = system.getSetOfStates();
-		subformula->initVarMaps(system, variables);
+	case NU:
+		subformula->getChildVars(childVars);
 		break;
 	}
+}
+
+void MuFormula::getBoundVars(std::set<std::string>& boundVars) {
+	if (operation == MU || operation == NU) {
+		boundVars.insert(varlabel);
+	}
+
+	switch (operation) {
+	case FALSE:
+	case TRUE:
+	case VAR:
+		break;
+	case AND:
+	case OR:
+		subformula->getBoundVars(boundVars);
+		subformula2->getBoundVars(boundVars);
+		break;
+	case BOX:
+	case DIAMOND:
+		subformula->getBoundVars(boundVars);
+		break;
+	case MU:
+		subformula->getBoundVars(boundVars);
+		break;
+	case NU:
+		subformula->getBoundVars(boundVars);
+		break;
+	}
+}
+
+void MuFormula::setOpen(bool open) {
+	this->open = open;
 }

@@ -59,26 +59,17 @@ int main(int argc, char* argv[])
 
         // Evaluate the linear transition system with the given mu-calculus.
     	std::map<std::string, std::set<int>> variables;
-        if (naiveAlgorithm) {
-			std::cout << "Running naive procedure..\n";
-            states = formula->solve(system, variables);
-        }
-        else {
-			std::cout << "Running procedure with Emerson-Lei optimisation..\n";
-
-			// keeps track of which variables are bounded at the current depth of the algorithm
-			std::set<std::string> boundedVars;
+		if (!naiveAlgorithm) {
+			// recursively set whether (sub-)formuli are closed
+			formula->setFormulaClosedness();
 
 			// initalise the variables map
 			formula->initVarMaps(system, variables);
+		}
 
-			//for (auto v : variables) { std::cout << "variables[" << v.first << "]={"; for(auto s : v.second) { std::cout << s << " "; } std::cout <<"}\n"; }
+		states = formula->solve(system, variables, naiveAlgorithm);
 
-			// run the Emerson-Lei improved algorithm
-			states = formula->emersonLeiSolve(system, variables, boundedVars);
-	    }
-
-		std::cout << "result states = {"; for (auto s : states) { std::cout << s << " "; } std::cout << "}\n";
+		// std::cout << "result states = {"; for (auto s : states) { std::cout << s << " "; } std::cout << "}\n";
 
         if (states.empty()) {
             std::cout << " doesn't hold" << std::endl;
