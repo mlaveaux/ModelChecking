@@ -7,6 +7,7 @@
 \usepackage{tikz}
 \usepackage{pgf}
 \usetikzlibrary{arrows,automata}
+\usepackage{comment}
 
 \title{Implementation and evaluation of model checking using modal mu-calculus}
 
@@ -126,8 +127,26 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 
 \subsection{Boardgame}
+The third and last experiment is about two players playing a board game. The game is played on a $N$ by $N$ board and they start at state $(0, 0)$. Each player alternatively can choose to make a move, starting with player I. Player II wins whenever the game reaches state $(N, N)$. In the LTS being in the state $(N, N)$ is denoted by being able to do the transition {\tt won}. For this experiment three mu-calculus formulas are made which are elaborated on below. Afterwards the results of this experiment are given.
 
 \subsubsection{Mu-calculus formulas}
+\textbf{3a: There is a play such that player II can win}\\
+This can be expressed with the formula:\\
+{\tt mu X. (<choose1><choose2>X || <won>true)}\\
+This formula states that there must be a finite sequence of states in which first player I makes a choice and then player II ({\tt mu X. (<choose1><choose2>X ..)}) after which the game will end up in state $(N, N)$, causing player II to win ({\tt || <won>true}).\\
+The depths of this formula are: $ND = 1$, $AD = 1$ and $DAD = 1$.
+\\\\
+\textbf{3b: Player II wins the game}\\
+This can be expressed with the formula:\\
+{\tt mu X. ([choose1]<choose2>X || <won>true)}\\
+This formula states that whatever move player I chooses ({\tt [choose1]}) player II can choose a move (player II has a strategy, {\tt <choose2>}) such that the game will have a finite sequence of states ({\tt mu X. ([choose1]<choose2>X ..)}) such that the game ends up in state $(N, N)$, causing player II to win ({\tt || <won>true}).\\
+The depths of this formula are: $ND = 1$, $AD = 1$ and $DAD = 1$.
+\\\\
+\textbf{3c: Player II wins the game by being able to move the token to place (N, N) infinitely often}\\
+This can be expressed with the formula:\\
+{\tt nu Y. mu X. ([choose1]<choose2>X || ([choose1]<choose2><won>true \&\& [choose1]<choose2>Y))}\\
+The part {\tt mu X. ([choose1]<choose2>X ..)} states that there must be a finite sequence of states in which player I chooses any step and player II does a certain step (according to a strategy). The other part says that after this finite sequence player II will be able to move to state $(N, N)$ within a turn independent of what player I does ({\tt || ([choose1]<choose2><won>true ..)}) and after one turn it is possible to repeat this sequence ({\tt nu Y. .. (.. (.. \&\& [choose1]<choose2>Y))}), causing the game to get to state $(N, N)$ infinitely often, causing player II to win.\\
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \subsubsection{Solver and performance results}
 
@@ -141,6 +160,8 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \end{thebibliography}
 
+
+\begin{comment}
 A picture of the labelled transition system.
 
 \begin{tikzpicture}[->,>=stealth', shorten >=1pt,auto, node distance=2.8cm, semithick]
@@ -170,5 +191,5 @@ A picture of the labelled transition system.
  	   (6) edge [bend right] node {$\tau$} (2)
  	   (7) edge [bend right] node {$b$}    (1);
 \end{tikzpicture}
-
+\end{comment}
 \end{document}
