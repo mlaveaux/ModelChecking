@@ -20,9 +20,9 @@
 #include <iostream>
 #include <string.h>
 
-/**
- * The main entry point for the program.
- */
+ /**
+  * The main entry point for the program.
+  */
 int main(int argc, char* argv[])
 {
     if (argc < 3) {
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
     int argumentIndex = 1; // The zeroed argument is the filename itself.
     bool naiveAlgorithm = false; // Using the naive algorithm.
-    
+
     if (argc == 4) {
         // Check which algorithm was specified, otherwise default to improved.
         if (strcmp(argv[argumentIndex], "--algo=naive") == 0) {
@@ -40,44 +40,46 @@ int main(int argc, char* argv[])
         }
         ++argumentIndex; // The first filename is actually the third argument.
     }
+    
+    // Parse the LTS file.
+    const char* ltsFilename = argv[argumentIndex++];
 
-    // Parse the LTS file directly.
-	std::cout << "Parsing the LTS...\n";
     LabelledTransitionSystem system;
-    if (!LabelledTransitionSystem::parseAldebaranFormat(argv[argumentIndex++], system)) {
+    if (!LabelledTransitionSystem::parseAldebaranFormat(ltsFilename, system)) {
         std::cin.get(); return -1;
     }
-	std::cout << "Parsed the LTS!\n";
-
+        
     // Parse the mu-calculus file.
-	std::cout << "Parsing the mu-calculus formula...\n";
     MuFormula* formula = MuFormula::parseMuFormula(argv[argumentIndex++]);
     if (formula != nullptr) {
-        std::cout << "Parsed the formula: " << formula->toString() << "\n";
+        std::cout << "Solving " << formula->toString();
 
         std::set<int> states; // The set of states in which the formula holds.
 
         // Evaluate the linear transition system with the given mu-calculus.
-    	std::map<std::string, std::set<int>> variables;
-		if (!naiveAlgorithm) {
-			// recursively set whether (sub-)formuli are closed
-			formula->setFormulaClosedness();
+        std::map<std::string, std::set<int>> variables;
+        if (!naiveAlgorithm) {
+            std::cout << " using emerson-lei." << std::endl;
 
-			// initalise the variables map
-			formula->initVarMaps(system, variables);
-		}
+            // recursively set whether (sub-)formuli are closed
+            formula->setFormulaClosedness();
 
-		states = formula->solve(system, variables, naiveAlgorithm);
-
-		// std::cout << "result states = {"; for (auto s : states) { std::cout << s << " "; } std::cout << "}\n";
-
-        if (states.find(system.getInitialState()) == states.end()) {
-            std::cout << " doesn't hold" << std::endl;
+            // initialize the variables map
+            formula->initVarMaps(system, variables);
         }
         else {
-            std::cout << " holds" << std::endl;
+            std::cout << " using the naive algorithm." << std::endl;
+        }
+
+        states = formula->solve(system, variables, naiveAlgorithm);
+        
+        if (states.find(system.getInitialState()) == states.end()) {
+            std::cout << "formula doesn't hold" << std::endl;
+        }
+        else {
+            std::cout << "formula holds" << std::endl;
         }
     }
 
-     return 0;
+    return 0;
 }

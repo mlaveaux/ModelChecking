@@ -77,12 +77,12 @@ public:
 	/**
 	 * If the formula is open we reset the state of its varlabel
 	 */
-	void openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, char& surroundingBinder, Op &originalFixpoint);
+	void openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, char surroundingBinder, Op originalFixpoint);
 
 	/**
 	* openFormulaReset utility function.
 	*/
-	void resetFormula(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, char& surroundingBinder, Op &originalFixpoint);
+	void resetFormula(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, char surroundingBinder, Op originalFixpoint);
 
     /**
      * Converts a MuFormula to a string (for testing purposes)

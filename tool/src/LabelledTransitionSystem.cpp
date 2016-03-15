@@ -32,9 +32,9 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
     }
 
     bool firstLine = true;
-    int numOfStates;
-    
-    std::string line;    
+    int numOfStates = -1;
+
+    std::string line;
     while (std::getline(file, line)) {
 
         if (firstLine) {
@@ -53,7 +53,7 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
             // Read the number of states.
             rest = rest.substr(secondComma + 1);
             size_t secondBracket = rest.find_first_of(")");
-			int numStates = std::atoi(rest.substr(0, secondBracket).c_str());
+            int numStates = std::atoi(rest.substr(0, secondBracket).c_str());
             system.m_stateTransitions = std::vector<std::map<std::string, std::set<int>>>(numStates);
             numOfStates = numStates;
 
@@ -78,8 +78,12 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
             int toState = std::atoi(rest.substr(0, secondBracket).c_str());
 
             // Check that state numbers do not exceed the state numbers (if they do change vector to map).
-            assert(fromState <= system.m_stateTransitions.size() && fromState >= 0);
-            assert(toState <= system.m_stateTransitions.size() && toState >= 0);
+            if (fromState >= system.m_stateTransitions.size() || fromState < 0) {
+                std::cerr << "State " << fromState << " can't be added as index to vector."; return false;
+            }
+            if (toState >= system.m_stateTransitions.size() || toState < 0) {
+                std::cerr << "State " << toState << " can't be added as index to vector."; return false;
+            }
 
             system.m_stateTransitions[fromState][transitionLabel].insert(toState);
         }
@@ -93,8 +97,8 @@ bool LabelledTransitionSystem::parseAldebaranFormat(const char* strFilename, Lab
     return true;
 }
 
-int LabelledTransitionSystem::getNumStates(){
-	return (int)m_setOfStates.size();
+int LabelledTransitionSystem::getNumStates() {
+    return (int)m_setOfStates.size();
 }
 
 int LabelledTransitionSystem::getInitialState()
@@ -102,8 +106,9 @@ int LabelledTransitionSystem::getInitialState()
     return m_firstState;
 }
 
-std::set<int>& LabelledTransitionSystem::getSetOfStates(){
-	return m_setOfStates;
+std::set<int>& LabelledTransitionSystem::getSetOfStates()
+{
+    return m_setOfStates;
 }
 
 std::set<int>& LabelledTransitionSystem::getToStates(int state, const std::string& varLabel)

@@ -22,10 +22,10 @@
 #include <vector>
 #include <map>
 
-/**
- * Contains the description of a linear transition system, consisting of initial state,
- * the set of states and transition relations.
- */
+ /**
+  * Contains the description of a linear transition system, consisting of initial state,
+  * the set of states and transition relations.
+  */
 class LabelledTransitionSystem
 {
 public:
@@ -35,9 +35,9 @@ public:
      */
     static bool parseAldebaranFormat(const char* strFilename, LabelledTransitionSystem& system);
 
-	/**
-	 * Returns the number of states
-	 */
+    /**
+     * Returns the number of states
+     */
     int getNumStates();
 
     /**
@@ -45,15 +45,15 @@ public:
      */
     int getInitialState();
 
-	/**
-	 * Returns a set of all states
-	 */
-	std::set<int>& getSetOfStates();
+    /**
+     * Returns a set of all states
+     */
+    std::set<int>& getSetOfStates();
 
-	/**
-	 * Returns all states reachable from state by a transition labelled varLabel
-	 */
-	std::set<int>& getToStates(int state, const std::string& varLabel);
+    /**
+     * Returns all states reachable from state by a transition labelled varLabel
+     */
+    std::set<int>& getToStates(int state, const std::string& varLabel);
 
 private:
     int m_firstState;
