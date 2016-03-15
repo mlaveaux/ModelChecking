@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 
 		// std::cout << "result states = {"; for (auto s : states) { std::cout << s << " "; } std::cout << "}\n";
 
-        if (states.empty()) {
+        if (states.find(system.getInitialState()) == states.end()) {
             std::cout << " doesn't hold" << std::endl;
         }
         else {

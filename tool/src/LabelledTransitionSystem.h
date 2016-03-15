@@ -20,25 +20,7 @@
 #include <set>
 #include <string>
 #include <vector>
-
-/**
- * Stores a single transition inside a vector, where the fromState is the index.
- */
-struct Transition
-{
-    // Easier initialization.
-    Transition(std::string label, int toState) :
-        toState(toState),
-        label(label) {}
-
-    /** Make transitions comparable. */
-    bool operator< (const Transition& other) const {
-        return toState < other.toState;
-    }
-    
-    int toState;
-    std::string label;
-};
+#include <map>
 
 /**
  * Contains the description of a linear transition system, consisting of initial state,
@@ -56,22 +38,27 @@ public:
 	/**
 	 * Returns the number of states
 	 */
-	int getNumStates();
+    int getNumStates();
+
+    /**
+     * Returns the initial state.
+     */
+    int getInitialState();
 
 	/**
 	 * Returns a set of all states
 	 */
-	std::set<int> getSetOfStates();
+	std::set<int>& getSetOfStates();
 
 	/**
-	 * Returns all outgoing transitions of a given state
+	 * Returns all states reachable from state by a transition labelled varLabel
 	 */
-	std::set<Transition> getOutTransitions(int state);
+	std::set<int>& getToStates(int state, const std::string& varLabel);
 
 private:
     int m_firstState;
-	int m_nrStates;
-    std::vector<std::set<Transition>> m_stateTransitions;
+    std::set<int> m_setOfStates;
+    std::vector<std::map<std::string, std::set<int>>> m_stateTransitions;
 
 };
 

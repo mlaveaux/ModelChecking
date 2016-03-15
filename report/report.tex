@@ -21,14 +21,12 @@
 This report elaborates on our work and findings of assignment on, which is split in two parts. The first part of the assignment is to implement two versions of the model checking algorithm for modal mu-calculus: a naive version and the Emerson-Lei version. The second part is to evaluate these two versions using provided testcases supplemented with modal mu-calculus formulas of our own.\\
 In section \ref{design} we will explain our design of the algorithm. The testcases and their result when used on the algorithm is shown in section 3. Lastly, we conclude this report in section 4.
 
-\section{Implementation}
-
 \section{Design}\label{design}
 In this section the design of our model checking algorithm is given, which we have coded in C++. First we will show the data structure of modal mu-calculus formulas and how they are constructed. Then we elaborate on the design of the solving algorithm divided in what the two versions of the algorithm have in common and what is special to each version.
 
 % data structure of formula, parsing
 \subsection{Modal mu-calculus formulas}
-Since the modal mu-calculus is defined recursively, we have decided to store mu-calculus formulas the same way. To do so we've implemented a class \texttt{MuFormula}, which represent a subformula of the given mu-calculus formula. This \texttt{MuFormula} can hold up to two pointers two other subformulas, which are its direct subformulas. These subformulas combined by an operation form the \texttt{MuFormula}, as it is defined in the modal mu-calculus grammar. This operation is implemented as the enum \texttt{Op} which can have the following values:
+Since the modal mu-calculus is defined recursively, we have decided to store mu-calculus formulas the same way. To do so we have implemented a class \texttt{MuFormula}, which represent a subformula of the given mu-calculus formula. This \texttt{MuFormula} can hold up to two pointers two other subformulas, which are its direct subformulas. These subformulas combined by an operation form the \texttt{MuFormula}, as it is defined in the modal mu-calculus grammar. This operation is implemented as the enum \texttt{Op} which can have the following values:
 \begin{itemize}
 \item FALSE: the value false
 \item TRUE: the value true
@@ -41,12 +39,14 @@ Since the modal mu-calculus is defined recursively, we have decided to store mu-
 \item NU: the greatest fixed point operator
 \end{itemize}
 When $\texttt{Op} \in \{\text{FALSE}, \text{TRUE}, \text{VAR}\}$ no subformula is defined, when $\texttt{Op} \in \{\text{AND}, \text{OR}\}$ both subformulas are defined and else only the first subformula is defined.\\
-For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFormula} needs to know the transition label and for the cases $\texttt{Op} \in \{\text{VAR}, \text{MU}, \text{NU}\}$ the \texttt{MuFormula} needs to know the name of the variable. These labels and variable names are stored as a string. Since these cases are distinct, we have decided to store these values in the same string variable, named \texttt{varlabel}, to reduce memory usage.
+For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFormula} needs to know the transition label and for the cases $\texttt{Op} \in \{\text{VAR}, \text{MU}, \text{NU}\}$ the \texttt{MuFormula} needs to know the name of the variable. These labels and variable names are stored as a string. Since these cases are distinct, we have decided to store these values in the same string variable, named \texttt{varlabel}, to reduce memory usage.\\
+These values are filled for every subformula during the parsing of the file with the mu-calculus formula. This parsing is implemented in the same recursive fashion as in the provided pseudocode \cite{muparse}.
 
 
 % basis (solve method), what naive and EL have in common
 \subsection{Solving algorithm}
-
+As in the slides, the basis of the algorithm is a sequence of conditions, one for each possible \texttt{Op}. If the subformula to be solved has direct subformulas, these are solved first after which the \texttt{Op} is applied to the resultset(s) of states.\\
+The naive and the Emerson-Lei versions differ in how they handle the fixed point operators. These differences are explained below.
 
 % what is special to naive
 \subsubsection{Naive algorithm}
@@ -55,8 +55,91 @@ For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFor
 % what is special to EL
 \subsubsection{Emerson-Lei algorithm}
 
-\section{Conclusion}
 
+
+\section{Evaluation}\label{eval}
+In this section we will elaborate on the mu-calculus formulas provided and made for the experiments in the second part of the assignment. For each of these formulas it will be explained why this is the correct formula for the given problem and its nesting ($ND$), alternation ($AD$) and dependent alternation depth ($DAD$) will be given.\\
+Afterwards the result of our solver will be given for each formula. The performance results for each formula and each corresponding LTS will be shown as well.
+
+\subsection{Dining philosophers}
+The first experiment is the well-known dining philosophers problem. The mu-calculus formulas for this assignment were provided and are elaborated on below. Afterwards the results of this experiment are given.
+
+\subsubsection{Mu-calculus formulas}
+\textbf{In every reachable state, someone must start eating}\\
+This can be expressed with the formula:\\
+{\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) \&\& mu Y. ([i]Y \&\& (<plato>true || <others>true)))}\\
+The part {\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) ..)} iterates over all successor states, getting to each reachable state. The other part states that for each of these states it must hold that within any finite sequence of states of no-one eating ({\tt \&\& mu Y. ([i]Y ..)}) either Plato or another philosopher will be able to eat ({\tt \&\& (<plato>true || <others>true)}).\\
+The depths for this formula are: $ND = 2$, $AD = 2$ and $DAD = 1$.
+\\\\
+\textbf{In every state, reachable by Plato not eating, Plato has the chance to starve}\\
+This can be expressed with the formula:\\
+{\tt nu X. (([i]X \&\& [others]X) \&\& nu Y. (<i>Y || <others>Y))}\\
+The part {\tt nu X. (([i]X \&\& [others]X) ..)} iterates over all successor states as long as Plato does not eat, getting to each reachable state where Plato has not eaten yet. The other part states that for each of these states it must hold that there must exist an infinite sequence of states ({\tt \&\& nu Y.}) where Plato will not eat ({\tt (<i>Y || <others>Y)}).\\
+The depths of this formula are: $ND = 2$, $AD = 1$ and $DAD = 1$.
+\\\\
+\textbf{Invariantly, Plato can eat in some future}\\
+This can be expressed with the formula:\\
+{\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) \&\& mu Y. ((<i>Y || <others>Y) || <plato>true ))}\\
+The part {\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) ..)} iterates over all successor states, getting to each reachable state. The other part states that from each of these states there must exist a finite sequence of states where Plato does not eat ({\tt \&\& mu Y. ((<i>Y || <others>Y) ..)} after which Plato will be able to eat ({\tt || <plato>true}).\\
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 1$.
+\\\\
+\textbf{There is a course of events in which Plato infinitely often eats}\\
+This can be expressed with the formula:\\
+{\tt nu X. mu Y. ((<plato>X || <i>Y) || <others>Y)}\\
+The part {\tt mu Y. ((<plato>X || <i>Y) || <others>Y)} states that er must be a finite sequence of states where Plato does not eat, after which Plato will be able to eat. The part {\tt nu X. .. ((<plato>X ..) ..)} states that this sequence must be able to repeat itself infinitely often.\\
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
+
+
+
+\subsubsection{Solver and performance results}
+
+
+\subsection{Demanding children}
+The second experiment is about children that are initially playing. A child can ask a question, get the answer and return to playing (in that order). Only for one child the actions are named, this child will simply be referred to as 'the child'. For this experiment four mu-calculus formulas were made which are elaborated on below. Afterwards the results of this experiment are given.
+
+\subsubsection{Mu-calculus formulas}
+\textbf{It is possible for the child to never ask a question}\\
+This can be expressed with the formula:\\
+{\tt nu X. ([i]X \&\& nu Y. <i>Y)}\\
+The part {\tt nu X. ([i]X ..)} iterates over all successor states as long as the child does nothing, getting to each reachable state where the child has not asked any question. The other part {\tt \&\& nu Y. <i>Y} states that from each of these states there must be an infinite sequence of states where the child does nothing (asks no question).\\
+The depths of this formula are: $ND = 2$, $AD = 1$ and $DAD = 1$.
+\\\\
+\textbf{It is possible for all other children to never ask a question}\\
+This can be expressed with the formula:\\
+{\tt nu X. ((([ask]X \&\& [wisdom]X) \&\& [playing]X) \&\& nu Y. ((<ask>Y || <wisdom>Y) || <playing>Y))}\\
+The part {\tt nu X. ((([ask]X \&\& [wisdom]X) \&\& [playing]X)} iterates over all successor states as long as the other children than the child do nothing, getting to each reachable state where the other children than the child have not asked any question. The other part {\tt \&\& nu Y. ((<ask>Y || <wisdom>Y) || <playing>Y)} states that from each of these states there must be an infinite sequence of states where the other children than the child do nothing (ask no question).\\ 
+The depths of this formula are: $ND = 2$, $AD = 1$ and $DAD = 1$.
+\\\\
+\textbf{If the child asks a question the child will eventually be answered}\\
+This can be expressed with the formula:\\
+{\tt nu X. (((([i]X \&\& [ask]X) \&\& [wisdom]X) \&\& [playing]X) \&\& mu Y. (((<i>Y || <ask>Y) || <playing>Y) || <wisdom>true))}\\
+The part {\tt nu X. (((([i]X \&\& [ask]X) \&\& [wisdom]X) \&\& [playing]X) ..)} iterates over all successor states, getting to each reachable state. The other part states that from each of these states there must be finite sequence of states where the child is not answered ({\tt mu Y. (((<i>Y || <ask>Y) || <playing>Y) ..)}) after which the child gets answered ({\tt  || <wisdom>true}). Note that it is not necessary to check whether the child has asked a question before the child gets answered, since this is enforced by the LTS.\\
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 1$.
+\\\\
+\textbf{There is a course of events where the child can ask an infinite number of questions}\\
+This can be expressed with the formula:\\
+{\tt nu X. mu Y. (((<ask>X || <i>Y) || <wisdom>Y) || <playing>Y)}\\
+The part {\tt mu Y. (((<ask>X || <i>Y) || <wisdom>Y) || <playing>Y)} states that er must be a finite sequence of states where the child does not ask a question, after which the child will be able to ask a question. The part {\tt nu X. .. (((<ask>X ..) ..) ..)} states that this sequence must be able to repeat itself infinitely often.\\
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
+
+\subsubsection{Solver and performance results}
+
+
+\subsection{Boardgame}
+
+\subsubsection{Mu-calculus formulas}
+
+\subsubsection{Solver and performance results}
+
+
+\section{Conclusion}\label{conc}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{muparse} http://www.win.tue.nl/\~timw/downloads/parser.pdf
+
+\end{thebibliography}
 
 A picture of the labelled transition system.
 
