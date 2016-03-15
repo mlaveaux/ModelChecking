@@ -6,7 +6,7 @@
 \usepackage{amssymb}
 \usepackage{tikz}
 \usepackage{pgf}
-\usetikzlibrary{arrows,automata}
+\usepackage{pgfplots}
 
 \title{Implementation and evaluation of model checking using modal mu-calculus}
 
@@ -61,6 +61,16 @@ The naive and the Emerson-Lei versions differ in how they handle the fixed point
 In this section we will elaborate on the mu-calculus formulas provided and made for the experiments in the second part of the assignment. For each of these formulas it will be explained why this is the correct formula for the given problem and its nesting ($ND$), alternation ($AD$) and dependent alternation depth ($DAD$) will be given.\\
 Afterwards the result of our solver will be given for each formula. The performance results for each formula and each corresponding LTS will be shown as well.
 
+\subsection{Performance}
+
+The performance tests were conducted on a EliteBook 8560w running Arch Linux. Its relevant hardware specification are stated below.
+
+\begin{itemize}
+	\item Intel Core i7-2720QM Processor (2.20 GHz, 6MB L3 cache, 4 cores/8 threads, 45 W) Up to 3.30 GHz with Intel Turbo Boost Technology.
+	
+	\item 8GB memory in 2 slotted DDR3 PC3-10600 SDRAM (1,333 MHz) cards.
+\end{itemize}
+
 \subsection{Dining philosophers}
 The first experiment is the well-known dining philosophers problem. The mu-calculus formulas for this assignment were provided and are elaborated on below. Afterwards the results of this experiment are given.
 
@@ -89,13 +99,65 @@ This can be expressed with the formula:\\
 The part {\tt mu Y. ((<plato>X || <i>Y) || <others>Y)} states that er must be a finite sequence of states where Plato does not eat, after which Plato will be able to eat. The part {\tt nu X. .. ((<plato>X ..) ..)} states that this sequence must be able to repeat itself infinitely often.\\
 The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
-
-
 \subsubsection{Solver and performance results}
 
+The graph below shows the time in seconds that the program runs using labelled transition systems from one up to 11 dining philosophers. The formulas to be checked are the four formulas explained before. In the graphs show below the blue line is the naive algorithm and red indicates the timing for the improved algorithm.
 
-\subsection{Demanding children}
-The second experiment is about children that are initially playing. A child can ask a question, get the answer and return to playing (in that order). Only for one child the actions are named, this child will simply be referred to as 'the child'. For this experiment four mu-calculus formulas were made which are elaborated on below. Afterwards the results of this experiment are given.
+Invariantly inevitably eat:
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.005) (3, 0.005) (4, 0.006) (5, 0.011) (6, 0.047) (7, 0.174) (8, 1.270) (9, 6.131) (10, 34.391) (11, 144.252)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.005) (6, 0.017) (7, 0.065) (8, 0.333) (9, 1.442) (10, 6.716) (11, 26.529)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+Invariantly plato starves:
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.003) (3, 0.003) (4, 0.006) (5, 0.023) (6, 0.071) (7, 0.242) (8, 1.225) (9, 5.745) (10, 24.924) (11, 104.356)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.003) (4, 0.005) (5, 0.012) (6, 0.029) (7, 0.108) (8, 0.496) (9, 2.435) (10, 10.081) (11, 41.595)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+Invariantly plato can eat in the future:
+
+\begin{tikzpicture}
+The second experiment is about children that are initially playing. A child can ask a question, get the answer and return to playing (in that order). 
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.002) (3, 0.005) (4, 0.017) (5, 0.060) (6, 0.317) (7, 1.460) (8, 10.281) (9, 53.395) (10, 255.15) (11, 1044.492)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.004) (3, 0.005) (4, 0.009) (5, 0.021) (6, 0.055) (7, 0.202) (8, 1.027) (9, 4.492) (10, 19.628) (11, 77.475)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+There is a course of events in which Plato infinitely often eats:
+
+\begin{tikzpicture}
+The second experiment is about children that are initially playing. A child can ask a question, get the answer and return to playing (in that order). 
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.002) (3, 0.002) (4, 0.006) (5, 0.013) (6, 0.047) (7, 0.152) (8, 0.750) (9, 3.079) (10, 12.810) (11, 51.706)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.006) (6, 0.021) (7, 0.097) (8, 0.386) (9, 1.626) (10, 6.633) (11, 27.038)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+\subsection{Demanding children}Only for one child the actions are named, this child will simply be referred to as 'the child'. For this experiment four mu-calculus formulas were made which are elaborated on below. Afterwards the results of this experiment are given.
 
 \subsubsection{Mu-calculus formulas}
 \textbf{It is possible for the child to never ask a question}\\
@@ -125,6 +187,7 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 \subsubsection{Solver and performance results}
 
 
+
 \subsection{Boardgame}
 
 \subsubsection{Mu-calculus formulas}
@@ -143,6 +206,7 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 A picture of the labelled transition system.
 
+\usetikzlibrary{arrows,automata}
 \begin{tikzpicture}[->,>=stealth', shorten >=1pt,auto, node distance=2.8cm, semithick]
   \tikzstyle{every state}=[text=black]
 
