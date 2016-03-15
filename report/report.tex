@@ -65,7 +65,7 @@ Afterwards the result of our solver will be given for each formula. The performa
 
 \subsection{Performance}
 
-The performance tests were conducted on a EliteBook 8560w running Arch Linux. Its relevant hardware specification are stated below.
+The performance tests were conducted on a EliteBook 8560w running Arch Linux. The relevant hardware specifications are stated below, the graphical unit and disks are not important as they are not utilized. The performance is measured using the time utility and they are approximations as operating system operation, scheduling and caching might influence the performance.
 
 \begin{itemize}
 	\item Intel Core i7-2720QM Processor (2.20 GHz, 6MB L3 cache, 4 cores/8 threads, 45 W) Up to 3.30 GHz with Intel Turbo Boost Technology.
@@ -187,6 +187,61 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \subsubsection{Solver and performance results}
 
+In this section the performance of the tool solving the children labelled transition system with the before mentioned mu-formulas.
+
+It is possible for the child to never ask a question (holds).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of children},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.002) (6, 0.004) (7, 0.007) (8, 0.016) (9, 0.033) (10, 0.130)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.002) (6, 0.003) (7, 0.005) (8, 0.011) (9, 0.023) (10, 0.083)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+It is possible for all other children to never ask a question (holds).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of children},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.003) (3, 0.002) (4, 0.003) (5, 0.003) (6, 0.004) (7, 0.007) (8, 0.017) (9, 0.026) (10, 0.098)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.003) (3, 0.002) (4, 0.003) (5, 0.003) (6, 0.004) (7, 0.007) (8, 0.012) (9, 0.025) (10, 0.087)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+If the child asks a question the child will eventually be answered (holds).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of children},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.002) (6, 0.004) (7, 0.007) (8, 0.012) (9, 0.026) (10, 0.096)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.003) (6, 0.004) (7, 0.007) (8, 0.014) (9, 0.024) (10, 0.087)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+There is a course of events where the child can ask an infinite number of questions (holds).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of children},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.003) (6, 0.004) (7, 0.006) (8, 0.012) (9, 0.023) (10, 0.080)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.003) (6, 0.004) (7, 0.007) (8, 0.014) (9, 0.027) (10, 0.101)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+As the formulas do not have many alternating fixed points with open variables the performance of both algorithms is quite the same. In the last case the improved algorithm is actually slower then the naive algorithm, because it has to do some additional work determining the open variables.
 
 \subsection{Boardgame}
 The third and last experiment is about two players playing a board game. The game is played on a $N$ by $N$ board and they start at state $(0, 0)$. Each player alternatively can choose to make a move, starting with player I. Player II wins whenever the game reaches state $(N, N)$. In the LTS being in the state $(N, N)$ is denoted by being able to do the transition {\tt won}. For this experiment three mu-calculus formulas are made which are elaborated on below. Afterwards the results of this experiment are given.
@@ -212,6 +267,44 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \subsubsection{Solver and performance results}
 
+3a: There is a play such that player II can win (holds, except for 350 robots).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of robots},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(50, 0.012) (100, 0.605) (150, 0.862) (200, 0.862) (250, 11.583) (300, 20.812) (350, 0.071) (400, 52.675) (450, 77.872) (500, 17.618)}; 
+    
+    \addplot+ [color=red] coordinates {(50, 0.020) (100, 0.682) (150, 2.225) (200, 0.939) (250, 11.580) (300, 20.989) (350, 0.070) (400, 53.083) (450, 77.293) (500, 17.920)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+3b: Player II wins the game (holds, except for 50, 200, 350 and 500 robots).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of robots},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(50, 0.008) (100, 0.559) (150, 2.318) (200, 0.539) (250, 12.693) (300, 24.134) (350, 0.100) (400, 62.880) (450, 92.274) (500, 12.03)}; 
+    
+    \addplot+ [color=red] coordinates {(50, 0.008) (100, 0.584) (150, 2.329) (200, 0.537) (250, 12.840) (300, 24.197) (350, 0.103) (400, 53.143) (450, 91.960) (500, 12.036)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+3c: Player II wins the game by being able to move the token to place (N, N) infinitely often (holds except for 200, 350, 
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of robots},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(50, 0.024) (100, 1.883) (150, 8.219) (200, 1.881) (250, 44.914) (300, 83.155) (350, 0.196) (400, 218.213) (450, 41.323)}; 
+    
+    \addplot+ [color=red] coordinates {(50, 0.014) (100, 1.036) (150, 4.183) (200, 0.962) (250, 23.098) (300, 43.393) (350, 0.169) (400, 114.784) (450, 166.791) (500, 31.597)}; 
+  	\end{axis}
+\end{tikzpicture}
 
 \section{Conclusion}\label{conc}
 
