@@ -1,6 +1,6 @@
 % player II wins the game (with a certain strategy) by moving the token to place (N, N) infinitely often
 
-nu Y. mu X. ([choose1]<choose2>X || (<won>true && [choose1]<choose2>Y))
+nu Y. mu X. ([choose1]<choose2>X || ([choose1]<choose2><won>true && [choose1]<choose2>Y))
 
 % [choose1]: for all choices of player 1 			
 % (independent of what player 1 chooses...)

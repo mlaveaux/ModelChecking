@@ -7,11 +7,14 @@
 \usepackage{tikz}
 \usepackage{pgf}
 \usepackage{hyperref}
-\usetikzlibrary{arrows,automata}
+\usepackage{pgfplots}
+\usepackage{comment}
 
 \title{Implementation and evaluation of model checking using modal mu-calculus}
 
-\author{Olav Bunte (0803961), Maurice Laveaux (0813568),\\ Ziad Ben Snaiba (0748095)}
+\author{Olav Bunte (0803961, o.bunte@student.tue.nl),\\
+Maurice Laveaux (0813568, m.laveaux@student.tue.nl),\\
+Ziad Ben Snaiba (0748095, z.b.snaiba@student.tue.nl)}
 
 \date{\today}
 
@@ -58,11 +61,19 @@ The naive and the Emerson-Lei versions differ in how they handle the fixed point
 % what is special to EL
 \subsubsection{Emerson-Lei algorithm}
 
-
-
 \section{Evaluation}\label{eval}
 In this section we will elaborate on the mu-calculus formulas provided and made for the experiments in the second part of the assignment. For each of these formulas it will be explained why this is the correct formula for the given problem and its nesting ($ND$), alternation ($AD$) and dependent alternation depth ($DAD$) will be given.\\
 Afterwards the result of our solver will be given for each formula. The performance results for each formula and each corresponding LTS will be shown as well.
+
+\subsection{Performance}
+
+The performance tests were conducted on a EliteBook 8560w running Arch Linux. The relevant hardware specifications are stated below, the graphical unit and disks are not important as they are not utilized. The performance is measured using the time utility and they are approximations as operating system operation, scheduling and caching might influence the performance.
+
+\begin{itemize}
+	\item Intel Core i7-2720QM Processor (2.20 GHz, 6MB L3 cache, 4 cores/8 threads, 45 W) Up to 3.30 GHz with Intel Turbo Boost Technology.
+	
+	\item 8GB memory in 2 slotted DDR3 PC3-10600 SDRAM (1,333 MHz) cards.
+\end{itemize}
 
 \subsection{Dining philosophers}
 The first experiment is the well-known dining philosophers problem. The mu-calculus formulas for this assignment were provided and are elaborated on below. Afterwards the results of this experiment are given.
@@ -92,10 +103,61 @@ This can be expressed with the formula:\\
 The part {\tt mu Y. ((<plato>X || <i>Y) || <others>Y)} states that er must be a finite sequence of states where Plato does not eat, after which Plato will be able to eat. The part {\tt nu X. .. ((<plato>X ..) ..)} states that this sequence must be able to repeat itself infinitely often.\\
 The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
-
-
 \subsubsection{Solver and performance results}
 
+The graph below shows the time in seconds that the program runs using labelled transition systems from two up to 11 dining philosophers. The formulas to be checked are the four formulas explained before. In the graphs show below the blue line is the naive algorithm and red indicates the timing for the improved algorithm.
+
+Invariantly inevitably eat (doesn't hold):
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.005) (3, 0.005) (4, 0.006) (5, 0.011) (6, 0.047) (7, 0.174) (8, 1.270) (9, 6.131) (10, 34.391) (11, 144.252)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.005) (6, 0.017) (7, 0.065) (8, 0.333) (9, 1.442) (10, 6.716) (11, 26.529)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+Invariantly plato starves (doesn't hold):
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.003) (3, 0.003) (4, 0.006) (5, 0.023) (6, 0.071) (7, 0.242) (8, 1.225) (9, 5.745) (10, 24.924) (11, 104.356)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.003) (4, 0.005) (5, 0.012) (6, 0.029) (7, 0.108) (8, 0.496) (9, 2.435) (10, 10.081) (11, 41.595)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+Invariantly plato can eat in the future (doesn't hold):
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.002) (3, 0.005) (4, 0.017) (5, 0.060) (6, 0.317) (7, 1.460) (8, 10.281) (9, 53.395) (10, 255.15) (11, 1044.492)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.004) (3, 0.005) (4, 0.009) (5, 0.021) (6, 0.055) (7, 0.202) (8, 1.027) (9, 4.492) (10, 19.628) (11, 77.475)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+There is a course of events in which Plato infinitely often eats (holds):
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.002) (3, 0.002) (4, 0.006) (5, 0.013) (6, 0.047) (7, 0.152) (8, 0.750) (9, 3.079) (10, 12.810) (11, 51.706)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.006) (6, 0.021) (7, 0.097) (8, 0.386) (9, 1.626) (10, 6.633) (11, 27.038)}; 
+  	\end{axis}
+\end{tikzpicture}
 
 \subsection{Demanding children}
 The second experiment is about children that are initially playing. A child can ask a question, get the answer and return to playing (in that order). Only for one child the actions are named, this child will simply be referred to as 'the child'. For this experiment four mu-calculus formulas were made which are elaborated on below. Afterwards the results of this experiment are given.
@@ -127,13 +189,124 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \subsubsection{Solver and performance results}
 
+In this section the performance of the tool solving the children labelled transition system with the before mentioned mu-formulas.
+
+It is possible for the child to never ask a question (holds).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of children},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.002) (6, 0.004) (7, 0.007) (8, 0.016) (9, 0.033) (10, 0.130)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.002) (6, 0.003) (7, 0.005) (8, 0.011) (9, 0.023) (10, 0.083)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+It is possible for all other children to never ask a question (holds).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of children},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.003) (3, 0.002) (4, 0.003) (5, 0.003) (6, 0.004) (7, 0.007) (8, 0.017) (9, 0.026) (10, 0.098)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.003) (3, 0.002) (4, 0.003) (5, 0.003) (6, 0.004) (7, 0.007) (8, 0.012) (9, 0.025) (10, 0.087)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+If the child asks a question the child will eventually be answered (holds).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of children},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.002) (6, 0.004) (7, 0.007) (8, 0.012) (9, 0.026) (10, 0.096)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.003) (6, 0.004) (7, 0.007) (8, 0.014) (9, 0.024) (10, 0.087)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+There is a course of events where the child can ask an infinite number of questions (holds).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of children},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.003) (6, 0.004) (7, 0.006) (8, 0.012) (9, 0.023) (10, 0.080)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.003) (6, 0.004) (7, 0.007) (8, 0.014) (9, 0.027) (10, 0.101)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+As the formulas do not have many alternating fixed points with open variables the performance of both algorithms is quite the same. In the last case the improved algorithm is actually slower then the naive algorithm, because it has to do some additional work determining the open variables.
 
 \subsection{Boardgame}
+The third and last experiment is about two players playing a board game. The game is played on a $N$ by $N$ board and they start at state $(0, 0)$. Each player alternatively can choose to make a move, starting with player I. Player II wins whenever the game reaches state $(N, N)$. In the LTS being in the state $(N, N)$ is denoted by being able to do the transition {\tt won}. For this experiment three mu-calculus formulas are made which are elaborated on below. Afterwards the results of this experiment are given.
 
 \subsubsection{Mu-calculus formulas}
+\textbf{3a: There is a play such that player II can win}\\
+This can be expressed with the formula:\\
+{\tt mu X. (<choose1><choose2>X || <won>true)}\\
+This formula states that there must be a finite sequence of states in which first player I makes a choice and then player II ({\tt mu X. (<choose1><choose2>X ..)}) after which the game will end up in state $(N, N)$, causing player II to win ({\tt || <won>true}).\\
+The depths of this formula are: $ND = 1$, $AD = 1$ and $DAD = 1$.
+\\\\
+\textbf{3b: Player II wins the game}\\
+This can be expressed with the formula:\\
+{\tt mu X. ([choose1]<choose2>X || <won>true)}\\
+This formula states that whatever move player I chooses ({\tt [choose1]}) player II can choose a move (player II has a strategy, {\tt <choose2>}) such that the game will have a finite sequence of states ({\tt mu X. ([choose1]<choose2>X ..)}) such that the game ends up in state $(N, N)$, causing player II to win ({\tt || <won>true}).\\
+The depths of this formula are: $ND = 1$, $AD = 1$ and $DAD = 1$.
+\\\\
+\textbf{3c: Player II wins the game by being able to move the token to place (N, N) infinitely often}\\
+This can be expressed with the formula:\\
+{\tt nu Y. mu X. ([choose1]<choose2>X || ([choose1]<choose2><won>true \&\& [choose1]<choose2>Y))}\\
+The part {\tt mu X. ([choose1]<choose2>X ..)} states that there must be a finite sequence of states in which player I chooses any step and player II does a certain step (according to a strategy). The other part says that after this finite sequence player II will be able to move to state $(N, N)$ within a turn independent of what player I does ({\tt || ([choose1]<choose2><won>true ..)}) and after one turn it is possible to repeat this sequence ({\tt nu Y. .. (.. (.. \&\& [choose1]<choose2>Y))}), causing the game to get to state $(N, N)$ infinitely often, causing player II to win.\\
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \subsubsection{Solver and performance results}
 
+3a: There is a play such that player II can win (holds, except for 350 robots).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of robots},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(50, 0.012) (100, 0.605) (150, 0.862) (200, 0.862) (250, 11.583) (300, 20.812) (350, 0.071) (400, 52.675) (450, 77.872) (500, 17.618)}; 
+    
+    \addplot+ [color=red] coordinates {(50, 0.020) (100, 0.682) (150, 2.225) (200, 0.939) (250, 11.580) (300, 20.989) (350, 0.070) (400, 53.083) (450, 77.293) (500, 17.920)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+3b: Player II wins the game (holds, except for 50, 200, 350 and 500 robots).
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of robots},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(50, 0.008) (100, 0.559) (150, 2.318) (200, 0.539) (250, 12.693) (300, 24.134) (350, 0.100) (400, 62.880) (450, 92.274) (500, 12.03)}; 
+    
+    \addplot+ [color=red] coordinates {(50, 0.008) (100, 0.584) (150, 2.329) (200, 0.537) (250, 12.840) (300, 24.197) (350, 0.103) (400, 53.143) (450, 91.960) (500, 12.036)}; 
+  	\end{axis}
+\end{tikzpicture}
+
+3c: Player II wins the game by being able to move the token to place (N, N) infinitely often (holds except for 200, 350, 
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of robots},
+    	ylabel={Duration (Seconds)}
+  	] 
+    \addplot+ [color=blue] coordinates {(50, 0.024) (100, 1.883) (150, 8.219) (200, 1.881) (250, 44.914) (300, 83.155) (350, 0.196) (400, 218.213) (450, 41.323)}; 
+    
+    \addplot+ [color=red] coordinates {(50, 0.014) (100, 1.036) (150, 4.183) (200, 0.962) (250, 23.098) (300, 43.393) (350, 0.169) (400, 114.784) (450, 166.791) (500, 31.597)}; 
+  	\end{axis}
+\end{tikzpicture}
 
 \section{Conclusion}\label{conc}
 
@@ -144,6 +317,8 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \end{thebibliography}
 
+
+\begin{comment}
 A picture of the labelled transition system.
 
 \begin{tikzpicture}[->,>=stealth', shorten >=1pt,auto, node distance=2.8cm, semithick]
@@ -173,6 +348,7 @@ A picture of the labelled transition system.
  	   (6) edge [bend right] node {$\tau$} (2)
  	   (7) edge [bend right] node {$b$}    (1);
 \end{tikzpicture}
+\end{comment}
 
 \begin{thebibliography}{9}
 	\bibitem{aldebaran} \url{http://www.mcrl2.org/dev/user_manual/language_reference/lts.html#aldebaran-format}
