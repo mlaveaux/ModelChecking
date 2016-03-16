@@ -9,6 +9,8 @@
 \usepackage{pgfplots}
 \usepackage{hyperref}
 \usepackage{comment}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 
 \title{Implementation and evaluation of model checking using modal mu-calculus}
 
@@ -52,15 +54,219 @@ These values are filled for every subformula during the parsing of the file with
 
 % basis (solve method), what naive and EL have in common
 \subsection{Solving algorithm}
-As in the slides, the basis of the algorithm is a sequence of conditions, one for each possible \texttt{Op}. If the subformula to be solved has direct subformulas, these are solved first after which the \texttt{Op} is applied to the resultset(s) of states.\\
+As in the slides, the basis of the algorithm is a sequence of conditions, one for each possible \texttt{Op}. If the subformula to be solved has direct sub-formulas, these are solved first after which the \texttt{Op} is applied to the resultset(s) of states.\\
 The naive and the Emerson-Lei versions differ in how they handle the fixed point operators. These differences are explained below.
 
 % what is special to naive
 \subsubsection{Naive algorithm}
+The naive algorithm consists of a single recursive function which takes a labelled transition system, a formula in the modal mu-calculus grammar, and a dictionary mapping each recursive variable to its current approximation as its input arguments. It then returns the set of states for which the formula holds. The algorithm then does a recursive call or returns a set of states based on the operator it encounters. Here we assume that the formula $f$ passed as an argument is a sentence, as defined in Emerson-Lei \cite{elpaper}. $S$ is a set containing all of the states in the labelled transition system. The set $\to_S$, the set of transitions of the LTS, is defined as a set of tuples $(s,a,s\prime)$ where $s,s\prime \in S$ and $a$ is the label of the transition. Thus, $(s,a,s\prime) \in \to_S$ iff it is a transition in the LTS. $S_0$ is the initial state of the LTS.\\
 
+Before looking at the algorithm further explanation of what $f$ consists of here is required. $f$ is a sentence, as has been mentioned before. Additionally, in the data structure used to represent $f$, the choice has been made to have to following information contained in $f$ itself: surrounding binder, sub-formulas, the variable label, whether it is closed or open, and the type of the operation. 
+
+See algorithm \ref{alg:naive-proc} for the pseudo-code of this procedure.
+
+\begin{algorithm}[H]
+\caption{Naive approach}\label{alg:naive-proc}
+\begin{algorithmic}[1]
+	\Procedure{NaiveEval}{$S, \to_S,f, vars,S_0$}    
+	\State $S_{result} \gets Eval(S, \to_S,f, vars)$
+		\If{$S_0 \in S_{result}$}
+        	\State \textbf{return} $true$ 
+        \Else
+			\State \textbf{return} $false$ 
+		\EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Evaluation function}\label{alg:eval-proc}
+\begin{algorithmic}[1]
+	\Procedure{Eval}{$S, \to_S,f, vars$}    
+        \If{$f.op =TRUE$}
+        	\State \textbf{return} $S$ 
+        \ElsIf{$f.op = FALSE$}       
+			\State \textbf{return} $\emptyset$ 
+        \ElsIf{$f.op = VAR$}       
+			\State \textbf{return} $vars[f.label]$ 
+        \ElsIf{$f.op = AND$}       
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets Eval(S,\to_S,f.sub_2,vars)$ 
+			\State \textbf{return} $R1 \cap R2$ 
+        \ElsIf{$f.op = OR$}       
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets Eval(S,\to_S,f.sub_2,vars)$ 
+			\State \textbf{return} $R1 \cup R2$ 
+        \ElsIf{$f.op = BOX$}       
+			\State \textbf{return} $BoxEval(S,\to_S,f,vars)$ 
+        \ElsIf{$f.op = DIAMOND$}       
+			\State \textbf{return} $DiamondEval(S,\to_S,f,vars)$ 
+        \ElsIf{$f.op = MU$}       
+			\State $vars[f.label] \gets S$	
+			\Repeat
+				\State $R_{old} \gets vars[f.label]$
+				\State $R \gets Eval(S,\to_S,f.sub_1,vars)$
+			\Until{$R_{old} = R$}
+			\State \textbf{return} $R$ 	
+        \ElsIf{$f.op = NU$}       
+			\State $vars[f.label] \gets S$	
+			\Repeat
+				\State $R_{old} \gets vars[f.label]$
+				\State $R \gets Eval(S,\to_S,f.sub_1,vars)$
+			\Until{$R_{old} = R$}
+			\State \textbf{return} $R$ 		
+        \EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Diamond operator procedure}\label{alg:diamond-proc}
+\begin{algorithmic}[1]
+	\Procedure{DiamondEval}{$S, \to_S,f, vars$}    
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets \emptyset$ 
+        	\For{\textbf{each} $(q,a,q\prime) \in \to_S$}
+            	\If{$a = f.label$ \textbf{and} $q\prime \in R_1$}
+                	\State $R_2 \gets R_2 \cup \{q \prime\}$
+                \EndIf
+    		\EndFor
+			\State \textbf{return} $ R2$ 
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Box operator procedure}\label{alg:box-proc}
+\begin{algorithmic}[1]
+	\Procedure{BoxEval}{$S, \to_S,f, vars$}    
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets S$ 
+        	\For{\textbf{each} $(q,a,q\prime) \in \to_S$}
+            	\If{$a = f.label$ \textbf{and} $q\prime \not\in R_1$}
+                	\State $R_2 \gets R_2 \setminus \{q \prime\}$
+                \EndIf
+    		\EndFor
+			\State \textbf{return} $ R2$ 
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 % what is special to EL
 \subsubsection{Emerson-Lei algorithm}
+The extension by Emerson-Lei \cite{elpaper} changes the way the fixed point operators are computed. Instead of starting the fixed point computation by setting the approximation of a variable to TRUE or FALSE, some of the variable approximations are maintained while computing a mu-calculus formula. Consider algorithm \ref{alg:el-proc} for the pseudo-code of the improved version by Emerson-Lei \cite{elpaper}.
+
+\begin{algorithm}[H]
+\caption{Emerson-Lei improved approach}\label{alg:el-proc}
+\begin{algorithmic}[1]
+	\Procedure{ImprovedEval}{$S, \to_S,f, vars,S_0$}   
+	\State $InitVars(vars,f,S)$ 
+	\State $S_{result} \gets Eval(S, \to_S,f, vars)$
+		\If{$S_0 \in S_{result}$}
+        	\State \textbf{return} $true$ 
+        \Else
+			\State \textbf{return} $false$ 
+		\EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Initialising the variables array}\label{alg:el-proc}
+\begin{algorithmic}[1]
+	\Procedure{InitVars}{$vars,f,S$}   
+		\If{$f.OP = NU$}
+			\State $vars[f.label] \gets S$
+			\State $InitVars(vars,f.sub_1,S)$
+		\ElsIf{$f.OP = MU$} 
+			\State $vars[f.label] \gets \emptyset$
+			\State $InitVars(vars,f.sub_1,S)$
+		\Else
+			\If{$f.OP = AND$ \textbf{or} $f.OP = OR$} 
+				\State $InitVars(vars,f.sub_1,S)$
+				\State $InitVars(vars,f.sub_2,S)$
+			\ElsIf{$f.OP = BOX$ \textbf{or}  $f.OP = DIAMOND$} 
+				\State $InitVars(vars,f.sub_1,S)$
+			\EndIf
+		\EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\noindent Instead of setting the approximation of the variables to either $TRUE$ or $FALSE$, we instead only set the variables based on the surrounding binder of (sub-)formula we are currently considering. The exact same function as $Eval$ is used in the Emerson-Lei improved, but replace lines 21 and 28 in the algorithm with a function call to a function called \\
+$ResetVars(S,f, vars, f.OP, f.SurroundingBinder)$ which is shown below along with the $Eval$ function and the changes mentioned earlier.
+
+\begin{algorithm}[H]
+\caption{Evaluation function}\label{alg:evalel-proc}
+\begin{algorithmic}[1]
+	\Procedure{Eval}{$S, \to_S,f, vars$}    
+        \If{$f.op =TRUE$}
+        	\State \textbf{return} $S$ 
+        \ElsIf{$f.op = FALSE$}       
+			\State \textbf{return} $\emptyset$ 
+        \ElsIf{$f.op = VAR$}       
+			\State \textbf{return} $vars[f.label]$ 
+        \ElsIf{$f.op = AND$}       
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets Eval(S,\to_S,f.sub_2,vars)$ 
+			\State \textbf{return} $R1 \cap R2$ 
+        \ElsIf{$f.op = OR$}       
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets Eval(S,\to_S,f.sub_2,vars)$ 
+			\State \textbf{return} $R1 \cup R2$ 
+        \ElsIf{$f.op = BOX$}       
+			\State \textbf{return} $BoxEval(S,\to_S,f,vars)$ 
+        \ElsIf{$f.op = DIAMOND$}       
+			\State \textbf{return} $DiamondEval(S,\to_S,f,vars)$ 
+        \ElsIf{$f.op = MU$}       
+        	\If{$f.SurroundingBinder = NU$}
+        		\State $Reset(S, f.sub_1, f.OP, f.SurroundingBinder)$
+        	\EndIf
+			\Repeat
+				\State $R_{old} \gets vars[f.label]$
+				\State $R \gets Eval(S,\to_S,f.sub_1,vars)$
+			\Until{$R_{old} = R$}
+			\State \textbf{return} $R$ 	
+        \ElsIf{$f.op = NU$}      
+        	\If{$f.SurroundingBinder = MU$}
+        		\State $Reset(S, f.sub_1, f.OP, f.SurroundingBinder)$
+        	\EndIf 
+			\Repeat
+				\State $R_{old} \gets vars[f.label]$
+				\State $R \gets Eval(S,\to_S,f.sub_1,vars)$
+			\Until{$R_{old} = R$}
+			\State \textbf{return} $R$ 		
+        \EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Resetting function}\label{alg:reset-proc}
+\begin{algorithmic}[1]
+	\Procedure{Reset}{$S, f, vars, OriginalOP, SurroundingBinder$}    
+		\If {$f.open = true$ \textbf{and} ($f.OP = MU$ \textbf{or} \textbf{$f.OP = NU$})}
+			\If{$f.OP = OriginalOP$}
+				\If{$SurroundingBinder = NU$}
+					\State $vars[f.label] \gets \emptyset$
+				\Else
+					\State $vars[f.label] \gets S$
+				\EndIf
+				\State $Reset(S, f.sub_1, OriginalOP, SurroundingBinder)$
+			\Else
+				\State $Reset(S, f.sub_1, OriginalOP, SurroundingBinder)$
+			\EndIf
+		\Else
+			\If{$f.OP = AND$ \textbf{or} $f.OP = OR$} 
+				\State $Reset(S, f.sub_1, OriginalOP, SurroundingBinder)$
+				\State $Reset(S, f.sub_2, OriginalOP, SurroundingBinder)$
+			\ElsIf{$f.OP = BOX$ \textbf{or}  $f.OP = DIAMOND$} 
+				\State $Reset(S, f.sub_1, OriginalOP, SurroundingBinder)$
+			\EndIf
+		\EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 \section{Evaluation}\label{eval}
 In this section we will elaborate on the mu-calculus formulas provided and made for the experiments in the second part of the assignment. For each of these formulas it will be explained why this is the correct formula for the given problem and its nesting ($ND$), alternation ($AD$) and dependent alternation depth ($DAD$) will be given.\\
@@ -347,6 +553,8 @@ A picture of the labelled transition system.
 	\bibitem{aldebaran} \url{http://www.mcrl2.org/dev/user_manual/language_reference/lts.html#aldebaran-format}
 	
 	\bibitem{muparse} http://www.win.tue.nl/\~timw/downloads/parser.pdf
+	
+	\bibitem{elpaper} E.A. Emerson and C.-L. Lei: Model Checking in the Propositional Mu-Calculus, TR-86-06, February 1986
 \end{thebibliography}
 
 \end{document}
