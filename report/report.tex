@@ -10,6 +10,7 @@
 \usepackage{hyperref}
 \usepackage{comment}
 
+\pgfplotsset{compat=1.3}
 \title{Implementation and evaluation of model checking using modal mu-calculus}
 
 \author{Olav Bunte (0803961, o.bunte@student.tue.nl),\\
@@ -22,11 +23,11 @@ Ziad Ben Snaiba (0748095, z.b.snaiba@student.tue.nl)}
 \maketitle
 
 \section{Introduction}
-This report elaborates on our work and findings of assignment on, which is split in two parts. The first part of the assignment is to implement two versions of the model checking algorithm for modal mu-calculus: a naive version and the Emerson-Lei version. The second part is to evaluate these two versions using provided testcases supplemented with modal mu-calculus formulas of our own.\\
-In section \ref{design} we will explain our design of the algorithm. The testcases and their result when used on the algorithm is shown in section 3. Lastly, we conclude this report in section 4.
+This report elaborates on our work and findings of assignment one, which is split into two parts. The first part of the assignment is to implement a naive model checking algorithm for modal mu-calculus and an improved algorithm presented in an Emerson-Lei paper. The second part is to evaluate the performance and correctness of  both versions using provided testcases supplemented with modal mu-calculus formulas of our own.\\
+In section \ref{design} we will explain our design of the algorithm. The testcases and their result when used on the algorithm is shown in section \ref{eval}. Lastly, we conclude this report in section \ref{conc}.
 
-\section{Design}\label{design}
-In this section the design of our model checking algorithm is given, which we have coded in C++. First we will show the data structure of modal mu-calculus formulas and how they are constructed. Then we elaborate on the design of the solving algorithm divided in what the two versions of the algorithm have in common and what is special to each version.
+\section{Design and implementation}\label{design}
+In this section the design and implementation of our model checking tool is given, which we have programmed using C++. First we will show the data structure used to store labelled transition systems and modal mu-calculus formulas and how they are constructed. Then we elaborate on the design of the solving algorithm separated in a common subset of functionality and a special section for each version.
 
 \subsection{Labelled transition system}
 The labelled transition system is stored in the aldebaran format \cite{aldebaran}. In this format the first line describes the initial state, combined with the number of states and transitions. All consecutive lines define a state transition relation. These are stored in an array where the from state is indicated by its index, which is possible as long as each state exists within the number of states defined before. Also the transitions are stored as a map with their label as key mapping to a set of outgoing states for that label. The parsing itself is done quite straight forward reading line by line and inserting the transition in the corresponding set.
@@ -46,7 +47,7 @@ Since the modal mu-calculus is defined recursively, we have decided to store mu-
 \item NU: the greatest fixed point operator
 \end{itemize}
 
-When $\texttt{Op} \in \{\text{FALSE}, \text{TRUE}, \text{VAR}\}$ no subformula is defined, when $\texttt{Op} \in \{\text{AND}, \text{OR}\}$ both subformulas are defined and else only the first subformula is defined. \\
+\noindent When $\texttt{Op} \in \{\text{FALSE}, \text{TRUE}, \text{VAR}\}$ no subformula is defined, when $\texttt{Op} \in \{\text{AND}, \text{OR}\}$ both subformulas are defined and else only the first subformula is defined. \\
 For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFormula} needs to know the transition label and for the cases $\texttt{Op} \in \{\text{VAR}, \text{MU}, \text{NU}\}$ the \texttt{MuFormula} needs to know the name of the variable. These labels and variable names are stored as a string. Since these cases are distinct, we have decided to store these values in the same string variable, named \texttt{varlabel}, to reduce memory usage.\\
 These values are filled for every subformula during the parsing of the file with the mu-calculus formula. This parsing is implemented in the same recursive fashion as in the provided pseudocode \cite{muparse}.
 
@@ -311,42 +312,12 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \section{Conclusion}\label{conc}
 
-\begin{comment}
-A picture of the labelled transition system.
-
-\begin{tikzpicture}[->,>=stealth', shorten >=1pt,auto, node distance=2.8cm, semithick]
-  \tikzstyle{every state}=[text=black]
-
-  \node[initial,state] (0)                    {$0$};
-  \node[state]         (1) [right of=0] {$1$};
-  \node[state]         (2) [below of=0] {$2$};
-  \node[state]         (3) [right of=1] {$3$};
-  \node[state]         (4) [below of=1] {$4$};
-  \node[state]         (5) [below of=2] {$5$};
-  \node[state]         (6) [right of=4] {$6$};
-  \node[state]         (7) [below of=4] {$7$};
-  
- \path (0) edge node {$\tau$} (1)
- 	   (0) edge node {$\tau$} (2)
- 	   (1) edge node {$\tau$} (3)
- 	   (1) edge node {$\tau$} (4)
- 	   (2) edge node {$\tau$} (5)
- 	   (2) edge node {$\tau$} (4)
- 	   (3) edge node {$a$} 	  (6)
- 	   (3) edge [bend right] node {$b$} 	  (0)
- 	   (4) edge node {$\tau$} (6)
- 	   (4) edge node {$\tau$} (7)
- 	   (5) edge [bend left] node {$a$}    (0)
- 	   (5) edge node {$a$}    (7)
- 	   (6) edge [bend right] node {$\tau$} (2)
- 	   (7) edge [bend right] node {$b$}    (1);
-\end{tikzpicture}
-\end{comment}
+The implemented tool is indeed able to answer correct results for checking whether a modal mu-calculus holds for a given labelled transition system. In most cases with multiple alternating mu-formulas the improved version does indeed perform better than the naive algorithm.
 
 \begin{thebibliography}{9}
 	\bibitem{aldebaran} \url{http://www.mcrl2.org/dev/user_manual/language_reference/lts.html#aldebaran-format}
 	
-	\bibitem{muparse} http://www.win.tue.nl/\~timw/downloads/parser.pdf
+	\bibitem{muparse} \url{http://www.win.tue.nl/\~timw/downloads/parser.pdf}
 \end{thebibliography}
 
 \end{document}
