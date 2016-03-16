@@ -1,6 +1,6 @@
-% from every reachable state, if the child asks a question the child will eventually be answered
+% from every reachable state, if the child asks his/her first question the child will eventually be answered
 
-nu X. ([i]X && <ask>mu Y. ((([i]Y && [ask]Y) && [playing]Y) && <wisdom>true))
+nu X. ([i]X && <ask>mu Y. ([i]Y && <wisdom>true))
 
 % nesting depth: 2
 % alternation depth: 2
