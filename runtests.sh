@@ -12,6 +12,6 @@ fi
 
 for file in $2/boolean/* $2/combined/* $2/fixpoints_only/* $2/modal_operators/*; do
     if [ ${file: -4} == ".mcf" ]; then
-        $1 --algo=improved testcases/fixpoints_only/test.aut $file
+        $1 --algo=naive testcases/fixpoints_only/test.aut $file
     fi
 done

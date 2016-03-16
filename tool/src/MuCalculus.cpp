@@ -5,9 +5,10 @@
 #include <assert.h>
 #include <exception>
 #include <fstream>
-#include <string>
 #include <iostream>
 #include <iterator>
+#include <stdexcept>
+#include <string>
 
 using std::ifstream;
 
@@ -150,7 +151,8 @@ MuFormula* MuFormula::parseMuFormula(const char* strFilename) {
     line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
 
     //parse the formula
-    return parseSubFormula(line, 'x', std::map<std::string, char>());
+    std::map<std::string, char> variables;
+    return parseSubFormula(line, 'x', variables);
 }
 
 void MuFormula::openFormulaReset(LabelledTransitionSystem& system, std::map<std::string, std::set<int>>& variables, char surroundingBinder, Op originalFixpoint) {
@@ -247,7 +249,7 @@ MuFormula* parseLogicFormula(std::string line, char pfp, std::map<std::string, c
     }
     
     if (opIndex == -1) {
-        throw std::exception("No AND nor OR is found at depth 0"); // should not happen.
+        throw std::runtime_error("No AND nor OR is found at depth 0"); // should not happen.
     }
 
     //get the subformulas
@@ -328,32 +330,18 @@ void MuFormula::initVarMaps(LabelledTransitionSystem& system, std::map<std::stri
 }
 
 void MuFormula::setFormulaClosedness() {
-    if (open == NULL && (operation == MU || operation == NU)) {
+    if (open == false && (operation == MU || operation == NU)) {
         std::set<std::string> childVars;
         std::set<std::string> boundVars;
 
-        this->getChildVars(childVars);
-        this->getBoundVars(boundVars);
+        getChildVars(childVars);
+        getBoundVars(boundVars);
 
         std::set<std::string> looseVars;
         std::set_difference(childVars.begin(), childVars.end(), boundVars.begin(), boundVars.end(),
             std::inserter(looseVars, looseVars.begin()));
 
-        //std::cout << "--------------\nbinder:\n" << operation << varlabel << "\nchildren:\n";
-
-        //for (auto child : childVars) { std::cout << child << "\n";}
-
-        //std::cout << "bound vars: \n";
-
-        //for (auto binder : boundVars) { std::cout << binder << "\n";}
-
-        //std::cout << "loose vars: \n";
-
-        //for (auto lv : looseVars) { std::cout << lv << "\n"; }
-
-        //std::cout << "open: " << !looseVars.empty() << "\n";
-
-        this->setOpen(!looseVars.empty());
+        setOpen(!looseVars.empty());
         subformula->setFormulaClosedness();
     }
     else if (operation == BOX || operation == DIAMOND) {
