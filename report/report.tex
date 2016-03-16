@@ -9,6 +9,7 @@
 \usepackage{pgfplots}
 \usepackage{hyperref}
 \usepackage{comment}
+\usepackage{parskip}
 
 \pgfplotsset{compat=1.3}
 \title{Implementation and evaluation of model checking using modal mu-calculus}
@@ -47,8 +48,10 @@ Since the modal mu-calculus is defined recursively, we have decided to store mu-
 \item NU: the greatest fixed point operator
 \end{itemize}
 
-\noindent When $\texttt{Op} \in \{\text{FALSE}, \text{TRUE}, \text{VAR}\}$ no subformula is defined, when $\texttt{Op} \in \{\text{AND}, \text{OR}\}$ both subformulas are defined and else only the first subformula is defined. \\
-For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFormula} needs to know the transition label and for the cases $\texttt{Op} \in \{\text{VAR}, \text{MU}, \text{NU}\}$ the \texttt{MuFormula} needs to know the name of the variable. These labels and variable names are stored as a string. Since these cases are distinct, we have decided to store these values in the same string variable, named \texttt{varlabel}, to reduce memory usage.\\
+When $\texttt{Op} \in \{\text{FALSE}, \text{TRUE}, \text{VAR}\}$ no subformula is defined, when \\ $\texttt{Op} \in \{\text{AND}, \text{OR}\}$ both subformulas are defined and else only the first subformula is defined.
+
+For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFormula} needs to know the transition label and for the cases $\texttt{Op} \in \{\text{VAR}, \text{MU}, \text{NU}\}$ the \texttt{MuFormula} needs to know the name of the variable. These labels and variable names are stored as a string. Since these cases are distinct, we have decided to store these values in the same string variable, named \texttt{varlabel}, to reduce memory usage.
+
 These values are filled for every subformula during the parsing of the file with the mu-calculus formula. This parsing is implemented in the same recursive fashion as in the provided pseudocode \cite{muparse}.
 
 % basis (solve method), what naive and EL have in common
@@ -82,11 +85,17 @@ The first experiment is the well-known dining philosophers problem. The mu-calcu
 The graphs below show the time in seconds that the program runs using labelled transition systems from 2 up to 11 dining philosophers. In these graphs the blue line indicates the timing of the naive algorithm and red indicates the timing of the improved algorithm.
 
 \subsubsection{In every reachable state, someone must start eating}
-This can be expressed with the formula:\\
-{\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) \&\& mu Y. ([i]Y \&\& (<plato>true || <others>true)))}\\
-The part {\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) ..)} iterates over all successor states, getting to each reachable state. The other part states that for each of these states it must hold that within any finite sequence of states of no-one eating ({\tt \&\& mu Y. ([i]Y ..)}) either Plato or another philosopher will be able to eat ({\tt \&\& (<plato>true || <others>true)}).\\
-The depths for this formula are: $ND = 2$, $AD = 2$ and $DAD = 1$.\\
-This formula does not hold for all numbers of philosophers. See the graph below for the timings.\\
+This can be expressed with the formula:
+
+\begin{center}
+	\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) \&\& mu Y. ([i]Y \&\& (<plato>true || <others>true)))
+\end{center}	
+	
+The part {\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) ..)} iterates over all successor states, getting to each reachable state. The other part states that for each of these states it must hold that within any finite sequence of states of no-one eating ({\tt \&\& mu Y. ([i]Y ..)}) either Plato or another philosopher will be able to eat ({\tt \&\& (<plato>true || <others>true)}).
+
+The depths for this formula are: $ND = 2$, $AD = 2$ and $DAD = 1$.
+
+This formula evaluates to false for all numbers of philosophers. See the graph below for the timings.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -102,11 +111,17 @@ This formula does not hold for all numbers of philosophers. See the graph below 
 \end{tikzpicture}
 
 \subsubsection{In every state, reachable by Plato not eating, Plato has the chance to starve}
-This can be expressed with the formula:\\
-{\tt nu X. (([i]X \&\& [others]X) \&\& nu Y. (<i>Y || <others>Y))}\\
-The part {\tt nu X. (([i]X \&\& [others]X) ..)} iterates over all successor states as long as Plato does not eat, getting to each reachable state where Plato has not eaten yet. The other part states that for each of these states it must hold that there must exist an infinite sequence of states ({\tt \&\& nu Y.}) where Plato will not eat ({\tt (<i>Y || <others>Y)}).\\
-The depths of this formula are: $ND = 2$, $AD = 1$ and $DAD = 1$.\\
-This formula does not hold for all numbers of philosophers. See the graph below for the timings.\\
+This can be expressed with the formula:
+
+\begin{center}
+	{\tt nu X. (([i]X \&\& [others]X) \&\& nu Y. (<i>Y || <others>Y))}
+\end{center}
+
+The part {\tt nu X. (([i]X \&\& [others]X) ..)} iterates over all successor states as long as Plato does not eat, getting to each reachable state where Plato has not eaten yet. The other part states that for each of these states it must hold that there must exist an infinite sequence of states ({\tt \&\& nu Y.}) where Plato will not eat ({\tt (<i>Y || <others>Y)}).
+
+The depths of this formula are: $ND = 2$, $AD = 1$ and $DAD = 1$.
+
+This formula does not hold for all numbers of philosophers. See the graph below for the timings.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -122,11 +137,17 @@ This formula does not hold for all numbers of philosophers. See the graph below 
 \end{tikzpicture}
 
 \subsubsection{Invariantly, Plato can eat in some future}
-This can be expressed with the formula:\\
-{\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) \&\& mu Y. ((<i>Y || <others>Y) || <plato>true ))}\\
-The part {\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) ..)} iterates over all successor states, getting to each reachable state. The other part states that from each of these states there must exist a finite sequence of states where Plato does not eat ({\tt \&\& mu Y. ((<i>Y || <others>Y) ..)} after which Plato will be able to eat ({\tt || <plato>true}).\\
-The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 1$.\\
-This formula does not hold for all numbers of philosophers. See the graph below for the timings.\\
+This can be expressed with the formula:
+
+\begin{center}
+	{\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) \&\& mu Y. ((<i>Y || <others>Y) || <plato>true ))}
+\end{center}
+
+The part {\tt nu X. (([i]X \&\& ([plato]X \&\& [others]X)) ..)} iterates over all successor states, getting to each reachable state. The other part states that from each of these states there must exist a finite sequence of states where Plato does not eat ({\tt \&\& mu Y. ((<i>Y || <others>Y) ..)} after which Plato will be able to eat ({\tt || <plato>true}).
+
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 1$.
+
+This formula does not hold for all numbers of philosophers. See the graph below for the timings.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -162,15 +183,22 @@ This formula holds for all numbers of philosophers. See the graph below for the 
 
 
 \subsection{Demanding children}
-The second experiment is about children that are initially playing. A child can ask a question, get the answer and return to playing (in that order). Only for one child the actions are named, this child will simply be referred to as 'the child'. For this experiment four mu-calculus formulas were made which are elaborated on below.\\
+The second experiment is about children that are initially playing. A child can ask a question, get the answer and return to playing (in that order). Only for one child the actions are named, this child will simply be referred to as 'the child'. For this experiment four mu-calculus formulas were made which are elaborated on below.
+
 The graphs below shows the time in seconds that the program runs using labelled transition systems from 2 up to 10 demanding children. In these graphs the blue line indicates the timing of the naive algorithm and red indicates the timing of the improved algorithm.
 
 \subsubsection{It is possible for the child to never ask a question}
-This can be expressed with the formula:\\
-{\tt nu X. ([i]X \&\& nu Y. <i>Y)}\\
-The part {\tt nu X. ([i]X ..)} iterates over all successor states as long as the child does nothing, getting to each reachable state where the child has not asked any question. The other part {\tt \&\& nu Y. <i>Y} states that from each of these states there must be an infinite sequence of states where the child does nothing (asks no question).\\
-The depths of this formula are: $ND = 2$, $AD = 1$ and $DAD = 1$.\\
-This formula holds for all numbers of demanding children. See the graph below for the timings.\\
+This can be expressed with the formula:
+
+\begin{center}
+	{\tt nu X. ([i]X \&\& nu Y. <i>Y)}
+\end{center}	
+	
+The part {\tt nu X. ([i]X ..)} iterates over all successor states as long as the child does nothing, getting to each reachable state where the child has not asked any question. The other part {\tt \&\& nu Y. <i>Y} states that from each of these states there must be an infinite sequence of states where the child does nothing (asks no question).
+
+The depths of this formula are: $ND = 2$, $AD = 1$ and $DAD = 1$.
+
+This formula holds for all numbers of demanding children. See the graph below for the timings.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -186,11 +214,17 @@ This formula holds for all numbers of demanding children. See the graph below fo
 \end{tikzpicture}
 
 \subsubsection{It is possible for all other children to never ask a question}
-This can be expressed with the formula:\\
-{\tt nu X. ((([ask]X \&\& [wisdom]X) \&\& [playing]X) \&\& nu Y. ((<ask>Y || <wisdom>Y) || <playing>Y))}\\
-The part {\tt nu X. ((([ask]X \&\& [wisdom]X) \&\& [playing]X)} iterates over all successor states as long as the other children than the child do nothing, getting to each reachable state where the other children than the child have not asked any question. The other part {\tt \&\& nu Y. ((<ask>Y || <wisdom>Y) || <playing>Y)} states that from each of these states there must be an infinite sequence of states where the other children than the child do nothing (ask no question).\\ 
-The depths of this formula are: $ND = 2$, $AD = 1$ and $DAD = 1$.\\
-This formula holds for all numbers of demanding children. See the graph below for the timings.\\
+This can be expressed with the formula:
+
+\begin{center}
+	{\tt nu X. ((([ask]X \&\& [wisdom]X) \&\& [playing]X) \&\& nu Y. ((<ask>Y || <wisdom>Y) || <playing>Y))}
+\end{center}
+
+The part {\tt nu X. ((([ask]X \&\& [wisdom]X) \&\& [playing]X)} iterates over all successor states as long as the other children than the child do nothing, getting to each reachable state where the other children than the child have not asked any question. The other part {\tt \&\& nu Y. ((<ask>Y || <wisdom>Y) || <playing>Y)} states that from each of these states there must be an infinite sequence of states where the other children than the child do nothing (ask no question).
+
+The depths of this formula are: $ND = 2$, $AD = 1$ and $DAD = 1$.
+
+This formula holds for all numbers of demanding children. See the graph below for the timings.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -206,11 +240,17 @@ This formula holds for all numbers of demanding children. See the graph below fo
 \end{tikzpicture}
 
 \subsubsection{If the child asks his/her first question the child will eventually be answered}
-This can be expressed with the formula:\\
-{\tt nu X. ([i]X \&\& <ask>mu Y. ([i]Y \&\& <wisdom>true))}\\
-The part {\tt nu X. ([i]X ..)} iterates over all successor states as long as the child does nothing, getting to each reachable state where the child has not asked any question. The other part states that from each of these states it must be possible to ask a question ({\tt \&\& <ask>}) after which for every finite sequence of the child not being answered (not doing anything, {\tt mu Y. ([i]Y ..)}) the child will be answered afterwards ({\tt \&\& <wisdom>true}).\\
-The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 1$.\\
-This formula does not hold for all numbers of demanding children. See the graph below for the timings.\\
+This can be expressed with the formula:
+
+\begin{center}
+	{\tt nu X. ([i]X \&\& <ask>mu Y. ([i]Y \&\& <wisdom>true))}
+\end{center}	
+	
+The part {\tt nu X. ([i]X ..)} iterates over all successor states as long as the child does nothing, getting to each reachable state where the child has not asked any question. The other part states that from each of these states it must be possible to ask a question ({\tt \&\& <ask>}) after which for every finite sequence of the child not being answered (not doing anything, {\tt mu Y. ([i]Y ..)}) the child will be answered afterwards ({\tt \&\& <wisdom>true}).
+
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 1$.
+
+This formula does not hold for all numbers of demanding children. See the graph below for the timings.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -225,12 +265,18 @@ This formula does not hold for all numbers of demanding children. See the graph 
   	\end{axis}
 \end{tikzpicture}
 
-\subsubsection{is a course of events where the child can ask an infinite number of questions}
-This can be expressed with the formula:\\
-{\tt nu X. mu Y. (((<ask>X || <i>Y) || <wisdom>Y) || <playing>Y)}\\
-The part {\tt mu Y. (((<ask>X || <i>Y) || <wisdom>Y) || <playing>Y)} states that there must be a finite sequence of states where the child does not ask a question, after which the child will be able to ask a question. The part {\tt nu X. .. (((<ask>X ..) ..) ..)} states that this sequence must be able to repeat itself infinitely often.\\
-The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.\\
-This formula holds for all numbers of demanding children. See the graph below for the timings.\\
+\subsubsection{There is a course of events where the child can ask an infinite number of questions}
+This can be expressed with the formula:
+
+\begin{center}
+	{\tt nu X. mu Y. (((<ask>X || <i>Y) || <wisdom>Y) || <playing>Y)}
+\end{center}	
+	
+The part {\tt mu Y. (((<ask>X || <i>Y) || <wisdom>Y) || <playing>Y)} states that there must be a finite sequence of states where the child does not ask a question, after which the child will be able to ask a question. The part {\tt nu X. .. (((<ask>X ..) ..) ..)} states that this sequence must be able to repeat itself infinitely often.
+
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
+
+This formula holds for all numbers of demanding children. See the graph below for the timings.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -247,15 +293,22 @@ This formula holds for all numbers of demanding children. See the graph below fo
 
 
 \subsection{Boardgame}
-The third and last experiment is about two players playing a board game. The game is played on a $N$ by $N$ board and they start at state $(0, 0)$. Each player alternatively can choose to make a move, starting with player I. Player II wins whenever the game reaches state $(N, N)$. In the LTS being in the state $(N, N)$ is denoted by being able to do the transition {\tt won}. For this experiment three mu-calculus formulas are made which are elaborated on below.\\
+The third and last experiment is about two players playing a board game. The game is played on a $N$ by $N$ board and they start at state $(0, 0)$. Each player alternatively can choose to make a move, starting with player I. Player II wins whenever the game reaches state $(N, N)$. In the LTS being in the state $(N, N)$ is denoted by being able to do the transition {\tt won}. For this experiment three mu-calculus formulas are made which are elaborated on below.
+
 The graphs below shows the time in seconds that the program runs using labelled transition systems for $N \in \{50, 100, 150, 200, 250, 300, 350, 400, 450, 500\}$. In these graphs the blue line indicates the timing of the naive algorithm and red indicates the timing of the improved algorithm.
 
-\subsubsection{3a: There is a play such that player II can win}
-This can be expressed with the formula:\\
-{\tt mu X. (<choose1><choose2>X || <won>true)}\\
-This formula states that there must be a finite sequence of states in which first player I makes a choice and then player II ({\tt mu X. (<choose1><choose2>X ..)}) after which the game will end up in state $(N, N)$, causing player II to win ({\tt || <won>true}).\\
-The depths of this formula are: $ND = 1$, $AD = 1$ and $DAD = 1$.\\
-This formula holds for all numbers of $N$, except for $N = 350$. See the graph below for the timings.\\
+\subsubsection{3a) There is a play such that player II can win}
+This can be expressed with the formula:
+
+\begin{center}
+	{\tt mu X. (<choose1><choose2>X || <won>true)}
+\end{center}	
+	
+This formula states that there must be a finite sequence of states in which first player I makes a choice and then player II ({\tt mu X. (<choose1><choose2>X ..)}) after which the game will end up in state $(N, N)$, causing player II to win ({\tt || <won>true}).
+
+The depths of this formula are: $ND = 1$, $AD = 1$ and $DAD = 1$.
+
+This formula holds for all numbers of $N$, except for $N = 350$. See the graph below for the timings.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -270,12 +323,18 @@ This formula holds for all numbers of $N$, except for $N = 350$. See the graph b
   	\end{axis}
 \end{tikzpicture}
 
-\subsubsection{3b: Player II wins the game}\label{board2}
-This can be expressed with the formula:\\
-{\tt mu X. ([choose1]<choose2>X || <won>true)}\\
-This formula states that whatever move player I chooses ({\tt [choose1]}) player II can choose a move (player II has a strategy, {\tt <choose2>}) such that the game will have a finite sequence of states ({\tt mu X. ([choose1]<choose2>X ..)}) such that the game ends up in state $(N, N)$, causing player II to win ({\tt || <won>true}).\\
-The depths of this formula are: $ND = 1$, $AD = 1$ and $DAD = 1$.\\
-The formula holds for all numbers of $N$, except for $N \in \{50, 200, 350, 500\}$. See the graph below for the timings.\\
+\subsubsection{3b) Player II wins the game}\label{board2}
+This can be expressed with the formula:
+
+\begin{center}
+	{\tt mu X. ([choose1]<choose2>X || <won>true)}
+\end{center}	
+	
+This formula states that whatever move player I chooses ({\tt [choose1]}) player II can choose a move (player II has a strategy, {\tt <choose2>}) such that the game will have a finite sequence of states ({\tt mu X. ([choose1]<choose2>X ..)}) such that the game ends up in state $(N, N)$, causing player II to win ({\tt || <won>true}).
+
+The depths of this formula are: $ND = 1$, $AD = 1$ and $DAD = 1$.
+
+The formula holds for all numbers of $N$, except for $N \in \{50, 200, 350, 500\}$. See the graph below for the timings.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -290,12 +349,18 @@ The formula holds for all numbers of $N$, except for $N \in \{50, 200, 350, 500\
   	\end{axis}
 \end{tikzpicture}
 
-\subsubsection{3c: Player II wins the game by being able to move the token to place (N, N) infinitely often}\label{board3}
-This can be expressed with the formula:\\
-{\tt nu Y. mu X. ([choose1]<choose2>X || ([choose1]<choose2><won>true \&\& [choose1]<choose2>Y))}\\
-The part {\tt mu X. ([choose1]<choose2>X ..)} states that there must be a finite sequence of states in which player I chooses any step and player II does a certain step (according to a strategy). The other part says that after this finite sequence player II will be able to move to state $(N, N)$ within a turn independent of what player I does ({\tt || ([choose1]<choose2><won>true ..)}) and after one turn it is possible to repeat this sequence ({\tt nu Y. .. (.. (.. \&\& [choose1]<choose2>Y))}), causing the game to get to state $(N, N)$ infinitely often, causing player II to win.\\
-The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.\\
-This formula holds for all numbers of $N$, except for $N \in \{50, 200, 350, 500\}$. See the graph below for the timings.\\
+\subsubsection{3c) Player II wins the game by being able to move the token to place (N, N) infinitely often}\label{board3}
+This can be expressed with the formula:
+
+\begin{center}
+	{\tt nu Y. mu X. ([choose1]<choose2>X || ([choose1]<choose2><won>true \&\& [choose1]<choose2>Y))}
+\end{center}
+
+The part {\tt mu X. ([choose1]<choose2>X ..)} states that there must be a finite sequence of states in which player I chooses any step and player II does a certain step (according to a strategy). The other part says that after this finite sequence player II will be able to move to state $(N, N)$ within a turn independent of what player I does ({\tt || ([choose1]<choose2><won>true ..)}) and after one turn it is possible to repeat this sequence ({\tt nu Y. .. (.. (.. \&\& [choose1]<choose2>Y))}), causing the game to get to state $(N, N)$ infinitely often, causing player II to win.
+
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
+
+This formula holds for all numbers of $N$, except for $N \in \{50, 200, 350, 500\}$. See the graph below for the timings.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
