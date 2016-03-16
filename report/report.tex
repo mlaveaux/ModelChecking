@@ -6,8 +6,8 @@
 \usepackage{amssymb}
 \usepackage{tikz}
 \usepackage{pgf}
-\usepackage{hyperref}
 \usepackage{pgfplots}
+\usepackage{hyperref}
 \usepackage{comment}
 
 \title{Implementation and evaluation of model checking using modal mu-calculus}
@@ -29,10 +29,11 @@ In section \ref{design} we will explain our design of the algorithm. The testcas
 In this section the design of our model checking algorithm is given, which we have coded in C++. First we will show the data structure of modal mu-calculus formulas and how they are constructed. Then we elaborate on the design of the solving algorithm divided in what the two versions of the algorithm have in common and what is special to each version.
 
 \subsection{Labelled transition system}
-The labelled transition system is stored in the aldebaran format cite{aldebaran}. In this format the first line describes the initial state, combined with the number of states and transitions. All consecutive lines define a state transition relation. These are stored in an array where the from state is indicated by its index, which is possible as long as each state exists within the number of states defined before. Also the transitions are stored as a map with their label as key mapping to a set of outgoing states for that label. The parsing itself is done quite straight forward reading line by line and inserting the transition in the corresponding set.
+The labelled transition system is stored in the aldebaran format \cite{aldebaran}. In this format the first line describes the initial state, combined with the number of states and transitions. All consecutive lines define a state transition relation. These are stored in an array where the from state is indicated by its index, which is possible as long as each state exists within the number of states defined before. Also the transitions are stored as a map with their label as key mapping to a set of outgoing states for that label. The parsing itself is done quite straight forward reading line by line and inserting the transition in the corresponding set.
 
 \subsection{Modal mu-calculus formulas}
 Since the modal mu-calculus is defined recursively, we have decided to store mu-calculus formulas the same way. To do so we have implemented a class \texttt{MuFormula}, which represent a subformula of the given mu-calculus formula. This \texttt{MuFormula} can hold up to two pointers two other subformulas, which are its direct subformulas. These subformulas combined by an operation form the \texttt{MuFormula}, as it is defined in the modal mu-calculus grammar. This operation is implemented as the enum \texttt{Op} which can have the following values:
+
 \begin{itemize}
 \item FALSE: the value false
 \item TRUE: the value true
@@ -44,10 +45,10 @@ Since the modal mu-calculus is defined recursively, we have decided to store mu-
 \item MU: the least fixed point operator
 \item NU: the greatest fixed point operator
 \end{itemize}
-When $\texttt{Op} \in \{\text{FALSE}, \text{TRUE}, \text{VAR}\}$ no subformula is defined, when $\texttt{Op} \in \{\text{AND}, \text{OR}\}$ both subformulas are defined and else only the first subformula is defined.\\
+
+When $\texttt{Op} \in \{\text{FALSE}, \text{TRUE}, \text{VAR}\}$ no subformula is defined, when $\texttt{Op} \in \{\text{AND}, \text{OR}\}$ both subformulas are defined and else only the first subformula is defined. \\
 For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$ the \texttt{MuFormula} needs to know the transition label and for the cases $\texttt{Op} \in \{\text{VAR}, \text{MU}, \text{NU}\}$ the \texttt{MuFormula} needs to know the name of the variable. These labels and variable names are stored as a string. Since these cases are distinct, we have decided to store these values in the same string variable, named \texttt{varlabel}, to reduce memory usage.\\
 These values are filled for every subformula during the parsing of the file with the mu-calculus formula. This parsing is implemented in the same recursive fashion as in the provided pseudocode \cite{muparse}.
-
 
 % basis (solve method), what naive and EL have in common
 \subsection{Solving algorithm}
@@ -310,14 +311,6 @@ The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
 
 \section{Conclusion}\label{conc}
 
-
-\begin{thebibliography}{9}
-
-\bibitem{muparse} http://www.win.tue.nl/\~timw/downloads/parser.pdf
-
-\end{thebibliography}
-
-
 \begin{comment}
 A picture of the labelled transition system.
 
@@ -352,6 +345,8 @@ A picture of the labelled transition system.
 
 \begin{thebibliography}{9}
 	\bibitem{aldebaran} \url{http://www.mcrl2.org/dev/user_manual/language_reference/lts.html#aldebaran-format}
+	
+	\bibitem{muparse} http://www.win.tue.nl/\~timw/downloads/parser.pdf
 \end{thebibliography}
 
 \end{document}
