@@ -9,7 +9,11 @@
 \usepackage{pgfplots}
 \usepackage{hyperref}
 \usepackage{comment}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 \usepackage{parskip}
+\usepackage{listings}
+\usepackage{xcolor}
 
 \pgfplotsset{compat=1.3}
 \title{Implementation and evaluation of model checking using modal mu-calculus}
@@ -24,8 +28,8 @@ Ziad Ben Snaiba (0748095, z.b.snaiba@student.tue.nl)}
 \maketitle
 
 \section{Introduction}
-This report elaborates on our work and findings of assignment one, which is split into two parts. The first part of the assignment is to implement a naive model checking algorithm for modal mu-calculus and an improved algorithm presented in an Emerson-Lei paper. The second part is to evaluate the performance and correctness of  both versions using provided testcases supplemented with modal mu-calculus formulas of our own.\\
-In section \ref{design} we will explain our design of the algorithm. The testcases and their result when used on the algorithm is shown in section \ref{eval}. Lastly, we conclude this report in section \ref{conc}.
+This report elaborates on our work and findings of assignment one, which is split into two parts. The first part of the assignment is to implement a naive model checking algorithm for modal mu-calculus and an improved algorithm presented in a paper by Emerson and Lei \cite{elpaper}. The second part is to evaluate the performance and correctness of  both versions using provided testcases supplemented with modal mu-calculus formulas of our own.\\
+In section \ref{design} we will explain our design and implementation of the algorithms. The testcases and their results when used on the algorithm is shown in section \ref{eval}. Lastly, we conclude this report in section \ref{conc}.
 
 \section{Design and implementation}\label{design}
 In this section the design and implementation of our model checking tool is given, which we have programmed using C++. First we will show the data structure used to store labelled transition systems and modal mu-calculus formulas and how they are constructed. Then we elaborate on the design of the solving algorithm separated in a common subset of functionality and a special section for each version.
@@ -34,7 +38,7 @@ In this section the design and implementation of our model checking tool is give
 The labelled transition system is stored in the aldebaran format \cite{aldebaran}. In this format the first line describes the initial state, combined with the number of states and transitions. All consecutive lines define a state transition relation. These are stored in an array where the from state is indicated by its index, which is possible as long as each state exists within the number of states defined before. Also the transitions are stored as a map with their label as key mapping to a set of outgoing states for that label. The parsing itself is done quite straight forward reading line by line and inserting the transition in the corresponding set.
 
 \subsection{Modal mu-calculus formulas}
-Since the modal mu-calculus is defined recursively, we have decided to store mu-calculus formulas the same way. To do so we have implemented a class \texttt{MuFormula}, which represent a subformula of the given mu-calculus formula. This \texttt{MuFormula} can hold up to two pointers two other subformulas, which are its direct subformulas. These subformulas combined by an operation form the \texttt{MuFormula}, as it is defined in the modal mu-calculus grammar. This operation is implemented as the enum \texttt{Op} which can have the following values:
+Since the modal mu-calculus is defined recursively, we have decided to store mu-calculus formulas the same way. To do so we have implemented a class \texttt{MuFormula}, which represent a subformula of the given mu-calculus formula. This \texttt{MuFormula} can hold up to two pointers to other subformulas, which are its direct subformulas. These subformulas combined by an operation form the \texttt{MuFormula}, as it is defined in the modal mu-calculus grammar. This operation is implemented as the enum \texttt{Op} which can have the following values:
 
 \begin{itemize}
 \item FALSE: the value false
@@ -56,15 +60,221 @@ These values are filled for every subformula during the parsing of the file with
 
 % basis (solve method), what naive and EL have in common
 \subsection{Solving algorithm}
-As in the slides, the basis of the algorithm is a sequence of conditions, one for each possible \texttt{Op}. If the subformula to be solved has direct subformulas, these are solved first after which the \texttt{Op} is applied to the resultset(s) of states.\\
+As in the slides, the basis of the algorithm is a sequence of conditions, one for each possible \texttt{Op}. If the subformula to be solved has direct sub-formulas, these are solved first after which the \texttt{Op} is applied to the resultset(s) of states. For the cases $\texttt{Op} \in \{\text{FALSE}, \text{TRUE}, \text{AND}, \text{OR}\}$ this is trivial. For the cases $\texttt{Op} \in \{\text{BOX}, \text{DIAMOND}\}$, see algorithm \ref{alg:box-proc} and \ref{alg:diamond-proc} respectively.\\
 The naive and the Emerson-Lei versions differ in how they handle the fixed point operators. These differences are explained below.
+
+\begin{algorithm}[H]
+\caption{Box operator procedure}\label{alg:box-proc}
+\begin{algorithmic}[1]
+	\Procedure{BoxEval}{$S, \to_S,f, vars$}    
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets S$ 
+        	\For{\textbf{each} $(q,a,q\prime) \in \to_S$}
+            	\If{$a = f.label$ \textbf{and} $q\prime \not\in R_1$}
+                	\State $R_2 \gets R_2 \setminus \{q \prime\}$
+                \EndIf
+    		\EndFor
+			\State \textbf{return} $ R2$ 
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Diamond operator procedure}\label{alg:diamond-proc}
+\begin{algorithmic}[1]
+	\Procedure{DiamondEval}{$S, \to_S,f, vars$}    
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets \emptyset$ 
+        	\For{\textbf{each} $(q,a,q\prime) \in \to_S$}
+            	\If{$a = f.label$ \textbf{and} $q\prime \in R_1$}
+                	\State $R_2 \gets R_2 \cup \{q \prime\}$
+                \EndIf
+    		\EndFor
+			\State \textbf{return} $ R2$ 
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 % what is special to naive
 \subsubsection{Naive algorithm}
+The naive algorithm consists of a single recursive function which takes a labelled transition system, a formula in the modal mu-calculus grammar, and a dictionary mapping each recursive variable to its current approximation as its input arguments. It then returns the set of states for which the formula holds. The algorithm then does a recursive call or returns a set of states based on the operator it encounters. Here we assume that the formula $f$ passed as an argument is a sentence, as defined in Emerson-Lei \cite{elpaper}. $S$ is a set containing all of the states in the labelled transition system. The set $\to_S$, the set of transitions of the LTS, is defined as a set of tuples $(s,a,s\prime)$ where $s,s\prime \in S$ and $a$ is the label of the transition. Thus, $(s,a,s\prime) \in \to_S$ iff it is a transition in the LTS. $S_0$ is the initial state of the LTS.
+
+Before looking at the algorithm further explanation of what $f$ consists of here is required. $f$ is a sentence, as has been mentioned before. Additionally, in the data structure used to represent $f$, the choice has been made to have to following information contained in $f$ itself: surrounding binder, sub-formulas, the variable label, whether it is closed or open, and the type of the operation. 
+
+See algorithms \ref{alg:naive-proc} and \ref{alg:eval-proc} for the pseudo-code of this procedure.
+
+\begin{algorithm}[H]
+\caption{Naive approach}\label{alg:naive-proc}
+\begin{algorithmic}[1]
+	\Procedure{NaiveEval}{$S, \to_S,f, vars,S_0$}    
+	\State $S_{result} \gets Eval(S, \to_S,f, vars)$
+		\If{$S_0 \in S_{result}$}
+        	\State \textbf{return} $true$ 
+        \Else
+			\State \textbf{return} $false$ 
+		\EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Evaluation function}\label{alg:eval-proc}
+\begin{algorithmic}[1]
+	\Procedure{Eval}{$S, \to_S,f, vars$}    
+        \If{$f.op =TRUE$}
+        	\State \textbf{return} $S$ 
+        \ElsIf{$f.op = FALSE$}       
+			\State \textbf{return} $\emptyset$ 
+        \ElsIf{$f.op = VAR$}       
+			\State \textbf{return} $vars[f.label]$ 
+        \ElsIf{$f.op = AND$}       
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets Eval(S,\to_S,f.sub_2,vars)$ 
+			\State \textbf{return} $R1 \cap R2$ 
+        \ElsIf{$f.op = OR$}       
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets Eval(S,\to_S,f.sub_2,vars)$ 
+			\State \textbf{return} $R1 \cup R2$ 
+        \ElsIf{$f.op = BOX$}       
+			\State \textbf{return} $BoxEval(S,\to_S,f,vars)$ 
+        \ElsIf{$f.op = DIAMOND$}       
+			\State \textbf{return} $DiamondEval(S,\to_S,f,vars)$ 
+        \ElsIf{$f.op = MU$}       
+			\State $vars[f.label] \gets S$	
+			\Repeat
+				\State $R_{old} \gets vars[f.label]$
+				\State $R \gets Eval(S,\to_S,f.sub_1,vars)$
+			\Until{$R_{old} = R$}
+			\State \textbf{return} $R$ 	
+        \ElsIf{$f.op = NU$}       
+			\State $vars[f.label] \gets S$	
+			\Repeat
+				\State $R_{old} \gets vars[f.label]$
+				\State $R \gets Eval(S,\to_S,f.sub_1,vars)$
+			\Until{$R_{old} = R$}
+			\State \textbf{return} $R$ 		
+        \EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
 
 
 % what is special to EL
 \subsubsection{Emerson-Lei algorithm}
+The extension by Emerson-Lei \cite{elpaper} changes the way the fixed point operators are computed. Instead of starting the fixed point computation by setting the approximation of a variable to TRUE or FALSE, some of the variable approximations are maintained while computing a mu-calculus formula. Consider algorithms \ref{alg:el-proc}, \ref{alg:init-proc}, \ref{alg:evalel-proc} and \ref{alg:reset-proc} for the pseudo-code of the improved version by Emerson-Lei \cite{elpaper}.
+
+\begin{algorithm}[H]
+\caption{Emerson-Lei improved approach}\label{alg:el-proc}
+\begin{algorithmic}[1]
+	\Procedure{ImprovedEval}{$S, \to_S,f, vars,S_0$}   
+	\State $InitVars(vars,f,S)$ 
+	\State $S_{result} \gets Eval(S, \to_S,f, vars)$
+		\If{$S_0 \in S_{result}$}
+        	\State \textbf{return} $true$ 
+        \Else
+			\State \textbf{return} $false$ 
+		\EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Initialising the variables array}\label{alg:init-proc}
+\begin{algorithmic}[1]
+	\Procedure{InitVars}{$vars,f,S$}   
+		\If{$f.OP = NU$}
+			\State $vars[f.label] \gets S$
+			\State $InitVars(vars,f.sub_1,S)$
+		\ElsIf{$f.OP = MU$} 
+			\State $vars[f.label] \gets \emptyset$
+			\State $InitVars(vars,f.sub_1,S)$
+		\Else
+			\If{$f.OP = AND$ \textbf{or} $f.OP = OR$} 
+				\State $InitVars(vars,f.sub_1,S)$
+				\State $InitVars(vars,f.sub_2,S)$
+			\ElsIf{$f.OP = BOX$ \textbf{or}  $f.OP = DIAMOND$} 
+				\State $InitVars(vars,f.sub_1,S)$
+			\EndIf
+		\EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\noindent Instead of setting the approximation of the variables to either $TRUE$ or $FALSE$, we instead only set the variables based on the surrounding binder of (sub-)formula we are currently considering. The exact same function as $Eval$ is used in the Emerson-Lei improved, but replace lines 21 and 28 in the algorithm with a function call to a function called \\
+$ResetVars(S,f, vars, f.OP, f.SurroundingBinder)$ which is shown below along with the $Eval$ function and the changes mentioned earlier (see algorithm \ref{alg:evalel-proc}).
+
+\begin{algorithm}[H]
+\caption{Evaluation function}\label{alg:evalel-proc}
+\begin{algorithmic}[1]
+	\Procedure{Eval}{$S, \to_S,f, vars$}    
+        \If{$f.op =TRUE$}
+        	\State \textbf{return} $S$ 
+        \ElsIf{$f.op = FALSE$}       
+			\State \textbf{return} $\emptyset$ 
+        \ElsIf{$f.op = VAR$}       
+			\State \textbf{return} $vars[f.label]$ 
+        \ElsIf{$f.op = AND$}       
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets Eval(S,\to_S,f.sub_2,vars)$ 
+			\State \textbf{return} $R1 \cap R2$ 
+        \ElsIf{$f.op = OR$}       
+        	\State $R_1 \gets Eval(S,\to_S,f.sub_1,vars)$ 
+        	\State $R_2 \gets Eval(S,\to_S,f.sub_2,vars)$ 
+			\State \textbf{return} $R1 \cup R2$ 
+        \ElsIf{$f.op = BOX$}       
+			\State \textbf{return} $BoxEval(S,\to_S,f,vars)$ 
+        \ElsIf{$f.op = DIAMOND$}       
+			\State \textbf{return} $DiamondEval(S,\to_S,f,vars)$ 
+        \ElsIf{$f.op = MU$}       
+        	\If{$f.SurroundingBinder = NU$}
+        		\State $Reset(S, f.sub_1, f.OP, f.SurroundingBinder)$
+        	\EndIf
+			\Repeat
+				\State $R_{old} \gets vars[f.label]$
+				\State $R \gets Eval(S,\to_S,f.sub_1,vars)$
+			\Until{$R_{old} = R$}
+			\State \textbf{return} $R$ 	
+        \ElsIf{$f.op = NU$}      
+        	\If{$f.SurroundingBinder = MU$}
+        		\State $Reset(S, f.sub_1, f.OP, f.SurroundingBinder)$
+        	\EndIf 
+			\Repeat
+				\State $R_{old} \gets vars[f.label]$
+				\State $R \gets Eval(S,\to_S,f.sub_1,vars)$
+			\Until{$R_{old} = R$}
+			\State \textbf{return} $R$ 		
+        \EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Resetting function}\label{alg:reset-proc}
+\begin{algorithmic}[1]
+	\Procedure{Reset}{$S, f, vars, OriginalOP, SurroundingBinder$}    
+		\If {$f.open = true$ \textbf{and} ($f.OP = MU$ \textbf{or} \textbf{$f.OP = NU$})}
+			\If{$f.OP = OriginalOP$}
+				\If{$SurroundingBinder = NU$}
+					\State $vars[f.label] \gets \emptyset$
+				\Else
+					\State $vars[f.label] \gets S$
+				\EndIf
+				\State $Reset(S, f.sub_1, OriginalOP, SurroundingBinder)$
+			\Else
+				\State $Reset(S, f.sub_1, OriginalOP, SurroundingBinder)$
+			\EndIf
+		\Else
+			\If{$f.OP = AND$ \textbf{or} $f.OP = OR$} 
+				\State $Reset(S, f.sub_1, OriginalOP, SurroundingBinder)$
+				\State $Reset(S, f.sub_2, OriginalOP, SurroundingBinder)$
+			\ElsIf{$f.OP = BOX$ \textbf{or}  $f.OP = DIAMOND$} 
+				\State $Reset(S, f.sub_1, OriginalOP, SurroundingBinder)$
+			\EndIf
+		\EndIf
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 \section{Evaluation}\label{eval}
 In this section we will elaborate on the mu-calculus formulas provided and made for the experiments in the second part of the assignment. For each of these formulas it will be explained why this is the correct formula for the given problem and its nesting ($ND$), alternation ($AD$) and dependent alternation depth ($DAD$) will be given.\\
@@ -163,10 +373,16 @@ This formula does not hold for all numbers of philosophers. See the graph below 
 \end{tikzpicture}
 
 \subsubsection{There is a course of events in which Plato infinitely often eats}
-This can be expressed with the formula:\\
-{\tt nu X. mu Y. ((<plato>X || <i>Y) || <others>Y)}\\
-The part {\tt mu Y. ((<plato>X || <i>Y) || <others>Y)} states that there must be a finite sequence of states where Plato does not eat, after which Plato will be able to eat. The part {\tt nu X. .. ((<plato>X ..) ..)} states that this sequence must be able to repeat itself infinitely often.\\
-The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.\\
+This can be expressed with the formula:
+
+\begin{center}
+{\tt nu X. mu Y. ((<plato>X || <i>Y) || <others>Y)}
+\end{center}
+
+The part {\tt mu Y. ((<plato>X || <i>Y) || <others>Y)} states that there must be a finite sequence of states where Plato does not eat, after which Plato will be able to eat. The part {\tt nu X. .. ((<plato>X ..) ..)} states that this sequence must be able to repeat itself infinitely often.
+
+The depths of this formula are: $ND = 2$, $AD = 2$ and $DAD = 2$.
+
 This formula holds for all numbers of philosophers. See the graph below for the timings.\\
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -349,7 +565,7 @@ The formula holds for all numbers of $N$, except for $N \in \{50, 200, 350, 500\
   	\end{axis}
 \end{tikzpicture}
 
-\subsubsection{3c) Player II wins the game by being able to move the token to place (N, N) infinitely often}\label{board3}
+\subsubsection{3c) Player II wins the game by being able to move the token to place $(N, N)$ infinitely often}\label{board3}
 This can be expressed with the formula:
 
 \begin{center}
@@ -390,12 +606,294 @@ The boardgame experiment resulted in timings that were not always increasing for
 
 
 \begin{thebibliography}{9}
+	\bibitem{elpaper} E.A. Emerson and C.-L. Lei: Model Checking in the Propositional Mu-Calculus, TR-86-06, February 1986
+
 	\bibitem{aldebaran} \url{http://www.mcrl2.org/dev/user_manual/language_reference/lts.html#aldebaran-format}
 	
 	\bibitem{muparse} \url{http://www.win.tue.nl/\~timw/downloads/parser.pdf}
 
 	\bibitem{mcrl2} \url{http://www.mcrl2.org/}
-	
 \end{thebibliography}
+
+\definecolor{listinggray}{gray}{0.9}
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
+
+\newpage
+\appendix
+\lstset{
+	backgroundcolor=\color{white},
+    tabsize=4,
+  	language=C++,
+  	captionpos=b,
+  	frame=lines,
+  	numbers=left,
+  	numberstyle=\tiny,
+  	numbersep=5pt,
+  	breaklines=true,
+  	showstringspaces=false,
+  	basicstyle=\footnotesize,
+  	keywordstyle=\color[rgb]{0,0,1},
+  	commentstyle=\color[rgb]{0,0.5,0},
+  	stringstyle=\color{red}
+  }
+  
+\begin{lstlisting}[caption=MuCalculus.cpp]
+
+std::set<int> MuFormula::solve(LabelledTransitionSystem& system, 
+	std::map<std::string, std::set<int>>& variables, 
+	bool naive) 
+{
+    std::set<int> result;
+
+    switch (operation) {
+    case FALSE:
+        return std::set<int>(); // return empty set of states
+    case TRUE:
+        return system.getSetOfStates(); // return set of all states
+        break;
+    case VAR: {
+        return variables[varlabel]; // return the approximation of the varlabel.
+    }
+    case AND: {
+        //intersect set of states of the two subformula results
+        std::set<int> subResult1 = subformula->solve(system, variables, naive);
+        std::set<int> subResult2 = subformula2->solve(system, variables, naive);
+        std::set_intersection(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
+            std::inserter(result, result.begin()));
+        return result;
+    }
+    case OR: {
+        //unite set of states of the two subformula results
+        std::set<int> subResult1 = subformula->solve(system, variables, naive);
+        std::set<int> subResult2 = subformula2->solve(system, variables, naive);
+        std::set_union(subResult1.begin(), subResult1.end(), subResult2.begin(), subResult2.end(),
+            std::inserter(result, result.begin()));
+        return result;
+    }
+    case DIAMOND: {
+        std::set<int> subResult1 = subformula->solve(system, variables, naive);
+        //for each state
+        for (int i = 0; i < system.getNumStates(); i++) {
+            //for each out transition
+            for (auto& toState : system.getToStates(i, varlabel)) {
+                //if it has a transition with the correct label to a correct state, it complies with the formula
+                if (subResult1.count(toState) == 1) {
+                    result.insert(i);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    case BOX: {
+        std::set<int> subResult1 = subformula->solve(system, variables, naive);
+        result = system.getSetOfStates();
+        //for each state
+        for (int i = 0; i < system.getNumStates(); i++) {
+            //for each out transition
+            for (auto& toState : system.getToStates(i, varlabel)) {
+                //if it has a transition with the correct label to a wrong state, it does not comply with the formula
+                if (subResult1.count(toState) == 0) {
+                    result.erase(i);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    case NU:
+        if (naive) {
+            result = system.getSetOfStates(); // Start with all sets.
+        }
+        else {
+            if (prevFixedPoint == "m") {
+                subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+            }
+        }
+    case MU:
+        // Result is the approximation for the varlabel.
+        std::set<int>& approximation = variables[varlabel];
+
+        if (naive) {
+            approximation = result;
+        }
+        else {
+            if (prevFixedPoint == "n") {
+                subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+            }
+        }
+
+        while (true) {
+            // Calculate the new approximation.
+            std::set<int> newApprox = subformula->solve(system, variables, naive);
+	
+            // Check whether the fixed point is reached.
+            if (approximation == newApprox) {
+                break;
+            }
+
+            // Set the new approximation as the variable.
+            approximation = newApprox;
+        }
+
+        return approximation;
+    }
+
+    assert(false); // One case was not handled;
+    return std::set<int>(); // return empty set of states
+}
+
+void MuFormula::openFormulaReset(LabelledTransitionSystem& system, 
+	std::map<std::string, std::set<int>>& variables, 
+	char surroundingBinder, 
+	Op originalFixpoint) 
+{
+    if (open && (operation == NU || operation == MU)) {
+        resetFormula(system, variables, surroundingBinder, originalFixpoint);
+    }
+    else {
+        switch (operation) {
+        case FALSE:
+        case TRUE:
+        case VAR:
+            break;
+        case AND:
+        case OR:
+            subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+            subformula2->openFormulaReset(system, variables, prevFixedPoint, operation);
+            break;
+        case BOX:
+        case DIAMOND:
+            subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+            break;
+        case MU:
+            subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+            break;
+        case NU:
+            subformula->openFormulaReset(system, variables, prevFixedPoint, operation);
+            break;
+        }
+    }
+}
+
+void MuFormula::resetFormula(LabelledTransitionSystem& system, 
+	std::map<std::string, std::set<int>>& variables, 
+	char surroundingBinder, 
+	Op originalFixpoint) 
+{
+    if (operation == originalFixpoint) {
+        if (surroundingBinder == "m") {
+            variables[varlabel] = system.getSetOfStates();
+        }
+        else {
+            variables[varlabel].clear();
+        }
+        subformula->openFormulaReset(system, variables, surroundingBinder, originalFixpoint);
+    }
+    subformula->openFormulaReset(system, variables, surroundingBinder, originalFixpoint);
+}
+
+void MuFormula::initVarMaps(LabelledTransitionSystem& system, 
+	std::map<std::string, std::set<int>>& variables) 
+{
+    if (operation == MU) {
+        variables[varlabel] = std::set<int>();
+    }
+    else if (operation == NU) {
+        variables[varlabel] = system.getSetOfStates();
+    }
+
+    if (operation == MU || operation == NU || operation == BOX || operation == DIAMOND) {
+        subformula->initVarMaps(system, variables);
+    }
+    else if (operation == AND || operation == OR) {
+        subformula->initVarMaps(system, variables);
+        subformula2->initVarMaps(system, variables);
+    }
+}
+
+void MuFormula::setFormulaClosedness() 
+{
+    if (open == false && (operation == MU || operation == NU)) {
+        std::set<std::string> childVars;
+        std::set<std::string> boundVars;
+
+        getChildVars(childVars);
+        getBoundVars(boundVars);
+
+        std::set<std::string> looseVars;
+        std::set_difference(childVars.begin(), childVars.end(), boundVars.begin(), boundVars.end(),
+            std::inserter(looseVars, looseVars.begin()));
+
+        setOpen(!looseVars.empty());
+        subformula->setFormulaClosedness();
+    }
+    else if (operation == BOX || operation == DIAMOND) {
+        subformula->setFormulaClosedness();
+    }
+    else if (operation == AND || operation == OR) {
+        subformula->setFormulaClosedness();
+        subformula2->setFormulaClosedness();
+    }
+}
+
+void MuFormula::getChildVars(std::set<std::string> &childVars) 
+{
+    if (operation == MU || operation == NU || operation == VAR) {
+        childVars.insert(varlabel);
+    }
+
+    switch (operation) {
+    case FALSE:
+    case TRUE:
+    case VAR:
+        break;
+    case AND:
+    case OR:
+        subformula->getChildVars(childVars);
+        subformula2->getChildVars(childVars);
+        break;
+    case BOX:
+    case DIAMOND:
+        subformula->getChildVars(childVars);
+        break;
+    case MU:
+        subformula->getChildVars(childVars);
+        break;
+    case NU:
+        subformula->getChildVars(childVars);
+        break;
+    }
+}
+
+void MuFormula::getBoundVars(std::set<std::string>& boundVars) 
+{
+    if (operation == MU || operation == NU) {
+        boundVars.insert(varlabel);
+    }
+
+    switch (operation) {
+    case FALSE:
+    case TRUE:
+    case VAR:
+        break;
+    case AND:
+    case OR:
+        subformula->getBoundVars(boundVars);
+        subformula2->getBoundVars(boundVars);
+        break;
+    case BOX:
+    case DIAMOND:
+        subformula->getBoundVars(boundVars);
+        break;
+    case MU:
+        subformula->getBoundVars(boundVars);
+        break;
+    case NU:
+        subformula->getBoundVars(boundVars);
+        break;
+    }
+}
+\end{lstlisting}
 
 \end{document}
