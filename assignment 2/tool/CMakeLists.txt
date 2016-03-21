@@ -21,10 +21,12 @@ project(tool)
 
 # Set the headers and source files to build the target.
 set(HEADERS 
+	ParitySolver.h
     )   
     
 set(SOURCES
     src/main.cpp
+	ParitySolver.cpp
     )
 
 # Build a shared library with the corresponding import library for window.
