@@ -23,6 +23,8 @@ project(tool)
 set(SOURCES
     src/main.cpp
     src/PGSolver.cpp
+    src/PGParser.cpp
+    src/ParityGame.cpp
     )
 
 # Build a shared library with the corresponding import library for window.
