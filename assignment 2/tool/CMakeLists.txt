@@ -19,18 +19,14 @@ add_definitions(-std=c++11)
 # This file defines the renderer target.
 project(tool)
 
-# Set the headers and source files to build the target.
-set(HEADERS 
-	ParitySolver.h
-    )   
-    
+# Set the source files to build the target.
 set(SOURCES
     src/main.cpp
-	ParitySolver.cpp
+    src/PGSolver.cpp
     )
 
 # Build a shared library with the corresponding import library for window.
-add_executable(tool ${HEADERS} ${SOURCES})
+add_executable(tool ${SOURCES})
 
 # Include dependencies and src directory.
 target_include_directories(tool
