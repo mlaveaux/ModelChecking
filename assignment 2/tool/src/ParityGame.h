@@ -17,6 +17,9 @@
 #ifndef ParityGame_hpp
 #define ParityGame_hpp
 
-#include <stdio.h>
+class ParityGame
+{
+
+};
 
 #endif /* ParityGame_h */
