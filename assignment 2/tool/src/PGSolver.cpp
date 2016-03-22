@@ -8,6 +8,9 @@ struct ProgMeasures {
     std::vector<int> maxMeasures;
 };
 
+using Measures = std::vector<unsigned int>;
+using Vertex = uint32_t;
+
 /**
  * Gets the progress measures for a parity game
  */
@@ -16,40 +19,73 @@ struct ProgMeasures getProgressMeasures(ParityGame game){
 }
 
 /**
- * Computes whether a measure is greater than another measure
- * limit: upto how many elements to check
- * strict: whether it is strictly greater than or at least
+ * Computes whether a measure1 is lexicographically greater than measure2.
+ * 
+ * @param[in] limit How many elements of the tuple to check.
  */
-bool lexicoGreaterThan(const std::vector<int>& measure1, const std::vector<int>& measure2, int limit, bool strict)
+bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2, bool strict = true, unsigned int limit = -1)
 {
-    assert(measure1.size() >= limit);
-    assert(measure2.size() >= limit);
-
-    for (size_t index = 0; index < limit; ++index) {
-        if (measure1[index] <= measure2[index] && strict) {
-            return false;
-        } else if (measure1[index] < measure2[index]) {
-            return false;
+    for (size_t index = 0; index < limit && index < measure1.size(); ++index) {
+        if (measure1[index] != measure2[index]) {
+            if (measure1[index] > measure2[index]) {
+                return true;
+            }
         }
     }
 
-    return true;
+    return !strict; // Both are equal, so for strict this is false and otherwise true.
 }
 
 /**
  * Computes Prog
  */
-std::vector<int> prog(std::map<int, std::vector<int>> parProgMeasures, int v, int w){
+std::vector<int> prog(std::map<int, Measures> parProgMeasures, unsigned int v, int w){
     return {};
 }
 
 /**
- * Bro do you even lift
+ * Lift the Measures for the specified vertex.
  */
-std::map<int, std::vector<int>> lift(std::map<int, std::vector<int>> parProgMeasures, int v){
-    return {};
+Measures lift(const ParityGame& game, std::map<Vertex, Measures> progMeasures, Vertex vertex)
+{
+    Measures result = progMeasures[vertex];
+
+    // Sketch of code, but requires additional functionality in ParityGame.
+    /**
+    for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
+        Measures progress = prog(progMeasures, vertex, outgoingVertex);
+
+        if (game.isEven(vertex)) {
+            result = lexicoGreaterThan(progress, result) ? progress : result; // Minimize result
+        } else {
+            result = lexicoGreaterThan(progress, result) ? result : progress; // Maximize result
+        }
+
+        // Don't know what the first max means?
+    }
+    */
+
+    return std::move(result);
 }
 
-static std::vector<bool> solveParityGame(ParityGame game){
-    return {};
+static std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order)
+{
+    // For every vector set the zeroed Measure tuple.
+    std::map<Vertex, Measures> vertexToMeasures;
+
+    // Indicates whether some vertex can still be lifted.
+    bool canLift = false;
+    
+    do {
+        // Follow the order specified at the parameter.
+        for (auto vertex : order) {
+            // Lift a single vertex and and check whether its measures have increased.
+            Measures& measures = vertexToMeasures[vertex];
+            Measures newMeasures = lift(game, vertexToMeasures, vertex);
+            
+            // Increase means that it can be lifted.
+            canLift = lexicoGreaterThan(measures, newMeasures);
+        }
+
+    } while (canLift);
 }
