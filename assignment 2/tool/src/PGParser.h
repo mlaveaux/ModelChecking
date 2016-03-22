@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef PGParser_hpp
-#define PGParser_hpp
+#include "ParityGame.h"
+
+#ifndef PGParser_h
+#define PGParser_h
 
 #include <stdio.h>
 
-#endif /* PGParser_hpp */
+/**
+ * Parses a parity game file in .gm format.
+ */
+static ParityGame parseParityGame(const char* pgFilename);
+
+#endif /* PGParser_h */

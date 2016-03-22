@@ -22,15 +22,14 @@
  */
 int main(int argc, char* argv[])
 {
-    if (argc != 2) {
+    if (argc < 2) {
         std::cout << "Usage: [--order=input|random|type1|type2] <pg input filename>" << std::endl;
         std::cin.get(); return -1;
     }
     
-    for (int i=0; i<argc; ++i) {
-        std::cout << argv[i] << "\n";
-    }
-    
+    int argIndex = 1;
+    const char* solverOrder = argv[argIndex++];
+    const char* pgFilename = argv[argIndex++];
     
     return 0;
 }

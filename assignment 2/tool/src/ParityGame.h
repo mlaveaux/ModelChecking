@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef ParityGame_hpp
-#define ParityGame_hpp
+#ifndef ParityGame_h
+#define ParityGame_h
 
-class ParityGame
-{
+class ParityGame {
 
 };
 

@@ -27,8 +27,15 @@ set(SOURCES
     src/ParityGame.cpp
     )
 
+# Set the header files to build the target.
+set(HEADERS
+    src/PGSolver.h
+    src/PGParser.h
+    src/ParityGame.h
+)
+
 # Build a shared library with the corresponding import library for window.
-add_executable(tool ${SOURCES})
+add_executable(tool ${SOURCES} ${HEADERS})
 
 # Include dependencies and src directory.
 target_include_directories(tool

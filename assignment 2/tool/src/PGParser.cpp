@@ -15,3 +15,7 @@
  */
 
 #include "PGParser.h"
+
+static ParityGame parseParityGame(const char* pgFilename){
+    
+}
