@@ -66,7 +66,7 @@ Measures lift(const ParityGame& game, std::map<Vertex, Measures> progMeasures, V
     return std::move(result);
 }
 
-static std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order)
+std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order)
 {
     // For every vector set the zeroed Measure tuple.
     std::map<Vertex, Measures> vertexToMeasures;
