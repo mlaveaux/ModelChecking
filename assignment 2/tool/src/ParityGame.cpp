@@ -15,3 +15,32 @@
  */
 
 #include "ParityGame.h"
+
+ParityGame::ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
+	std::map<Vertex, int>& owner, std::map<Vertex, int>& priority,
+	std::map<int, int>& priorityCount) {
+	this->owner = owner;
+	this->successors = successors;
+	this->priority = priority;
+	this->priorityCount = priorityCount;
+}
+
+bool ParityGame::isEven(Vertex vertex) {
+	return owner[vertex];
+}
+
+std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) {
+	return successors[vertex];
+}
+
+void ParityGame::print() {
+	for (auto &v : successors) {
+		std::cout << v.first << " " << priority[v.first] << " " << owner[v.first] << " ";
+		for (auto &s : v.second) {
+			std::cout << s << " ";
+		}
+		std::cout << "\n";
+	}
+}
+
+

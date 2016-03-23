@@ -17,8 +17,32 @@
 #ifndef ParityGame_h
 #define ParityGame_h
 
+#include <vector>
+#include <map>
+#include <set>
+#include <iostream>
+
+using Measures = std::vector<unsigned int>;
+using Vertex = uint32_t;
+
 class ParityGame {
 
+public:
+	ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
+		std::map<Vertex, int>& owner, std::map<Vertex, int>& priority,
+		std::map<int, int>& priorityCount);
+
+	bool isEven(Vertex vertex);
+
+	std::set<Vertex> getOutgoingVertices(Vertex vertex);
+
+	void print();
+
+private:
+	std::map<Vertex, std::set<Vertex>> successors;
+	std::map<Vertex, int> owner; 
+	std::map<Vertex, int> priority;
+	std::map<int, int> priorityCount;
 };
 
 #endif /* ParityGame_h */

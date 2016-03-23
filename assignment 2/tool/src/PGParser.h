@@ -14,16 +14,35 @@
  * limitations under the License.
  */
 
-#include "ParityGame.h"
-
 #ifndef PGParser_h
 #define PGParser_h
 
-#include <stdio.h>
+#include <stdio.h>  
+#include <iostream>
+#include <fstream>  
+#include <string>
+#include <map>
+#include <set>
+#include <sstream>
+#include <vector>
+
+#include "ParityGame.h"
 
 /**
- * Parses a parity game file in .gm format.
+ * Parses a parity game file in .gm format and returns a ParityGame object.
  */
-static ParityGame parseParityGame(const char* pgFilename);
+ParityGame parseParityGame(const char* pgFilename);
+
+/**
+ * Parses a single line from a .gm format parity game file.
+ */
+void parseLine(std::string& line, std::map<Vertex, std::set<Vertex>>& successors,
+	std::map<Vertex, int>& owner, std::map<Vertex, int>& priorities,
+	std::map<int, int>& priorityCount);
+
+std::vector<std::string> &split(const std::string &s, char delim,
+	std::vector<std::string> &elems);
+
+std::vector<std::string> split(const std::string &s, char delim);
 
 #endif /* PGParser_h */

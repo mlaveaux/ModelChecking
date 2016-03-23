@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <string.h>
+#include "PGParser.h"
 
 /**
  * The main entry point for the program.
@@ -28,8 +29,10 @@ int main(int argc, char* argv[])
     }
     
     int argIndex = 1;
-    const char* solverOrder = argv[argIndex++];
+    const char* solveOrder = argv[argIndex++];
     const char* pgFilename = argv[argIndex++];
-    
+
+	ParityGame& pg = parseParityGame(pgFilename);
+
     return 0;
 }
