@@ -40,9 +40,15 @@ void parseLine(std::string& line, std::map<Vertex, std::set<Vertex>>& successors
 	std::map<Vertex, int>& owner, std::map<Vertex, int>& priorities,
 	std::map<int, int>& priorityCount);
 
+/**
+ * Splits a string based on a delimiter.
+ */
+std::vector<std::string> split(const std::string &s, char delim);
+
+/**
+ * Actual splitting happens here.
+ */
 std::vector<std::string> &split(const std::string &s, char delim,
 	std::vector<std::string> &elems);
-
-std::vector<std::string> split(const std::string &s, char delim);
 
 #endif /* PGParser_h */

@@ -25,22 +25,34 @@ ParityGame::ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
 	this->priorityCount = priorityCount;
 }
 
-bool ParityGame::isEven(Vertex vertex) {
-	return owner[vertex];
+bool ParityGame::isEven(Vertex vertex) const {
+	return owner.at(vertex);
 }
 
-std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) {
-	return successors[vertex];
+std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) const {
+	return successors.at(vertex);
 }
 
-void ParityGame::print() {
+int ParityGame::getPriority(Vertex vertex) const {	
+	if (priority.count(vertex)) {
+		return priority.at(vertex);
+	}
+	return -1;
+}
+
+int ParityGame::getPriorityCount(int priority) const {
+	if (priorityCount.count(priority)) {
+		return priorityCount.at(priority);
+	}
+	return 0;
+}
+
+void ParityGame::print() const {
 	for (auto &v : successors) {
-		std::cout << v.first << " " << priority[v.first] << " " << owner[v.first] << " ";
+		std::cout << v.first << " " << priority.at(v.first) << " " << owner.at(v.first) << " ";
 		for (auto &s : v.second) {
 			std::cout << s << " ";
 		}
 		std::cout << "\n";
 	}
 }
-
-

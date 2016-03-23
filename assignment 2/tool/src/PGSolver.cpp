@@ -39,7 +39,7 @@ bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2, bool 
 /**
  * Computes Prog
  */
-std::vector<int> prog(std::map<int, Measures> parProgMeasures, unsigned int v, int w){
+Measures prog(std::map<Vertex, Measures> parProgMeasures, unsigned int v, int w){
     return {};
 }
 
@@ -51,7 +51,6 @@ Measures lift(const ParityGame& game, std::map<Vertex, Measures> progMeasures, V
     Measures result = progMeasures[vertex];
 
     // Sketch of code, but requires additional functionality in ParityGame.
-    /**
     for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
         Measures progress = prog(progMeasures, vertex, outgoingVertex);
 
@@ -63,7 +62,6 @@ Measures lift(const ParityGame& game, std::map<Vertex, Measures> progMeasures, V
 
         // Don't know what the first max means?
     }
-    */
 
     return std::move(result);
 }

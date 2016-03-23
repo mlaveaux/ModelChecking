@@ -25,18 +25,49 @@
 using Measures = std::vector<unsigned int>;
 using Vertex = uint32_t;
 
+/**
+ * Parity game object definition.
+ *
+ * @successors, mapping from a vertex to a set of its successor vertices.
+ * @owner, mapping from a vertex to its owner. 0 for even, 1 for uneven.
+ * @priority, mapping from a vertex to its priority.
+ * @priorityCount, mapping from a priority to how often it occurs in the parity game.
+ */
 class ParityGame {
 
 public:
+	/**
+	 * Constructor
+	 */
 	ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
 		std::map<Vertex, int>& owner, std::map<Vertex, int>& priority,
 		std::map<int, int>& priorityCount);
 
-	bool isEven(Vertex vertex);
+	/**
+	 * Returns the owner of a vertex. 
+	 * 1 if even, 0 if uneven
+	 */
+	bool isEven(Vertex vertex) const;
 
-	std::set<Vertex> getOutgoingVertices(Vertex vertex);
+	/**
+	 * Returns the direct successors of a vertex. 
+	 */
+	std::set<Vertex> getOutgoingVertices(Vertex vertex) const;
 
-	void print();
+	/**
+	 * Returns the priority of a vertex.
+	 */
+	int getPriority(Vertex vertex) const;
+
+	/**
+	 * Returns the count of a priority.
+	 */
+	int getPriorityCount(int priority) const;
+
+	/**
+	* Prints the parity game.
+	*/
+	void print() const;
 
 private:
 	std::map<Vertex, std::set<Vertex>> successors;
