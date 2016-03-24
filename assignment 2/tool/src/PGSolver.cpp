@@ -2,14 +2,15 @@
 
 #include <assert.h>
 #include <map>
+#include <tuple>
 
 struct ProgMeasures {
     int size;
     std::vector<int> maxMeasures;
 };
 
-using Measures = std::vector<unsigned int>;
-using Vertex = uint32_t;
+using Measures = std::vector<uint32_t>;
+const uint32_t Top = (1 << 32);
 
 /**
  * Gets the progress measures for a parity game
@@ -86,4 +87,13 @@ std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vert
         }
 
     } while (canLift);
+
+    // Gather the set that don't equal Top and put true for them.
+    std::vector<bool> evenDominated = std::vector<bool>(game.getNumberOfVertices());
+    
+    for (auto element : vertexToMeasures) {
+        //evenDominated[element.first] = element.second()
+    }
+
+    return{};
 }
