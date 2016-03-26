@@ -56,29 +56,57 @@ bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2, bool 
 			return !strict; // Both are equal, so for strict this is false and otherwise true.
 		}
 	}
-}
-	
-	
-
-    
+} 
 
 /**
  * Computes Prog
  */
-Measures prog(std::map<Vertex, Measures> parProgMeasures, unsigned int v, int w){
+Measures prog(ParityGame& game, MeasuresSet measuresSet, std::map<Vertex, Measures> parProgMeasures, unsigned int v, int w){
+	int size = measuresSet.size;
+	Measures newMeasure(size, 0);
+	Measures succMeasure = parProgMeasures[v];
+	int priority = game.getPriority(v);
+	//case even priority
+	if (priority % 2 == 0){
+		//fill with same values as w upto priority (no need to include priority since it is even), keep the rest zero
+		for (int i = 1; i < priority; i += 2){
+			newMeasure[i] = succMeasure[i];
+		}
+	}
+	//case for odd priority
+	else{
+		//try to make the measure strictly bigger than that of w, going from priority to 1
+		//if not possible, it is TOP
+		bool madeStrictlyGreater = false;
+		for (int i = priority; i > 0; i -= 2){
+			if (!madeStrictlyGreater && succMeasure[i] < measuresSet.maxMeasures[i]){
+				newMeasure[i] = succMeasure[i] + 1;
+				madeStrictlyGreater = true;
+			}
+			else{
+				newMeasure[i] = succMeasure[i];
+			}
+		}
+		if (!madeStrictlyGreater){
+			newMeasure = TOP;
+			//does m = rhoish(w) = TOP also mean that rhoish(w) has to be adjusted?
+		}
+	}
     return {};
 }
 
 /**
  * Lift the Measures for the specified vertex.
  */
-Measures lift(const ParityGame& game, std::map<Vertex, Measures> progMeasures, Vertex vertex)
+Measures lift(ParityGame& game, MeasuresSet measuresSet, std::map<Vertex, Measures> progMeasures, Vertex vertex)
 {
     Measures result = progMeasures[vertex];
 
+	//optimizations possible: look at selfloops (for instance, if vertex has self loop, is of player even, has odd priority: measure = TOP)
+
     // Sketch of code, but requires additional functionality in ParityGame.
     for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
-        Measures progress = prog(progMeasures, vertex, outgoingVertex);
+        Measures progress = prog(game, measuresSet, progMeasures, vertex, outgoingVertex);
 
         if (game.isEven(vertex)) {
             result = lexicoGreaterThan(progress, result) ? progress : result; // Minimize result
@@ -97,6 +125,9 @@ std::vector<bool> solveParityGame(ParityGame& game, const std::vector<Vertex>& o
     // For every vector set the zeroed Measure tuple.
     std::map<Vertex, Measures> vertexToMeasures;
 
+	//Get the set of progress measures
+	MeasuresSet measuresSet = getProgressMeasures(game);
+
     // Indicates whether some vertex can still be lifted.
     bool canLift = false;
     
@@ -105,7 +136,7 @@ std::vector<bool> solveParityGame(ParityGame& game, const std::vector<Vertex>& o
         for (auto vertex : order) {
             // Lift a single vertex and and check whether its measures have increased.
             Measures& measures = vertexToMeasures[vertex];
-            Measures newMeasures = lift(game, vertexToMeasures, vertex);
+            Measures newMeasures = lift(game, measuresSet, vertexToMeasures, vertex);
             
             // Increase means that it can be lifted.
             canLift = lexicoGreaterThan(measures, newMeasures);
