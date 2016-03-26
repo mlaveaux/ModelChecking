@@ -57,7 +57,7 @@ bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2, bool 
 Measures prog(const ParityGame& game, Measures& measuresSet, const std::vector<Measures>& parProgMeasures, Vertex v, Vertex w)
 {;
 	Measures newMeasure(measuresSet.size(), 0);
-	Measures succMeasure = parProgMeasures[v];
+	Measures succMeasure(parProgMeasures[v]);
 	int priority = game.getPriority(v);
 
     // case even priority
@@ -86,7 +86,8 @@ Measures prog(const ParityGame& game, Measures& measuresSet, const std::vector<M
 			// does m = rhoish(w) = TOP also mean that rhoish(w) has to be adjusted?
 		}
 	}
-    return {};
+
+    return newMeasure;
 }
 
 /**
@@ -94,7 +95,7 @@ Measures prog(const ParityGame& game, Measures& measuresSet, const std::vector<M
  */
 Measures lift(const ParityGame& game, Measures measuresSet, const std::vector<Measures>& progMeasures, Vertex vertex)
 {
-    Measures result = progMeasures[vertex];
+    Measures result = Measures(progMeasures[vertex]);
 
 	//optimizations possible: look at selfloops (for instance, if vertex has self loop, is of player even, has odd priority: measure = TOP)
 
@@ -137,6 +138,10 @@ std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vert
             
             // Increase means that it can be lifted.
             canLift = lexicoGreaterThan(measures, newMeasures);
+
+            if (canLift) {
+                measures = newMeasures;
+            }
         }
 
     } while (canLift);
