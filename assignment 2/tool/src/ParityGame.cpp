@@ -17,9 +17,9 @@
 #include "ParityGame.h"
 
 ParityGame::ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
-	std::map<Vertex, int>& owner,
+    std::map<Vertex, int>& owner,
     std::map<Vertex, int>& priority,
-	std::map<int, int>& priorityCount)
+    std::map<int, int>& priorityCount)
 {
 	this->owner = owner;
 	this->successors = successors;

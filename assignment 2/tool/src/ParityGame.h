@@ -21,6 +21,7 @@
 #include <map>
 #include <set>
 #include <iostream>
+#include <stdint.h>
 
 using Measures = std::vector<unsigned int>;
 using Vertex = uint32_t;
@@ -71,6 +72,11 @@ public:
 	int getPriorityCount(int priority) const;
 
 	/**
+	 * Returns teh numebr of vertices
+	 */
+	int getNumberOfVertices();
+
+	/**
 	* Prints the parity game.
 	*/
 	void print() const;
@@ -80,6 +86,7 @@ private:
 	std::map<Vertex, int> owner; 
 	std::map<Vertex, int> priority;
 	std::map<int, int> priorityCount;
+	int numVertices;
 };
 
 #endif /* ParityGame_h */
