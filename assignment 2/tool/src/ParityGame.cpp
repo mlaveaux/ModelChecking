@@ -17,37 +17,49 @@
 #include "ParityGame.h"
 
 ParityGame::ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
-	std::map<Vertex, int>& owner, std::map<Vertex, int>& priority,
-	std::map<int, int>& priorityCount) {
+	std::map<Vertex, int>& owner,
+    std::map<Vertex, int>& priority,
+	std::map<int, int>& priorityCount)
+{
 	this->owner = owner;
 	this->successors = successors;
 	this->priority = priority;
 	this->priorityCount = priorityCount;
 }
 
-bool ParityGame::isEven(Vertex vertex) const {
+bool ParityGame::isEven(Vertex vertex) const 
+{
 	return owner.at(vertex);
 }
 
-std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) const {
+std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) const 
+{
 	return successors.at(vertex);
 }
 
-int ParityGame::getPriority(Vertex vertex) const {	
+size_t ParityGame::getNumberOfVertices() const
+{
+    return successors.size();
+}
+
+int ParityGame::getPriority(Vertex vertex) const
+{	
 	if (priority.count(vertex)) {
 		return priority.at(vertex);
 	}
 	return -1;
 }
 
-int ParityGame::getPriorityCount(int priority) const {
+int ParityGame::getPriorityCount(int priority) const 
+{
 	if (priorityCount.count(priority)) {
 		return priorityCount.at(priority);
 	}
 	return 0;
 }
 
-void ParityGame::print() const {
+void ParityGame::print() const 
+{
 	for (auto &v : successors) {
 		std::cout << v.first << " " << priority.at(v.first) << " " << owner.at(v.first) << " ";
 		for (auto &s : v.second) {

@@ -40,7 +40,8 @@ public:
 	 * Constructor
 	 */
 	ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
-		std::map<Vertex, int>& owner, std::map<Vertex, int>& priority,
+		std::map<Vertex, int>& owner, 
+        std::map<Vertex, int>& priority,
 		std::map<int, int>& priorityCount);
 
 	/**
@@ -53,6 +54,11 @@ public:
 	 * Returns the direct successors of a vertex. 
 	 */
 	std::set<Vertex> getOutgoingVertices(Vertex vertex) const;
+
+    /**
+     * Gets the total number of vertices.
+     */
+    size_t getNumberOfVertices() const;
 
 	/**
 	 * Returns the priority of a vertex.
