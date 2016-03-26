@@ -13,7 +13,7 @@ struct MeasuresSet {
 };
 
 using Measures = std::vector<uint32_t>;
-const uint32_t Top = -1; //all bits are 1
+const Measures TOP(1,1);
 
 /**
  * Gets the progress measures for a parity game
@@ -34,16 +34,33 @@ struct MeasuresSet getProgressMeasures(ParityGame& game){
  */
 bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2, bool strict = true, unsigned int limit = -1)
 {
-    for (size_t index = 0; index < limit && index < measure1.size(); ++index) {
-        if (measure1[index] != measure2[index]) {
-            if (measure1[index] > measure2[index]) {
-                return true;
-            }
-        }
-    }
-
-    return !strict; // Both are equal, so for strict this is false and otherwise true.
+	//cases for TOP
+	if (measure2 == TOP){
+		if (measure1 == TOP){
+			return !strict;
+		}
+		else{
+			return false;
+		}
+	}
+	else{
+		if (measure1 == TOP){
+			return true;
+		}
+		else{ // when both are not TOP
+			for (size_t index = 1; index < limit && index < measure1.size(); index += 2) {
+				if (measure1[index] > measure2[index]) {
+					return true;
+				}
+			}
+			return !strict; // Both are equal, so for strict this is false and otherwise true.
+		}
+	}
 }
+	
+	
+
+    
 
 /**
  * Computes Prog
