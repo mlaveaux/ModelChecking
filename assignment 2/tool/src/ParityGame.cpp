@@ -29,7 +29,7 @@ ParityGame::ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
 
 bool ParityGame::isEven(Vertex vertex) const 
 {
-	return owner.at(vertex);
+	return (owner.at(vertex) == 1) ? true : false;
 }
 
 std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) const 
