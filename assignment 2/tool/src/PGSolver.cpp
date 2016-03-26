@@ -4,19 +4,27 @@
 #include <map>
 #include <tuple>
 
-struct ProgMeasures {
+struct MeasuresSet {
     int size;
     std::vector<int> maxMeasures;
+
+	MeasuresSet(int s) : size(s), maxMeasures(s, 0)
+	{}
 };
 
 using Measures = std::vector<uint32_t>;
-const uint32_t Top = (1 << 32);
+const uint32_t Top = -1; //all bits are 1
 
 /**
  * Gets the progress measures for a parity game
  */
-struct ProgMeasures getProgressMeasures(ParityGame game){
-    return {};
+struct MeasuresSet getProgressMeasures(ParityGame& game){
+	int size = game.getNumberOfVertices();
+	MeasuresSet progMeasures(size);
+	for (int i = 1; i < size; i += 2){
+		progMeasures.maxMeasures[i] = game.getPriorityCount(i);
+	}
+    return progMeasures;
 }
 
 /**
@@ -67,7 +75,7 @@ Measures lift(const ParityGame& game, std::map<Vertex, Measures> progMeasures, V
     return std::move(result);
 }
 
-std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order)
+std::vector<bool> solveParityGame(ParityGame& game, const std::vector<Vertex>& order)
 {
     // For every vector set the zeroed Measure tuple.
     std::map<Vertex, Measures> vertexToMeasures;

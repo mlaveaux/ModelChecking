@@ -23,6 +23,10 @@ ParityGame::ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
 	this->successors = successors;
 	this->priority = priority;
 	this->priorityCount = priorityCount;
+	this->numVertices = 0;
+	for (auto pair : priorityCount){
+		this->numVertices += pair.second;
+	}
 }
 
 bool ParityGame::isEven(Vertex vertex) const {
@@ -45,6 +49,10 @@ int ParityGame::getPriorityCount(int priority) const {
 		return priorityCount.at(priority);
 	}
 	return 0;
+}
+
+int ParityGame::getNumberOfVertices(){
+	return numVertices;
 }
 
 void ParityGame::print() const {
