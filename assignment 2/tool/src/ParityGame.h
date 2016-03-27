@@ -66,13 +66,13 @@ public:
 	int getPriorityCount(int priority) const;
 
 	/**
-	 * Returns teh numebr of vertices
+	 * Returns the number of vertices
 	 */
-	int getNumberOfVertices();
+	int getNumberOfVertices() const;
 
 	/**
-	* Prints the parity game.
-	*/
+	 * Prints the parity game.
+	 */
 	void print() const;
 
 private:
@@ -80,7 +80,6 @@ private:
 	std::map<Vertex, int> owner; 
 	std::map<Vertex, int> priority;
 	std::map<int, int> priorityCount;
-	int numVertices;
 };
 
 #endif /* ParityGame_h */
