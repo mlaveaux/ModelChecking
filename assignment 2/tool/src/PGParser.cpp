@@ -24,10 +24,15 @@ ParityGame parseParityGame(const char * pgFilename) {
 	std::map<Vertex, int> owner;
 	std::map<Vertex, int> priorities;
 	std::map<int, int> priorityCount;
+    
+    if (!ifs.good()) {
+        throw std::runtime_error(std::string("Failed to open file ") + pgFilename);
+    }
 
-	std::getline(ifs, line); //Consume the first line of the file.
-
-	while (std::getline(ifs, line)) {
+	std::getline(ifs, line); // Optimization: Read first line to initialize the vectors to size 
+                             // (only one memory allocation required instead of multiple).
+    
+    while (std::getline(ifs, line)) {
 		line.pop_back();
 		parseLine(line, successors, owner, priorities, priorityCount);
 	}
@@ -35,11 +40,13 @@ ParityGame parseParityGame(const char * pgFilename) {
 	return ParityGame(successors, owner, priorities, priorityCount);
 }
 
-void parseLine(std::string& line, std::map<Vertex, std::set<Vertex>>& successors,
-	std::map<Vertex, int>& owner, std::map<Vertex, int>& priorities,
+void parseLine(std::string& line, 
+    std::map<Vertex, std::set<Vertex>>& successors,
+	std::map<Vertex, int>& owner,
+    std::map<Vertex, int>& priorities,
 	std::map<int, int>& priorityCount) {
 
-	std::vector<std::string> lineSplit = split(line, '\t ');
+	std::vector<std::string> lineSplit = split(line, ' ');
 	int identifier = std::stoi(lineSplit.at(0));
 	int priority = std::stoi(lineSplit.at(1));
 	int ownedBy = std::stoi(lineSplit.at(2));

@@ -4,26 +4,19 @@
 #include <map>
 #include <tuple>
 
-struct MeasuresSet {
-    int size;
-    std::vector<int> maxMeasures;
-
-	MeasuresSet(int s) : size(s), maxMeasures(s, 0)
-	{}
-};
-
 using Measures = std::vector<uint32_t>;
-const Measures TOP(1,1);
+const Measures TOP(1, 1);
 
 /**
  * Gets the progress measures for a parity game
  */
-struct MeasuresSet getProgressMeasures(ParityGame& game){
-	int size = game.getNumberOfVertices();
-	MeasuresSet progMeasures(size);
-	for (int i = 1; i < size; i += 2){
-		progMeasures.maxMeasures[i] = game.getPriorityCount(i);
+Measures getProgressMeasures(const ParityGame& game){
+    Measures progMeasures(game.getNumberOfVertices());
+
+	for (int i = 1; i < progMeasures.size(); i += 2){
+		progMeasures[i] = game.getPriorityCount(i);
 	}
+
     return progMeasures;
 }
 
@@ -35,19 +28,19 @@ struct MeasuresSet getProgressMeasures(ParityGame& game){
 bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2, bool strict = true, unsigned int limit = -1)
 {
 	//cases for TOP
-	if (measure2 == TOP){
-		if (measure1 == TOP){
+	if (measure2 == TOP) {        
+		if (measure1 == TOP) {
 			return !strict;
 		}
-		else{
+		else {
 			return false;
 		}
 	}
-	else{
-		if (measure1 == TOP){
+	else {
+		if (measure1 == TOP) {
 			return true;
 		}
-		else{ // when both are not TOP
+		else { // when both are not TOP
 			for (size_t index = 1; index < limit && index < measure1.size(); index += 2) {
 				if (measure1[index] > measure2[index]) {
 					return true;
@@ -59,27 +52,28 @@ bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2, bool 
 } 
 
 /**
- * Computes Prog
+ * Computes Prog, the progress measure.
  */
-Measures prog(ParityGame& game, MeasuresSet measuresSet, std::map<Vertex, Measures> parProgMeasures, unsigned int v, int w){
-	int size = measuresSet.size;
-	Measures newMeasure(size, 0);
-	Measures succMeasure = parProgMeasures[v];
+Measures prog(const ParityGame& game, Measures& measuresSet, const std::vector<Measures>& parProgMeasures, Vertex v, Vertex w)
+{;
+	Measures newMeasure(measuresSet.size(), 0);
+	Measures succMeasure(parProgMeasures[v]);
 	int priority = game.getPriority(v);
-	//case even priority
-	if (priority % 2 == 0){
-		//fill with same values as w upto priority (no need to include priority since it is even), keep the rest zero
+
+    // case even priority
+	if (priority % 2 == 0) { 
+		// fill with same values as w upto priority (no need to include priority since it is even), keep the rest zero
 		for (int i = 1; i < priority; i += 2){
 			newMeasure[i] = succMeasure[i];
 		}
 	}
-	//case for odd priority
+	// case for odd priority
 	else{
-		//try to make the measure strictly bigger than that of w, going from priority to 1
-		//if not possible, it is TOP
+		// try to make the measure strictly bigger than that of w, going from priority to 1
+		// if not possible, it is TOP
 		bool madeStrictlyGreater = false;
 		for (int i = priority; i > 0; i -= 2){
-			if (!madeStrictlyGreater && succMeasure[i] < measuresSet.maxMeasures[i]){
+			if (!madeStrictlyGreater && succMeasure[i] < measuresSet[i]){
 				newMeasure[i] = succMeasure[i] + 1;
 				madeStrictlyGreater = true;
 			}
@@ -89,18 +83,19 @@ Measures prog(ParityGame& game, MeasuresSet measuresSet, std::map<Vertex, Measur
 		}
 		if (!madeStrictlyGreater){
 			newMeasure = TOP;
-			//does m = rhoish(w) = TOP also mean that rhoish(w) has to be adjusted?
+			// does m = rhoish(w) = TOP also mean that rhoish(w) has to be adjusted?
 		}
 	}
-    return {};
+
+    return newMeasure;
 }
 
 /**
  * Lift the Measures for the specified vertex.
  */
-Measures lift(ParityGame& game, MeasuresSet measuresSet, std::map<Vertex, Measures> progMeasures, Vertex vertex)
+Measures lift(const ParityGame& game, Measures measuresSet, const std::vector<Measures>& progMeasures, Vertex vertex)
 {
-    Measures result = progMeasures[vertex];
+    Measures result = Measures(progMeasures[vertex]);
 
 	//optimizations possible: look at selfloops (for instance, if vertex has self loop, is of player even, has odd priority: measure = TOP)
 
@@ -117,16 +112,19 @@ Measures lift(ParityGame& game, MeasuresSet measuresSet, std::map<Vertex, Measur
         // Don't know what the first max means?
     }
 
-    return std::move(result);
+    return result;
 }
 
-std::vector<bool> solveParityGame(ParityGame& game, const std::vector<Vertex>& order)
+std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order)
 {
     // For every vector set the zeroed Measure tuple.
-    std::map<Vertex, Measures> vertexToMeasures;
+    std::vector<Measures> vertexToMeasures(game.getNumberOfVertices());
+    for (auto& measure : vertexToMeasures) {
+        measure = Measures(game.getNumberOfVertices(), 0);
+    }
 
-	//Get the set of progress measures
-	MeasuresSet measuresSet = getProgressMeasures(game);
+	// Gets the initial progress measures.
+	Measures measuresSet = getProgressMeasures(game);
 
     // Indicates whether some vertex can still be lifted.
     bool canLift = false;
@@ -140,6 +138,10 @@ std::vector<bool> solveParityGame(ParityGame& game, const std::vector<Vertex>& o
             
             // Increase means that it can be lifted.
             canLift = lexicoGreaterThan(measures, newMeasures);
+
+            if (canLift) {
+                measures = newMeasures;
+            }
         }
 
     } while (canLift);
@@ -147,9 +149,15 @@ std::vector<bool> solveParityGame(ParityGame& game, const std::vector<Vertex>& o
     // Gather the set that don't equal Top and put true for them.
     std::vector<bool> evenDominated = std::vector<bool>(game.getNumberOfVertices());
     
-    for (auto element : vertexToMeasures) {
-        //evenDominated[element.first] = element.second()
+    Vertex index = 0;
+    for (auto measures : vertexToMeasures) {
+        if (measures != TOP) {
+            // Not equal top implies winning set for even.
+            evenDominated[index] = true;
+        }
+
+        ++index;
     }
 
-    return{};
+    return evenDominated;
 }

@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+#include "PGParser.h"
+#include "PGSolver.h"
+
+#include <algorithm>
 #include <iostream>
 #include <string.h>
-#include "PGParser.h"
+
 
 /**
  * The main entry point for the program.
@@ -24,15 +28,53 @@
 int main(int argc, char* argv[])
 {
     if (argc < 2) {
-        std::cout << "Usage: [--order=input|random|type1|type2] <pg input filename>" << std::endl;
-        std::cin.get(); return -1;
+        std::cout << "Usage: [--order=input|random|type1|type2] <parity-game input filename>" << std::endl;
+        return -1;
     }
     
     int argIndex = 1;
-    const char* solveOrder = argv[argIndex++];
+    std::string solveOrder = argv[argIndex++];
     const char* pgFilename = argv[argIndex++];
+    
+    try {
+        ParityGame parityGame = parseParityGame(pgFilename);
 
-	ParityGame& pg = parseParityGame(pgFilename);
+        // Vertices are handled such that order[i] = i.
+        std::vector<Vertex> order(parityGame.getNumberOfVertices());
+        Vertex vert = 0;
+        for (auto& next : order) {
+            next = vert;
+            ++vert;
+        }
+        
+        if (solveOrder == "--order=random") {
+            // Shuffle the order at random.
+            std::random_shuffle(order.begin(), order.end());
+        }
 
+        // Solve the parity game.
+        std::vector<bool> result = solveParityGame(parityGame, order);
+
+        // Print the output sets.
+        std::cout << "Even set: ";
+        for (Vertex vert = 0; vert < result.size(); ++vert) {
+            if (result[vert]) {
+                std::cout << vert << " ";
+            }
+        }
+
+        std::cout << std::endl << "Odd set: ";
+        for (Vertex vert = 0; vert < result.size(); ++vert) {
+            if (!result[vert]) {
+                std::cout << vert << " ";
+            }
+        }      
+
+    }
+    catch (std::exception& exception) {
+        std::cerr << exception.what(); 
+        return -1;
+    }
+    
     return 0;
 }

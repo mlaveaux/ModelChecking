@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef ParityGame_h
-#define ParityGame_h
+#ifndef TOOL_PARITYGAME_H_
+#define TOOL_PARITYGAME_H_
 
-#include <vector>
+#include <iostream>
 #include <map>
 #include <set>
-#include <iostream>
-#include <stdint.h>
+#include <vector>
 
-using Measures = std::vector<unsigned int>;
 using Vertex = uint32_t;
 
 /**
@@ -41,7 +39,8 @@ public:
 	 * Constructor
 	 */
 	ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
-		std::map<Vertex, int>& owner, std::map<Vertex, int>& priority,
+		std::map<Vertex, int>& owner, 
+        std::map<Vertex, int>& priority,
 		std::map<int, int>& priorityCount);
 
 	/**
@@ -55,6 +54,11 @@ public:
 	 */
 	std::set<Vertex> getOutgoingVertices(Vertex vertex) const;
 
+    /**
+     * Gets the total number of vertices.
+     */
+    size_t getNumberOfVertices() const;
+
 	/**
 	 * Returns the priority of a vertex.
 	 */
@@ -64,11 +68,11 @@ public:
 	 * Returns the count of a priority.
 	 */
 	int getPriorityCount(int priority) const;
-
+    
 	/**
 	 * Returns the number of vertices
 	 */
-	int getNumberOfVertices() const;
+	size_t getNumberOfVertices() const;
 
 	/**
 	 * Prints the parity game.
@@ -76,10 +80,12 @@ public:
 	void print() const;
 
 private:
+    // Optimization: Possibly change map to vector (vertices are tightly packed) so lookup is constant, same for priorities.
+    // Optimization: Change { std::set<Vertex>, int, int } to a struct, consumes less memory.
 	std::map<Vertex, std::set<Vertex>> successors;
 	std::map<Vertex, int> owner; 
 	std::map<Vertex, int> priority;
 	std::map<int, int> priorityCount;
 };
 
-#endif /* ParityGame_h */
+#endif /* TOOL_PARITYGAME_H_ */
