@@ -54,6 +54,11 @@ public:
 	 * Returns the direct successors of a vertex. 
 	 */
 	std::set<Vertex> getOutgoingVertices(Vertex vertex) const;
+    
+    /**
+     * Returns the direct predecessors of a vertex.
+     */
+    std::set<Vertex> getIncomingVertices(Vertex vertex) const;
 
     /**
      * Gets the total number of vertices.
