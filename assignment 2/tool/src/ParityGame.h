@@ -70,11 +70,6 @@ public:
 	int getPriorityCount(int priority) const;
     
 	/**
-	 * Returns the number of vertices
-	 */
-	size_t getNumberOfVertices() const;
-
-	/**
 	 * Prints the parity game.
 	 */
 	void print() const;
