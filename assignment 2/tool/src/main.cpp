@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
         ParityGame parityGame = parseParityGame(pgFilename);
 
         // Vertices are handled such that order[i] = i.
-        std::vector<Vertex> order(parityGame.getNumberOfVertices());
+        std::vector<Vertex> order;
         Vertex vert = 0;
         for (auto& next : order) {
             next = vert;
@@ -48,9 +48,33 @@ int main(int argc, char* argv[])
         }
         
         if (solveOrder == "--order=random") {
+			order = std::vector<Vertex>(parityGame.getNumberOfVertices());
+			Vertex vert = 0;
+			for (auto& next : order) {
+				next = vert;
+				++vert;
+			}
             // Shuffle the order at random.
             std::random_shuffle(order.begin(), order.end());
         }
+		else if (solveOrder == "--order=input"){
+
+		}
+		else if (solveOrder == "--order=indegree"){
+			std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());
+			for (Vertex v = 0; v < parityGame.getNumberOfVertices; v++){
+				int degree = parityGame.getIncomingVertices(v).size();
+				if (degree >= degrees.size){
+					degrees.resize(degree + 1, std::set<Vertex>());
+				}
+				degrees[parityGame.getIncomingVertices(v).size()].insert(v);
+			}
+			for (size_t i = degrees.size(); i-- > 0;){
+				for (Vertex v : degrees[i]){
+					order.push_back(v);
+				}
+			}
+		}
 
         // Solve the parity game.
         std::vector<bool> result = solveParityGame(parityGame, order);
@@ -72,7 +96,7 @@ int main(int argc, char* argv[])
 
     }
     catch (std::exception& exception) {
-        std::cerr << exception.what(); 
+        std::cerr << exception.what() << "\n";
         return -1;
     }
     

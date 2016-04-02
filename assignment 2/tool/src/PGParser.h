@@ -37,8 +37,8 @@ ParityGame parseParityGame(const char* pgFilename);
  * Parses a single line from a .gm format parity game file.
  */
 void parseLine(std::string& line, std::map<Vertex, std::set<Vertex>>& successors,
-	std::map<Vertex, int>& owner, std::map<Vertex, int>& priorities,
-	std::map<int, int>& priorityCount);
+               std::map<Vertex, std::set<Vertex>>& predecessors, std::map<Vertex, int>& owner,
+               std::map<Vertex, int>& priorities, std::map<int, int>& priorityCount);
 
 /**
  * Splits a string based on a delimiter.

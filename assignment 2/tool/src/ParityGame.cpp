@@ -17,24 +17,31 @@
 #include "ParityGame.h"
 
 ParityGame::ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
+    std::map<Vertex, std::set<Vertex>>& predecessors,
     std::map<Vertex, int>& owner,
     std::map<Vertex, int>& priority,
     std::map<int, int>& priorityCount)
 {
 	this->owner = owner;
 	this->successors = successors;
+    this->predecessors = predecessors;
 	this->priority = priority;
 	this->priorityCount = priorityCount;
 }
 
 bool ParityGame::isEven(Vertex vertex) const 
 {
-	return (owner.at(vertex) == 1) ? true : false;
+	return (owner.at(vertex) == 0) ? true : false;
 }
 
 std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) const 
 {
 	return successors.at(vertex);
+}
+
+std::set<Vertex> ParityGame::getIncomingVertices(Vertex vertex) const
+{
+    return predecessors.at(vertex);
 }
 
 size_t ParityGame::getNumberOfVertices() const

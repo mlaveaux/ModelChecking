@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <map>
 #include <tuple>
+#include <stdint.h> //DONT REMOVE
 
 using Measures = std::vector<uint32_t>;
 const Measures TOP(1, 1);

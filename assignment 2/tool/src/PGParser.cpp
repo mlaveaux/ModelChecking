@@ -21,6 +21,7 @@ ParityGame parseParityGame(const char * pgFilename) {
 	std::ifstream ifs(pgFilename);
 	std::string line;
 	std::map<Vertex, std::set<Vertex>> successors;
+    std::map<Vertex, std::set<Vertex>> predecessors;
 	std::map<Vertex, int> owner;
 	std::map<Vertex, int> priorities;
 	std::map<int, int> priorityCount;
@@ -34,17 +35,15 @@ ParityGame parseParityGame(const char * pgFilename) {
     
     while (std::getline(ifs, line)) {
 		line.pop_back();
-		parseLine(line, successors, owner, priorities, priorityCount);
+		parseLine(line, successors, predecessors, owner, priorities, priorityCount);
 	}
 
-	return ParityGame(successors, owner, priorities, priorityCount);
+	return ParityGame(successors, predecessors, owner, priorities, priorityCount);
 }
 
-void parseLine(std::string& line, 
-    std::map<Vertex, std::set<Vertex>>& successors,
-	std::map<Vertex, int>& owner,
-    std::map<Vertex, int>& priorities,
-	std::map<int, int>& priorityCount) {
+void parseLine(std::string& line, std::map<Vertex, std::set<Vertex>>& successors,
+               std::map<Vertex, std::set<Vertex>>& predecessors, std::map<Vertex, int>& owner,
+               std::map<Vertex, int>& priorities, std::map<int, int>& priorityCount) {
 
 	std::vector<std::string> lineSplit = split(line, ' ');
 	int identifier = std::stoi(lineSplit.at(0));
@@ -57,7 +56,14 @@ void parseLine(std::string& line,
 	successors[identifier] = std::set<Vertex>();
 
 	for (auto &succ : succSplit) {
-		successors[identifier].insert(std::stoi(succ));
+        Vertex successor = std::stoi(succ);
+		successors[identifier].insert(successor);
+        
+        // Add to predecessor set
+        if (predecessors.find(successor) == predecessors.end()) {
+            predecessors[successor] = std::set<Vertex>();
+        }
+        predecessors[successor].insert(identifier);
 	}
 
 	if (priorityCount.count(priority)) {
