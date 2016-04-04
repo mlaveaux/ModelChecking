@@ -62,9 +62,9 @@ int main(int argc, char* argv[])
 		}
 		else if (solveOrder == "--order=indegree"){
 			std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());
-			for (Vertex v = 0; v < parityGame.getNumberOfVertices; v++){
-				int degree = parityGame.getIncomingVertices(v).size();
-				if (degree >= degrees.size){
+			for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++){
+				size_t degree = parityGame.getIncomingVertices(v).size();
+				if (degree >= degrees.size()){
 					degrees.resize(degree + 1, std::set<Vertex>());
 				}
 				degrees[parityGame.getIncomingVertices(v).size()].insert(v);

@@ -105,9 +105,9 @@ Measures lift(const ParityGame& game, Measures measuresSet, const std::vector<Me
         Measures progress = prog(game, measuresSet, progMeasures, vertex, outgoingVertex);
 
         if (game.isEven(vertex)) {
-            result = lexicoGreaterThan(progress, result) ? progress : result; // Minimize result
+            result = lexicoGreaterThan(progress, result) ? result : progress; // Minimize result
         } else {
-            result = lexicoGreaterThan(progress, result) ? result : progress; // Maximize result
+            result = lexicoGreaterThan(progress, result) ? progress : result; // Maximize result
         }
 
         // Don't know what the first max means?
