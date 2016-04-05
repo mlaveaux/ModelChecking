@@ -40,8 +40,12 @@ This report elaborates on our work and findings of assignment two. The goal of t
 
 \subsubsection{In degree}
 
-\subsubsection{order2}
+\subsubsection{Breadth first search}
+% Explaination
+This order is based on the fact that the \verb|Prog| method takes the measure of a successor vertex and either tries to increase it or copy it. When this successor vertex was already lifted beforehand the resulting measure for the lifted vertex will be even higher. So a breadth first search that places a vertex before its predecessors can possibly increase performance. It is not always possible to get all vertices starting from a single position, thus when the order is not complete the next smallest vertex is selected and another breadth first search is conducted. The implementation code is included in the appendix under \ref{appendix:bfs}.
 
+% Optimal example
+An example where this order is more efficient then the others is a single cycle where every vertex has a neighbour as successor. The input order doesn't have to follow the cycle reversed and the in-degree is the same for all vertices. So in this case the breadth first search will put the vertices in reversed order and the measures will be lifted faster.
 
 \section{Evaluation}\label{eval}
 
@@ -63,8 +67,48 @@ This report elaborates on our work and findings of assignment two. The goal of t
 \newpage
 \appendix
 
+\section{Breadth first order}\label{appendix:bfs}
 
+\begin{verbatim}
+// Create the order and coloring vectors.
+order = std::vector<Vertex>(parityGame.getNumberOfVertices(), -1);
+std::vector<int> graphColoring(parityGame.getNumberOfVertices());
 
+// The queue for to be handled vertices.
+std::queue<Vertex> workQueue;
+
+// The current order being search and vertex beind handled.
+int ordering = 0;
+Vertex currentVertex = 0;
+
+while (ordering != parityGame.getNumberOfVertices()) {
+	workQueue.push(currentVertex); // Add the first vertex.
+
+    while (!workQueue.empty()) {
+    	// Pop the first element.
+        Vertex current = workQueue.front(); workQueue.pop();
+
+        if (graphColoring[current] == 0) {
+        	// If the color is not yet set .
+            for (auto& incomingVertex : parityGame.getIncomingVertices(current)) {
+            	workQueue.push(incomingVertex);
+            }
+
+            // Color the current vertex.
+            graphColoring[current] = 1;
+            order[ordering++] = current;
+        }
+    }
+
+    // Select the smallest vertex not yet put into ordering.
+    for (Vertex current = 0; current < graphColoring.size(); ++current) {
+    	if (graphColoring[current] == 0) {
+        	currentVertex = current;
+            break;
+        }
+    }
+}
+\end{verbatim}
 
 
 
