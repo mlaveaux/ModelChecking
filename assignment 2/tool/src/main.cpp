@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
 			}
         }
         else {
-            std::cerr << "input order must be one of [--order=input|random|indegree|breadthfirst]"; 
+            std::cerr << "input order must be one of [input|random|indegree|breadthfirst]"; 
             return -1;
         }
 

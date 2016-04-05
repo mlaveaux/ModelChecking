@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PGParser_h
-#define PGParser_h
+#ifndef TOOL_PGPPARSER_H_
+#define TOOL_PGPPARSER_H_
 
 #include <stdio.h>  
 #include <iostream>

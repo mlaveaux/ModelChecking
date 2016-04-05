@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PGSOLVER_H_
-#define PGSOLVER_H_
+#ifndef TOOL_PGSOLVER_H_
+#define TOOL_PGSOLVER_H_
 
 #include "ParityGame.h"
 
