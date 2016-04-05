@@ -11,8 +11,8 @@ const Measures TOP(1, 1);
 /**
  * Gets the progress measures for a parity game
  */
-Measures getProgressMeasures(const ParityGame& game){
-    Measures progMeasures(game.getNumberOfVertices());
+static Measures getProgressMeasures(const ParityGame& game){
+    Measures progMeasures(game.getMaximumPriority() + 1);
 
 	for (int i = 1; i < progMeasures.size(); i += 2){
 		progMeasures[i] = game.getPriorityCount(i);
@@ -26,7 +26,7 @@ Measures getProgressMeasures(const ParityGame& game){
  * 
  * @param[in] limit How many elements of the tuple to check.
  */
-bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2, bool strict = true, unsigned int limit = -1)
+static bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2, bool strict = true, unsigned int limit = -1)
 {
 	//cases for TOP
 	if (measure2 == TOP) {        
@@ -55,16 +55,16 @@ bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2, bool 
 /**
  * Computes Prog, the progress measure.
  */
-Measures prog(const ParityGame& game, Measures& measuresSet, const std::vector<Measures>& parProgMeasures, Vertex v, Vertex w)
-{;
+static Measures prog(const ParityGame& game, Measures& measuresSet, const std::vector<Measures>& parProgMeasures, Vertex v, Vertex w)
+{
 	Measures newMeasure(measuresSet.size(), 0);
-	Measures succMeasure(parProgMeasures[v]);
+	const Measures& succMeasure = parProgMeasures[w];
 	int priority = game.getPriority(v);
 
     // case even priority
 	if (priority % 2 == 0) { 
 		// fill with same values as w upto priority (no need to include priority since it is even), keep the rest zero
-		for (int i = 1; i < priority; i += 2){
+		for (int i = 1; i < priority; i += 2) {
 			newMeasure[i] = succMeasure[i];
 		}
 	}
@@ -73,8 +73,8 @@ Measures prog(const ParityGame& game, Measures& measuresSet, const std::vector<M
 		// try to make the measure strictly bigger than that of w, going from priority to 1
 		// if not possible, it is TOP
 		bool madeStrictlyGreater = false;
-		for (int i = priority; i > 0; i -= 2){
-			if (!madeStrictlyGreater && succMeasure[i] < measuresSet[i]){
+		for (int i = priority; i > 0; i -= 2) {
+			if (!madeStrictlyGreater && succMeasure[i] < measuresSet[i]) {
 				newMeasure[i] = succMeasure[i] + 1;
 				madeStrictlyGreater = true;
 			}
@@ -82,7 +82,7 @@ Measures prog(const ParityGame& game, Measures& measuresSet, const std::vector<M
 				newMeasure[i] = succMeasure[i];
 			}
 		}
-		if (!madeStrictlyGreater){
+		if (!madeStrictlyGreater) {
 			newMeasure = TOP;
 			// does m = rhoish(w) = TOP also mean that rhoish(w) has to be adjusted?
 		}
@@ -94,7 +94,7 @@ Measures prog(const ParityGame& game, Measures& measuresSet, const std::vector<M
 /**
  * Lift the Measures for the specified vertex.
  */
-Measures lift(const ParityGame& game, Measures measuresSet, const std::vector<Measures>& progMeasures, Vertex vertex)
+static Measures lift(const ParityGame& game, Measures measuresSet, const std::vector<Measures>& progMeasures, Vertex vertex)
 {
     Measures result = Measures(progMeasures[vertex]);
 
@@ -121,7 +121,7 @@ std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vert
     // For every vector set the zeroed Measure tuple.
     std::vector<Measures> vertexToMeasures(game.getNumberOfVertices());
     for (auto& measure : vertexToMeasures) {
-        measure = Measures(game.getNumberOfVertices(), 0);
+        measure = Measures(game.getMaximumPriority() + 1, 0);
     }
 
 	// Gets the initial progress measures.
@@ -131,14 +131,14 @@ std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vert
     bool canLift = false;
     
     do {
-        // Follow the order specified at the parameter.
+        // Follow the order specified as parameter.
         for (auto vertex : order) {
             // Lift a single vertex and and check whether its measures have increased.
             Measures& measures = vertexToMeasures[vertex];
             Measures newMeasures = lift(game, measuresSet, vertexToMeasures, vertex);
             
-            // Increase means that it can be lifted.
-            canLift = lexicoGreaterThan(measures, newMeasures);
+            // Increase means that it can be lifted and it should stay when true.
+            canLift = lexicoGreaterThan(measures, newMeasures) || canLift;
 
             if (canLift) {
                 measures = newMeasures;

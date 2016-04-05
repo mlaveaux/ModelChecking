@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string.h>
+#include <stack>
 
 
 /**
@@ -40,7 +41,7 @@ int main(int argc, char* argv[])
         ParityGame parityGame = parseParityGame(pgFilename);
 
         // Vertices are handled such that order[i] = i.
-        std::vector<Vertex> order;
+        std::vector<Vertex> order(parityGame.getNumberOfVertices());
         Vertex vert = 0;
         for (auto& next : order) {
             next = vert;
@@ -57,8 +58,15 @@ int main(int argc, char* argv[])
             // Shuffle the order at random.
             std::random_shuffle(order.begin(), order.end());
         }
-		else if (solveOrder == "--order=input"){
+		else if (solveOrder == "--order=breadthfirst"){
+            // Implement breadth first search from the first vertex, when vertices
+            // are not reached by it add another random vertex and start over.
 
+            std::stack<Vertex> workQueue;
+
+            while (!workQueue.empty()) {
+
+            }
 		}
 		else if (solveOrder == "--order=indegree"){
 			std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());

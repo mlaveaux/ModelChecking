@@ -65,6 +65,11 @@ int ParityGame::getPriorityCount(int priority) const
 	return 0;
 }
 
+size_t ParityGame::getMaximumPriority() const
+{
+    return priority.at(priority.size() - 1);
+}
+
 void ParityGame::print() const 
 {
 	for (auto &v : successors) {

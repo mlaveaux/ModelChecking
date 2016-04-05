@@ -65,6 +65,11 @@ public:
      */
     size_t getNumberOfVertices() const;
 
+    /**
+     * Gets the highest priority.
+     */
+    size_t getMaximumPriority() const;
+
 	/**
 	 * Returns the priority of a vertex.
 	 */
