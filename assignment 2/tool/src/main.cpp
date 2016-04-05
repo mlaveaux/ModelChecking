@@ -22,143 +22,168 @@
 #include <string.h>
 #include <queue>
 
-
  /**
   * The main entry point for the program.
   */
 int main(int argc, char* argv[])
 {
-    if (argc < 2) {
-        std::cout << "Usage: [--order=input|random|indegree|breadthfirst] <parity-game input filename>" << std::endl;
+    // Input that might or should be specified.
+    int liftingOrder = 0;
+    bool fullOutput = false;
+    const char* strPgFilename = nullptr;
+
+    // Parse the input string into order, output and filename.
+    for (int argIndex = 1; argIndex < argc; ++argIndex) {
+        std::string argument = argv[argIndex];
+
+        if (argument.find("--order=") != std::string::npos) {
+            if (argument.find("input") != std::string::npos) {
+                liftingOrder = 0;
+            }
+            else if (argument.find("random") != std::string::npos) {
+                liftingOrder = 1;
+            }
+            else if (argument.find("indegree") != std::string::npos) {
+                liftingOrder = 2;
+            }
+            else if (argument.find("breadthfirst") != std::string::npos) {
+                liftingOrder = 3;
+            }
+        }
+        else if (argument.find("--output=") != std::string::npos) {
+            if (argument.find("winner") != std::string::npos) {
+                fullOutput = false;
+            }
+            else if (argument.find("partition") != std::string::npos) {
+                fullOutput = true;
+            }
+        }
+        else {
+            strPgFilename = argv[argIndex];
+        }
+    }
+
+    // Check that all input was given.
+    if (argc < 2 || strPgFilename == nullptr) {
+        std::cout << "Usage: [--order=input|random|indegree|breadthfirst] [--output=winner|partition] <paritygame-filename>" << std::endl;
         return -1;
     }
 
-    int argIndex = 1;
-    std::string solveOrder = argv[argIndex++];
-    const char* pgFilename = argv[argIndex++];
+    try {
+        ParityGame parityGame = parseParityGame(strPgFilename);
 
-	try {
-		ParityGame parityGame = parseParityGame(pgFilename);
+        std::vector<Vertex> order;
 
-		std::vector<Vertex> order;
-
-		if (solveOrder == "--order=random") {
-			// Vertices are handled such that order[i] = i.
-			order = std::vector<Vertex>(parityGame.getNumberOfVertices());
-			Vertex vert = 0;
-			for (auto& next : order) {
-				next = vert;
-				++vert;
-			}
-			// Shuffle the order at random.
-			std::random_shuffle(order.begin(), order.end());
-		}
-		else if (solveOrder == "--order=input") {
-			order = std::vector<Vertex>(parityGame.getNumberOfVertices());
-			// Vertices are handled such that order[i] = i.
-			Vertex vert = 0;
-			for (auto& next : order) {
-				next = vert;
-				++vert;
-			}
-		}
-		else if (solveOrder == "--order=breadthfirst") {
-			// Create the order and coloring vectors.
-			order = std::vector<Vertex>(parityGame.getNumberOfVertices(), -1);
-			std::vector<int> graphColoring(parityGame.getNumberOfVertices());
-
-			// The queue for to be handled vertices.
-			std::queue<Vertex> workQueue;
-
-			// The current order being search and vertex beind handled.
-			int ordering = 0;
-			Vertex currentVertex = 0;
-
-			while (ordering != parityGame.getNumberOfVertices()) {
-				workQueue.push(currentVertex); // Add the first vertex.
-
-				while (!workQueue.empty()) {
-					// Pop the first element.
-					Vertex current = workQueue.front();
-					workQueue.pop();
-
-					if (graphColoring[current] == 0) {
-						// If the color is not yet set .
-						for (auto& incomingVertex : parityGame.getIncomingVertices(current)) {
-							workQueue.push(incomingVertex);
-						}
-
-						// Color the current vertex.
-						graphColoring[current] = 1;
-						order[ordering++] = current;
-					}
-				}
-
-				// Select the smallest vertex not yet put into ordering.
-				for (Vertex current = 0; current < graphColoring.size(); ++current) {
-					if (graphColoring[current] == 0) {
-						currentVertex = current;
-						break;
-					}
-				}
-			}
-		}
-		else if (solveOrder == "--order=indegree") {
-			/*Vertex vert = 0;
-			order = std::vector<Vertex>(parityGame.getNumberOfVertices());
-			for (auto& next : order) {
-				next = vert;
-				++vert;
-			}
-
-			std::sort(order.begin(), order.end(), [&](Vertex a, Vertex b) {
-				parityGame.getIncomingVertices(a).size() > parityGame.getIncomingVertices(b).size(;
-			});*/
-
-			//first get the max indegree
-			int maxIndegree = 0;
-			for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++) {
-				size_t indegree = parityGame.getIncomingVertices(v).size();
-				maxIndegree = (indegree > maxIndegree) ? indegree : maxIndegree;
-			}
-			//bucket sort
-			std::vector<std::set<Vertex>> degrees(maxIndegree + 1, std::set<Vertex>());
-			for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++) {
-				degrees[parityGame.getIncomingVertices(v).size()].insert(v);
-			}
-			//create the order
-			for (size_t i = maxIndegree; i-- > 0;) {
-				for (Vertex v : degrees[i]) {
-					order.push_back(v);
-				}
-			}
+        switch (liftingOrder) {
+        case 0: {
+            order = std::vector<Vertex>(parityGame.getNumberOfVertices());
+            // Vertices are set such that order[i] = i.
+            Vertex vert = 0;
+            for (auto& next : order) {
+                next = vert;
+                ++vert;
+            }
+            break; 
         }
-		else if (solveOrder == "--order=combi"){
+        case 1: {
+            // Vertices are handled such that order[i] = i.
+            order = std::vector<Vertex>(parityGame.getNumberOfVertices());
+            Vertex vert = 0;
+            for (auto& next : order) {
+                next = vert;
+                ++vert;
+            }
+            // Shuffle the order at random.
+            std::random_shuffle(order.begin(), order.end());
+            break;
+        }
+        case 2: {
+            std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());
+            for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++) {
+                size_t degree = parityGame.getIncomingVertices(v).size();
+                if (degree >= degrees.size()) {
+                    degrees.resize(degree + 1, std::set<Vertex>());
+                }
+                degrees[parityGame.getIncomingVertices(v).size()].insert(v);
+            }
+            for (size_t i = degrees.size(); i-- > 0;) {
+                for (Vertex v : degrees[i]) {
+                    order.push_back(v);
+                }
+            }
+            break;
+        }
+        case 3: {
+            // Create the order and coloring vectors.
+            order = std::vector<Vertex>(parityGame.getNumberOfVertices(), -1);
+            std::vector<int> graphColoring(parityGame.getNumberOfVertices());
 
-		}
+            // The queue for to be handled vertices.
+            std::queue<Vertex> workQueue;
+
+            // The current order being search and vertex beind handled.
+            int ordering = 0;
+            Vertex currentVertex = 0;
+
+            while (ordering != parityGame.getNumberOfVertices()) {
+                workQueue.push(currentVertex); // Add the first vertex.
+
+                while (!workQueue.empty()) {
+                    // Pop the first element.
+                    Vertex current = workQueue.front();
+                    workQueue.pop();
+
+                    if (graphColoring[current] == 0) {
+                        // If the color is not yet set .
+                        for (auto& incomingVertex : parityGame.getIncomingVertices(current)) {
+                            workQueue.push(incomingVertex);
+                        }
+
+                        // Color the current vertex.
+                        graphColoring[current] = 1;
+                        order[ordering++] = current;
+                    }
+                }
+
+                // Select the smallest vertex not yet put into ordering.
+                for (Vertex current = 0; current < graphColoring.size(); ++current) {
+                    if (graphColoring[current] == 0) {
+                        currentVertex = current;
+                        break;
+                    }
+                }
+            }
+        }
+        }
+
+        // Solve the parity game.
+        std::vector<bool> result = solveParityGame(parityGame, order, fullOutput);
+
+        // Print the output sets.
+        if (fullOutput) {
+            std::cout << "Even set: ";
+            for (Vertex vert = 0; vert < result.size(); ++vert) {
+                if (result[vert]) {
+                    std::cout << vert << " ";
+                }
+            }
+
+            std::cout << std::endl << "Odd set: ";
+            for (Vertex vert = 0; vert < result.size(); ++vert) {
+                if (!result[vert]) {
+                    std::cout << vert << " ";
+                }
+            }
+        }
         else {
-            std::cerr << "input order must be one of [input|random|indegree|breadthfirst]"; 
-            return -1;
+            if (result[0]) {
+                std::cout << "Even wins vertex 0" << std::endl;
+            }
+            else {
+                std::cout << "Odd wins vertex 0" << std::endl;
+            }
         }
-
-		// Solve the parity game.
-		std::vector<bool> result = solveParityGame(parityGame, order);
-
-		// Print the output sets.
-		std::cout << "Even set: ";
-		for (Vertex vert = 0; vert < result.size(); ++vert) {
-			if (result[vert]) {
-				std::cout << vert << " ";
-			}
-		}
-
-		std::cout << std::endl << "Odd set: ";
-		for (Vertex vert = 0; vert < result.size(); ++vert) {
-			if (!result[vert]) {
-				std::cout << vert << " ";
-			}
-		}
-	}
+    }
 
     catch (std::exception& exception) {
         std::cerr << exception.what() << "\n";
