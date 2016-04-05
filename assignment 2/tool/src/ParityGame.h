@@ -80,12 +80,7 @@ public:
 	 * Returns the count of a priority.
 	 */
 	int getPriorityCount(int priority) const;
-
-	/**
-	 * Returns the maximum priority
-	 */
-	int getMaxPriority() const;
-
+    
 	/**
 	 * Prints the parity game.
 	 */

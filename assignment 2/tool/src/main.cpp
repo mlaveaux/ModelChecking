@@ -40,10 +40,11 @@ int main(int argc, char* argv[])
     try {
         ParityGame parityGame = parseParityGame(pgFilename);
 
-        std::vector<Vertex> order(parityGame.getNumberOfVertices());
+        std::vector<Vertex> order;
 
         if (solveOrder == "--order=random") {
             // Vertices are handled such that order[i] = i.
+            order = std::vector<Vertex>(parityGame.getNumberOfVertices());
             Vertex vert = 0;
             for (auto& next : order) {
                 next = vert;
@@ -53,6 +54,7 @@ int main(int argc, char* argv[])
             std::random_shuffle(order.begin(), order.end());
         }
         else if (solveOrder == "--order=input") {
+            order = std::vector<Vertex>(parityGame.getNumberOfVertices());
             // Vertices are handled such that order[i] = i.
             Vertex vert = 0;
             for (auto& next : order) {
@@ -61,6 +63,7 @@ int main(int argc, char* argv[])
             }
         }
         else if (solveOrder == "--order=breadthfirst") {
+            order = std::vector<Vertex>(parityGame.getNumberOfVertices());
             std::vector<int> graphColoring(parityGame.getNumberOfVertices());
 
             std::queue<Vertex> workQueue;
@@ -89,6 +92,17 @@ int main(int argc, char* argv[])
             }
         }
         else if (solveOrder == "--order=indegree") {
+            /*Vertex vert = 0;
+            order = std::vector<Vertex>(parityGame.getNumberOfVertices());
+            for (auto& next : order) {
+                next = vert;
+                ++vert;
+            }
+
+            std::sort(order.begin(), order.end(), [&](Vertex a, Vertex b) {
+                parityGame.getIncomingVertices(a).size() > parityGame.getIncomingVertices(b).size(;
+            });*/
+
             std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());
             for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++) {
                 size_t degree = parityGame.getIncomingVertices(v).size();
@@ -121,12 +135,11 @@ int main(int argc, char* argv[])
                 std::cout << vert << " ";
             }
         }
-
-        }
-        catch (std::exception& exception) {
-            std::cerr << exception.what() << "\n";
-            return -1;
-        }
-
-        return 0;
     }
+    catch (std::exception& exception) {
+        std::cerr << exception.what() << "\n";
+        return -1;
+    }
+
+    return 0;
+}
