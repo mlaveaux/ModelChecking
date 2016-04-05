@@ -63,15 +63,19 @@ int main(int argc, char* argv[])
             }
         }
         else if (solveOrder == "--order=breadthfirst") {
-            order = std::vector<Vertex>(parityGame.getNumberOfVertices());
+            // Create the order and coloring vectors.
+            order = std::vector<Vertex>(parityGame.getNumberOfVertices(), -1);
             std::vector<int> graphColoring(parityGame.getNumberOfVertices());
 
+            // The queue for to be handled vertices.
             std::queue<Vertex> workQueue;
 
+            // The current order being search and vertex beind handled.
             int ordering = 0;
+            Vertex currentVertex = 0;
 
             while (ordering != parityGame.getNumberOfVertices()) {
-                workQueue.push(ordering); // Add the first vertex.
+                workQueue.push(currentVertex); // Add the first vertex.
 
                 while (!workQueue.empty()) {
                     // Pop the first element.
@@ -86,7 +90,15 @@ int main(int argc, char* argv[])
 
                         // Color the current vertex.
                         graphColoring[current] = 1;
-                        order[ordering] = ordering++;
+                        order[ordering++] = current;
+                    }
+                }
+
+                // Select the smallest vertex not yet put into ordering.
+                for (Vertex current = 0; current < graphColoring.size(); ++current) {
+                    if (graphColoring[current] == 0) {
+                        currentVertex = current;
+                        break;
                     }
                 }
             }
