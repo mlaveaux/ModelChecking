@@ -128,7 +128,11 @@ int main(int argc, char* argv[])
 					order.push_back(v);
 				}
 			}
-		}
+        }
+        else {
+            std::cerr << "input order must be one of [--order=input|random|indegree|breadthfirst]"; 
+            return -1;
+        }
 
 		// Solve the parity game.
 		std::vector<bool> result = solveParityGame(parityGame, order);
