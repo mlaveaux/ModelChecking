@@ -17,31 +17,31 @@
 #include "ParityGame.h"
 
 ParityGame::ParityGame(std::vector<std::set<Vertex>>& successors,
-	std::vector<std::set<Vertex>>& predecessors,
-	std::vector<int>& owner,
-	std::vector<int>& priority,
-	std::map<int, int>& priorityCount)
+    std::vector<std::set<Vertex>>& predecessors,
+    std::vector<int>& owner,
+    std::vector<int>& priority,
+    std::map<int, int>& priorityCount)
 {
-	this->owner = owner;
-	this->successors = successors;
+    this->owner = owner;
+    this->successors = successors;
     this->predecessors = predecessors;
-	this->priority = priority;
-	this->priorityCount = priorityCount;
+    this->priority = priority;
+    this->priorityCount = priorityCount;
 }
 
-bool ParityGame::isEven(Vertex vertex) const 
+bool ParityGame::isEven(Vertex vertex) const
 {
-	return (owner.at(vertex) == 0) ? true : false;
+    return (owner.at(vertex) == 0) ? true : false;
 }
 
-std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) const 
+std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) const
 {
-	return successors.at(vertex);
+    return successors.at(vertex);
 }
 
 std::set<Vertex> ParityGame::getIncomingVertices(Vertex vertex) const
 {
-	return predecessors.at(vertex);
+    return predecessors.at(vertex);
 }
 
 size_t ParityGame::getNumberOfVertices() const
@@ -50,30 +50,35 @@ size_t ParityGame::getNumberOfVertices() const
 }
 
 int ParityGame::getPriority(Vertex vertex) const
-{	
-	return priority.at(vertex);
+{
+    return priority.at(vertex);
 }
 
-int ParityGame::getPriorityCount(int priority) const 
+int ParityGame::getPriorityCount(int priority) const
 {
-	if (priorityCount.count(priority)) {
-		return priorityCount.at(priority);
-	}
-	return 0;
+    if (priorityCount.count(priority)) {
+        return priorityCount.at(priority);
+    }
+    return 0;
 }
 
 size_t ParityGame::getMaximumPriority() const
 {
-    return priority.at((Vertex)(priority.size() - 1));
+    if (priorityCount.count(0) == 0) {
+        return priorityCount.size();
+    }
+    else {
+        return priorityCount.size() - 1;
+    }
 }
 
-void ParityGame::print() const 
+void ParityGame::print() const
 {
-	for (int i = 0; i < successors.size(); ++i) {
-		std::cout << i << " " << priority.at(i) << " " << owner.at(i) << " ";
-		for (auto &s : successors.at(i)) {
-			std::cout << s << " ";
-		}
-		std::cout << "\n";
-	}
+    for (int i = 0; i < successors.size(); ++i) {
+        std::cout << i << " " << priority.at(i) << " " << owner.at(i) << " ";
+        for (auto &s : successors.at(i)) {
+            std::cout << s << " ";
+        }
+        std::cout << "\n";
+    }
 }

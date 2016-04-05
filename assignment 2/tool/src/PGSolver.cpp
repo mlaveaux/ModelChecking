@@ -140,7 +140,7 @@ std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vert
             Measures newMeasures = lift(game, maxMeasures, vertexToMeasures, vertex);
             
             // Increase means that it can be lifted and it should stay when true.
-            canLift = lexicoGreaterThan(measures, newMeasures) || canLift;
+            canLift = lexicoGreaterThan(newMeasures, measures) || canLift;
 
             if (canLift) {
                 measures = newMeasures;
