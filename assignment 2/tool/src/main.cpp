@@ -115,20 +115,27 @@ int main(int argc, char* argv[])
 				parityGame.getIncomingVertices(a).size() > parityGame.getIncomingVertices(b).size(;
 			});*/
 
-			std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());
+			//first get the max indegree
+			int maxIndegree = 0;
 			for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++) {
-				size_t degree = parityGame.getIncomingVertices(v).size();
-				if (degree >= degrees.size()) {
-					degrees.resize(degree + 1, std::set<Vertex>());
-				}
+				size_t indegree = parityGame.getIncomingVertices(v).size();
+				maxIndegree = (indegree > maxIndegree) ? indegree : maxIndegree;
+			}
+			//bucket sort
+			std::vector<std::set<Vertex>> degrees(maxIndegree + 1, std::set<Vertex>());
+			for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++) {
 				degrees[parityGame.getIncomingVertices(v).size()].insert(v);
 			}
-			for (size_t i = degrees.size(); i-- > 0;) {
+			//create the order
+			for (size_t i = maxIndegree; i-- > 0;) {
 				for (Vertex v : degrees[i]) {
 					order.push_back(v);
 				}
 			}
         }
+		else if (solveOrder == "--order=combi"){
+
+		}
         else {
             std::cerr << "input order must be one of [input|random|indegree|breadthfirst]"; 
             return -1;
