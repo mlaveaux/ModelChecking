@@ -117,25 +117,28 @@ static Measures prog(const ParityGame& game, Measures& maxMeasures, const std::v
 Measures lift(const ParityGame& game, Measures maxMeasures, const std::vector<Measures>& progMeasures, Vertex vertex)
 {
     Measures result;
+
     if (game.isEven(vertex)) {
         result = TOP;
+		for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
+			Measures progress = prog(game, maxMeasures, progMeasures, vertex, outgoingVertex);
+			result = lexicoGreaterThan(progress, result) ? result : progress; // Minimize result
+			//if it has the minimum value, return it immediately
+			if (result == Measures(maxMeasures.size(), 0)){
+				return result;
+			}
+		}
     }
     else {
         result = Measures(maxMeasures.size(), 0);
-    }
-    //optimizations possible: look at selfloops (for instance, if vertex has self loop, is of player even, has odd priority: measure = TOP)
-
-    // Sketch of code, but requires additional functionality in ParityGame.
-    for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
-        Measures progress = prog(game, maxMeasures, progMeasures, vertex, outgoingVertex);
-
-        if (game.isEven(vertex)) {
-            result = lexicoGreaterThan(progress, result) ? result : progress; // Minimize result
-        }
-        else {
-            result = lexicoGreaterThan(progress, result) ? progress : result; // Maximize result
-        }
-
+		for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
+			Measures progress = prog(game, maxMeasures, progMeasures, vertex, outgoingVertex);
+			result = lexicoGreaterThan(progress, result) ? progress : result; // Maximize result
+			//if it has the maximum value, return it immediately
+			if (result == TOP){
+				return result;
+			}
+		}
     }
 
     return result;
