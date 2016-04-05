@@ -123,8 +123,8 @@ Measures lift(const ParityGame& game, Measures maxMeasures, const std::vector<Me
 		for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
 			Measures progress = prog(game, maxMeasures, progMeasures, vertex, outgoingVertex);
 			result = lexicoGreaterThan(progress, result) ? result : progress; // Minimize result
-			//if it has the minimum value, return it immediately
-			if (result == Measures(maxMeasures.size(), 0)){
+			// if it has the minimum value, return it immediately
+			if (result == Measures(maxMeasures.size(), 0)) {
 				return result;
 			}
 		}
@@ -134,8 +134,8 @@ Measures lift(const ParityGame& game, Measures maxMeasures, const std::vector<Me
 		for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
 			Measures progress = prog(game, maxMeasures, progMeasures, vertex, outgoingVertex);
 			result = lexicoGreaterThan(progress, result) ? progress : result; // Maximize result
-			//if it has the maximum value, return it immediately
-			if (result == TOP){
+			// if it has the maximum value, return it immediately
+			if (result == TOP) {
 				return result;
 			}
 		}
@@ -144,7 +144,7 @@ Measures lift(const ParityGame& game, Measures maxMeasures, const std::vector<Me
     return result;
 }
 
-std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order)
+std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order, bool fullPartition)
 {
     // For every vector set the zeroed Measure tuple.
     std::vector<Measures> vertexToMeasures(game.getNumberOfVertices());
@@ -176,17 +176,27 @@ std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vert
     } while (increased);
 
     // Gather the set that don't equal Top and put true for them.
-    std::vector<bool> evenDominated = std::vector<bool>(game.getNumberOfVertices());
+    if (fullPartition) {
+        std::vector<bool> evenDominated = std::vector<bool>(game.getNumberOfVertices());
 
-    Vertex index = 0;
-    for (auto measures : vertexToMeasures) {
-        if (measures != TOP) {
-            // Not equal top implies winning set for even.
-            evenDominated[index] = true;
+        Vertex index = 0;
+        for (auto measures : vertexToMeasures) {
+            if (measures != TOP) {
+                // Not equal top implies winning set for even.
+                evenDominated[index] = true;
+            }
+
+            ++index;
         }
 
-        ++index;
+        return evenDominated;
     }
-
-    return evenDominated;
+    else {
+        if (vertexToMeasures[0] != TOP) {
+            return { true };
+        }
+        else {
+            return { false };
+        }
+    }
 }

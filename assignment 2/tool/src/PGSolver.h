@@ -22,8 +22,11 @@
 #include <vector>
 
 /**
- * Solves a parity game, the vector contains true for each vertex where even wins that vertex.
+ * Solves the given parity game. 
+ *
+ * @param[in] order The order in which the vertices are lifted, each index specifies the index of the vertex lifted.
+ * @param[in] fullPartition Indicate that the vector contains true|false for every vertex, otherwise only for vertex 0.
  */
-std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order);
+std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order, bool fullPartition);
 
 #endif // PGSOLVER_H_
