@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
         // Solve the parity game.
         std::vector<bool> result = solveParityGame(parityGame, order);
 
-        // Print the output sets.
+        /* Print the output sets.
         std::cout << "Even set: ";
         for (Vertex vert = 0; vert < result.size(); ++vert) {
             if (result[vert]) {
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
             if (!result[vert]) {
                 std::cout << vert << " ";
             }
-        }      
+        }  */    
 
     }
     catch (std::exception& exception) {

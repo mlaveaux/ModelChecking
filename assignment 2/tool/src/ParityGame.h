@@ -36,13 +36,14 @@ using Vertex = uint32_t;
 class ParityGame {
 
 public:
+
 	/**
-	 * Constructor
-	 */
-	ParityGame(std::map<Vertex, std::set<Vertex>>& successors,
-        std::map<Vertex, std::set<Vertex>>& predecessors,
-		std::map<Vertex, int>& owner, 
-        std::map<Vertex, int>& priority,
+	* Constructor
+	*/
+	ParityGame(std::vector<std::set<Vertex>>& successors,
+		std::vector<std::set<Vertex>>& predecessors,
+		std::vector<int>& owner,
+		std::vector<int>& priority,
 		std::map<int, int>& priorityCount);
 
 	/**
@@ -82,17 +83,15 @@ public:
 	int getMaxPriority() const;
 
 	/**
-	 * Prints the parity game.
+	 * Print the parity game.
 	 */
 	void print() const;
 
 private:
-    // Optimization: Possibly change map to vector (vertices are tightly packed) so lookup is constant, same for priorities.
-    // Optimization: Change { std::set<Vertex>, int, int } to a struct, consumes less memory.
-	std::map<Vertex, std::set<Vertex>> successors;
-    std::map<Vertex, std::set<Vertex>> predecessors;
-	std::map<Vertex, int> owner; 
-	std::map<Vertex, int> priority;
+	std::vector<std::set<Vertex>> successors;
+	std::vector<std::set<Vertex>> predecessors;
+	std::vector<int> owner;
+	std::vector<int> priority;
 	std::map<int, int> priorityCount;
 	int maxPriority;
 };

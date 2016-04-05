@@ -20,20 +20,24 @@ ParityGame parseParityGame(const char * pgFilename) {
 
 	std::ifstream ifs(pgFilename);
 	std::string line;
-	std::map<Vertex, std::set<Vertex>> successors;
-    std::map<Vertex, std::set<Vertex>> predecessors;
-	std::map<Vertex, int> owner;
-	std::map<Vertex, int> priorities;
-	std::map<int, int> priorityCount;
     
     if (!ifs.good()) {
         throw std::runtime_error(std::string("Failed to open file ") + pgFilename);
     }
 
-	std::getline(ifs, line); // Optimization: Read first line to initialize the vectors to size 
-                             // (only one memory allocation required instead of multiple).
+	std::getline(ifs, line);
+	line.pop_back();
+	std::vector<std::string> lineSplit = split(line, ' ');
+	int pgSize = std::stoi(lineSplit.at(1)) + 1;
+
+	std::vector<std::set<Vertex>> successors (pgSize);
+	std::vector<std::set<Vertex>> predecessors (pgSize);
+	std::vector<int> owner (pgSize);
+	std::vector<int> priorities (pgSize);
+	std::map<int, int> priorityCount;
     
-    while (std::getline(ifs, line)) {
+	for (int i = 0; i < pgSize; ++i) {
+		std::getline(ifs, line);
 		line.pop_back();
 		parseLine(line, successors, predecessors, owner, priorities, priorityCount);
 	}
@@ -41,28 +45,27 @@ ParityGame parseParityGame(const char * pgFilename) {
 	return ParityGame(successors, predecessors, owner, priorities, priorityCount);
 }
 
-void parseLine(std::string& line, std::map<Vertex, std::set<Vertex>>& successors,
-               std::map<Vertex, std::set<Vertex>>& predecessors, std::map<Vertex, int>& owner,
-               std::map<Vertex, int>& priorities, std::map<int, int>& priorityCount) {
+void parseLine(std::string& line, 
+	std::vector<std::set<Vertex>>& successors,
+	std::vector<std::set<Vertex>>& predecessors, 
+	std::vector<int>& owner,
+	std::vector<int>& priorities, 
+	std::map<int, int>& priorityCount) {
 
 	std::vector<std::string> lineSplit = split(line, ' ');
+
 	int identifier = std::stoi(lineSplit.at(0));
 	int priority = std::stoi(lineSplit.at(1));
 	int ownedBy = std::stoi(lineSplit.at(2));
+
 	std::vector<std::string> succSplit = split(lineSplit.at(3), ',');
 
 	priorities[identifier] = priority;
 	owner[identifier] = ownedBy;
-	successors[identifier] = std::set<Vertex>();
 
 	for (auto &succ : succSplit) {
         Vertex successor = std::stoi(succ);
 		successors[identifier].insert(successor);
-        
-        // Add to predecessor set
-        if (predecessors.find(successor) == predecessors.end()) {
-            predecessors[successor] = std::set<Vertex>();
-        }
         predecessors[successor].insert(identifier);
 	}
 
