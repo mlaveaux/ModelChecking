@@ -67,6 +67,11 @@ public:
      */
     size_t getNumberOfVertices() const;
 
+    /**
+     * Gets the highest priority.
+     */
+    size_t getMaximumPriority() const;
+
 	/**
 	 * Returns the priority of a vertex.
 	 */
@@ -76,12 +81,7 @@ public:
 	 * Returns the count of a priority.
 	 */
 	int getPriorityCount(int priority) const;
-
-	/**
-	 * Returns the maximum priority
-	 */
-	int getMaxPriority() const;
-
+    
 	/**
 	 * Print the parity game.
 	 */

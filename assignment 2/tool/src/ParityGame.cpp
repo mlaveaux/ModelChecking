@@ -27,11 +27,6 @@ ParityGame::ParityGame(std::vector<std::set<Vertex>>& successors,
     this->predecessors = predecessors;
 	this->priority = priority;
 	this->priorityCount = priorityCount;
-	if (priorityCount.count(0) == 0){
-		this->maxPriority = priorityCount.size();
-	} else {
-		this->maxPriority = priorityCount.size() - 1;
-	}
 }
 
 bool ParityGame::isEven(Vertex vertex) const 
@@ -46,7 +41,7 @@ std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) const
 
 std::set<Vertex> ParityGame::getIncomingVertices(Vertex vertex) const
 {
-    return predecessors.at(vertex);
+	return predecessors.at(vertex);
 }
 
 size_t ParityGame::getNumberOfVertices() const
@@ -67,6 +62,11 @@ int ParityGame::getPriorityCount(int priority) const
 	return 0;
 }
 
+size_t ParityGame::getMaximumPriority() const
+{
+    return priority.at((Vertex)(priority.size() - 1));
+}
+
 void ParityGame::print() const 
 {
 	for (int i = 0; i < successors.size(); ++i) {
@@ -76,8 +76,4 @@ void ParityGame::print() const
 		}
 		std::cout << "\n";
 	}
-}
-
-int ParityGame::getMaxPriority() const {
-	return maxPriority;
 }
