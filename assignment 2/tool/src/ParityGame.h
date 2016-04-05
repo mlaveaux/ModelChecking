@@ -21,6 +21,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <stdint.h> //DONT REMOVE THIS
 
 using Vertex = uint32_t;
 
@@ -76,6 +77,11 @@ public:
 	int getPriorityCount(int priority) const;
 
 	/**
+	 * Returns the maximum priority
+	 */
+	int getMaxPriority() const;
+
+	/**
 	 * Prints the parity game.
 	 */
 	void print() const;
@@ -88,6 +94,7 @@ private:
 	std::map<Vertex, int> owner; 
 	std::map<Vertex, int> priority;
 	std::map<int, int> priorityCount;
+	int maxPriority;
 };
 
 #endif /* TOOL_PARITYGAME_H_ */

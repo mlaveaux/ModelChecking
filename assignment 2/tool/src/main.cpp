@@ -28,7 +28,7 @@
 int main(int argc, char* argv[])
 {
     if (argc < 2) {
-        std::cout << "Usage: [--order=input|random|type1|type2] <parity-game input filename>" << std::endl;
+        std::cout << "Usage: [--order=input|random|indegree|type2] <parity-game input filename>" << std::endl;
         return -1;
     }
     
@@ -58,7 +58,12 @@ int main(int argc, char* argv[])
             std::random_shuffle(order.begin(), order.end());
         }
 		else if (solveOrder == "--order=input"){
-
+			order = std::vector<Vertex>(parityGame.getNumberOfVertices());
+			Vertex vert = 0;
+			for (auto& next : order) {
+				next = vert;
+				++vert;
+			}
 		}
 		else if (solveOrder == "--order=indegree"){
 			std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());
@@ -74,6 +79,13 @@ int main(int argc, char* argv[])
 					order.push_back(v);
 				}
 			}
+		}
+		else if (solveOrder == "--order=type2"){
+
+		}
+		else{
+			std::cout << "Usage: [--order=input|random|indegree|type2] <parity-game input filename>" << std::endl;
+			return -1;
 		}
 
         // Solve the parity game.
