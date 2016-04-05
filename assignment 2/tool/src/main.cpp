@@ -20,7 +20,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string.h>
-#include <stack>
+#include <queue>
 
 
 /**
@@ -58,17 +58,35 @@ int main(int argc, char* argv[])
             // Shuffle the order at random.
             std::random_shuffle(order.begin(), order.end());
         }
-		else if (solveOrder == "--order=breadthfirst"){
-            // Implement breadth first search from the first vertex, when vertices
-            // are not reached by it add another random vertex and start over.
+		else if (solveOrder == "--order=breadthfirst") {
+            std::vector<int> graphColoring(parityGame.getNumberOfVertices());
 
-            std::stack<Vertex> workQueue;
+            std::queue<Vertex> workQueue;
 
-            while (!workQueue.empty()) {
+            int ordering = 0;
+            
+            while (ordering != parityGame.getNumberOfVertices()) {
+                workQueue.push(ordering); // Add the first vertex.
 
+                while (!workQueue.empty()) {
+                    // Pop the first element.
+                    Vertex current = workQueue.front();
+                    workQueue.pop();
+
+                    if (graphColoring[current] == 0) {
+                        // If the color is not yet set .
+                        for (auto& incomingVertex : parityGame.getIncomingVertices(current)) {
+                            workQueue.push(incomingVertex);
+                        }
+
+                        // Color the current vertex.
+                        graphColoring[current] = 1;
+                        order[ordering] = ordering++;
+                    }
+                }
             }
 		}
-		else if (solveOrder == "--order=indegree"){
+		else if (solveOrder == "--order=indegree") {
 			std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());
 			for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++){
 				size_t degree = parityGame.getIncomingVertices(v).size();
