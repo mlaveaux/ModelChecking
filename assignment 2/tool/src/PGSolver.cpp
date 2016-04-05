@@ -55,9 +55,9 @@ static bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2
 /**
  * Computes Prog, the progress measure.
  */
-static Measures prog(const ParityGame& game, Measures& measuresSet, const std::vector<Measures>& parProgMeasures, Vertex v, Vertex w)
+static Measures prog(const ParityGame& game, Measures& maxMeasures, const std::vector<Measures>& parProgMeasures, Vertex v, Vertex w)
 {
-	Measures newMeasure(measuresSet.size(), 0);
+	Measures newMeasure(maxMeasures.size(), 0);
 	const Measures& succMeasure = parProgMeasures[w];
 	int priority = game.getPriority(v);
 
@@ -74,7 +74,7 @@ static Measures prog(const ParityGame& game, Measures& measuresSet, const std::v
 		// if not possible, it is TOP
 		bool madeStrictlyGreater = false;
 		for (int i = priority; i > 0; i -= 2) {
-			if (!madeStrictlyGreater && succMeasure[i] < measuresSet[i]) {
+			if (!madeStrictlyGreater && succMeasure[i] < maxMeasures[i]) {
 				newMeasure[i] = succMeasure[i] + 1;
 				madeStrictlyGreater = true;
 			}
@@ -94,23 +94,25 @@ static Measures prog(const ParityGame& game, Measures& measuresSet, const std::v
 /**
  * Lift the Measures for the specified vertex.
  */
-static Measures lift(const ParityGame& game, Measures measuresSet, const std::vector<Measures>& progMeasures, Vertex vertex)
+static Measures lift(const ParityGame& game, Measures maxMeasures, const std::vector<Measures>& progMeasures, Vertex vertex)
 {
-    Measures result = Measures(progMeasures[vertex]);
-
+	Measures result;
+	if (game.isEven(vertex)){
+		result = TOP;
+	} else {
+		result = Measures(maxMeasures.size(), 0);
+	}
 	//optimizations possible: look at selfloops (for instance, if vertex has self loop, is of player even, has odd priority: measure = TOP)
 
     // Sketch of code, but requires additional functionality in ParityGame.
     for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
-        Measures progress = prog(game, measuresSet, progMeasures, vertex, outgoingVertex);
+        Measures progress = prog(game, maxMeasures, progMeasures, vertex, outgoingVertex);
 
         if (game.isEven(vertex)) {
             result = lexicoGreaterThan(progress, result) ? result : progress; // Minimize result
         } else {
             result = lexicoGreaterThan(progress, result) ? progress : result; // Maximize result
         }
-
-        // Don't know what the first max means?
     }
 
     return result;
@@ -125,17 +127,17 @@ std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vert
     }
 
 	// Gets the initial progress measures.
-	Measures measuresSet = getProgressMeasures(game);
+	Measures maxMeasures = getProgressMeasures(game);
 
     // Indicates whether some vertex can still be lifted.
     bool canLift = false;
     
     do {
-        // Follow the order specified as parameter.
+        // Follow the order specified at the parameter.
         for (auto vertex : order) {
             // Lift a single vertex and and check whether its measures have increased.
             Measures& measures = vertexToMeasures[vertex];
-            Measures newMeasures = lift(game, measuresSet, vertexToMeasures, vertex);
+            Measures newMeasures = lift(game, maxMeasures, vertexToMeasures, vertex);
             
             // Increase means that it can be lifted and it should stay when true.
             canLift = lexicoGreaterThan(measures, newMeasures) || canLift;

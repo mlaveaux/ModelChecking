@@ -23,48 +23,50 @@
 #include <queue>
 
 
-/**
- * The main entry point for the program.
- */
+ /**
+  * The main entry point for the program.
+  */
 int main(int argc, char* argv[])
 {
     if (argc < 2) {
-        std::cout << "Usage: [--order=input|random|type1|type2] <parity-game input filename>" << std::endl;
+        std::cout << "Usage: [--order=input|random|indegree|breadthfirst] <parity-game input filename>" << std::endl;
         return -1;
     }
-    
+
     int argIndex = 1;
     std::string solveOrder = argv[argIndex++];
     const char* pgFilename = argv[argIndex++];
-    
+
     try {
         ParityGame parityGame = parseParityGame(pgFilename);
 
-        // Vertices are handled such that order[i] = i.
         std::vector<Vertex> order(parityGame.getNumberOfVertices());
-        Vertex vert = 0;
-        for (auto& next : order) {
-            next = vert;
-            ++vert;
-        }
-        
+
         if (solveOrder == "--order=random") {
-			order = std::vector<Vertex>(parityGame.getNumberOfVertices());
-			Vertex vert = 0;
-			for (auto& next : order) {
-				next = vert;
-				++vert;
-			}
+            // Vertices are handled such that order[i] = i.
+            Vertex vert = 0;
+            for (auto& next : order) {
+                next = vert;
+                ++vert;
+            }
             // Shuffle the order at random.
             std::random_shuffle(order.begin(), order.end());
         }
-		else if (solveOrder == "--order=breadthfirst") {
+        else if (solveOrder == "--order=input") {
+            // Vertices are handled such that order[i] = i.
+            Vertex vert = 0;
+            for (auto& next : order) {
+                next = vert;
+                ++vert;
+            }
+        }
+        else if (solveOrder == "--order=breadthfirst") {
             std::vector<int> graphColoring(parityGame.getNumberOfVertices());
 
             std::queue<Vertex> workQueue;
 
             int ordering = 0;
-            
+
             while (ordering != parityGame.getNumberOfVertices()) {
                 workQueue.push(ordering); // Add the first vertex.
 
@@ -85,22 +87,22 @@ int main(int argc, char* argv[])
                     }
                 }
             }
-		}
-		else if (solveOrder == "--order=indegree") {
-			std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());
-			for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++){
-				size_t degree = parityGame.getIncomingVertices(v).size();
-				if (degree >= degrees.size()){
-					degrees.resize(degree + 1, std::set<Vertex>());
-				}
-				degrees[parityGame.getIncomingVertices(v).size()].insert(v);
-			}
-			for (size_t i = degrees.size(); i-- > 0;){
-				for (Vertex v : degrees[i]){
-					order.push_back(v);
-				}
-			}
-		}
+        }
+        else if (solveOrder == "--order=indegree") {
+            std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());
+            for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++) {
+                size_t degree = parityGame.getIncomingVertices(v).size();
+                if (degree >= degrees.size()) {
+                    degrees.resize(degree + 1, std::set<Vertex>());
+                }
+                degrees[parityGame.getIncomingVertices(v).size()].insert(v);
+            }
+            for (size_t i = degrees.size(); i-- > 0;) {
+                for (Vertex v : degrees[i]) {
+                    order.push_back(v);
+                }
+            }
+        }
 
         // Solve the parity game.
         std::vector<bool> result = solveParityGame(parityGame, order);
@@ -118,13 +120,13 @@ int main(int argc, char* argv[])
             if (!result[vert]) {
                 std::cout << vert << " ";
             }
-        }      
+        }
 
+        }
+        catch (std::exception& exception) {
+            std::cerr << exception.what() << "\n";
+            return -1;
+        }
+
+        return 0;
     }
-    catch (std::exception& exception) {
-        std::cerr << exception.what() << "\n";
-        return -1;
-    }
-    
-    return 0;
-}
