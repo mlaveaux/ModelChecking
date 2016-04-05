@@ -41,7 +41,13 @@ std::set<Vertex> ParityGame::getOutgoingVertices(Vertex vertex) const
 
 std::set<Vertex> ParityGame::getIncomingVertices(Vertex vertex) const
 {
-    return predecessors.at(vertex);
+    auto result = predecessors.find(vertex);
+    if (result != predecessors.end()) {
+        return result->second;
+    }
+    else {
+        return {};
+    }
 }
 
 size_t ParityGame::getNumberOfVertices() const
