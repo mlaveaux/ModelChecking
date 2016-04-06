@@ -33,7 +33,7 @@ Ziad Ben Snaiba (0748095, z.b.snaiba@student.tue.nl)}
 \maketitle
 
 \section{Introduction}
-This report elaborates on our work and findings of assignment two. The goal of this assignment is to implement and evaluate the small progress measures algorithm as described in \cite{spmpaper}. First we will address the design and implementation of the algorithm in section \ref{design}, along with alternative lifting strategies to make the algorithm more efficient. Then in section \ref{eval} we will show the performance of each lifting strategy using self-made and provided parity games. Lastly, we will reach a conclusion in section \ref{conc}.
+This report elaborates on our work and findings of assignment two. The goal of this assignment is to implement and evaluate the small progress measures algorithm as described in \cite{spmpaper}. First we will address the design and implementation of the algorithm in section \ref{design}, along with alternative lifting strategies to make the algorithm more efficient. Then in section \ref{eval} we will show the performance of each lifting strategy using created and provided parity games. Lastly, we will reach a conclusion in section \ref{conc}.
 
 \section{Design and implementation}\label{design}
 In this section the design and implementation of our small progress measures algorithm is given, which we have programmed using C++. First we will show the data structure
@@ -282,11 +282,11 @@ However, due to time constraints we have not been able to implement and evaluate
 \section{Evaluation}\label{eval}
 
 In the evaluation the blue line represents the input order, red represents the random order, purple represents the indegree order and black represents the breadth first search order. Since that the random order causes non-determinism in the timing results, the tests are executed multiple times and the average of these executions are reported.\\
-First we will show the evaluation of our self-made parity games. Afterwards the dining test cases will be evaluated and lastly the elevator test cases will be evaluated.\\
+First we will show the evaluation of the algorithm on the created parity games. Afterwards the algorithm will be evaluated on the dining test cases and lastly on the the elevator test cases.
 
-\subsection{Self-made parity games}
+\subsection{Created parity games}
 
-See figure \ref{paritygames} for the self-made parity games. A box represents a vertex owned by the odd player, a diamond represents a vertex owned by the even player. The integer value inside a vertex represents its priority, the integer value next to the vertex is its identifier.\\
+See figure \ref{paritygames} for the created parity games. A box represents a vertex owned by the odd player, a diamond represents a vertex owned by the even player. The integer value inside a vertex represents its priority, the integer value next to the vertex is its identifier.\\
 The resulting partition is also present in this figure. If a vertex is green it is won by player even, if it is red it is won by player odd.\\
 For the execution times see the table below.
 
@@ -304,12 +304,13 @@ As can be seen in this table, the execution times do not differ much. It seems t
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{paritygames.png}
-\caption{The self made parity games}
+\caption{The created parity games}
 \label{paritygames}
 \end{figure}
 
 
 \subsection{Dining Philosophers}
+In this section the algorithm is evaluated on the dining philosophers test case set.
 
 \subsubsection{Invariantly inevitably eat}
 
