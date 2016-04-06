@@ -81,7 +81,24 @@ This lifting order combines the advantages and rationale of the two orders above
 
 \subsection{Self-made parity games}
 
+\begin{enumerate}[Game01]
+	\item Even wins \{0, 1\} and odd wins \{2, 3, 4, 5, 6\}
+\end{enumerate}
+
 \subsection{Dining Philosophers}
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)},
+    	ymode=log,
+        log basis y={10}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.005) (3, 0.005) (4, 0.006) (5, 0.011) (6, 0.047) (7, 0.174) (8, 1.270) (9, 6.131) (10, 34.391) (11, 144.252)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.005) (6, 0.017) (7, 0.065) (8, 0.333) (9, 1.442) (10, 6.716) (11, 26.529)}; 
+  	\end{axis}
+\end{tikzpicture}
 
 \subsection{Elevator}
 
