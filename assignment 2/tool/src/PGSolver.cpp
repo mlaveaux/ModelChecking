@@ -74,6 +74,9 @@ static bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2
                 if (measure1[index] > measure2[index]) {
                     return true;
                 }
+				else if (measure1[index] < measure2[index]){
+					return false;
+				}
             }
             return !strict; // Both are equal, so for strict this is false and otherwise true.
         }
