@@ -70,10 +70,13 @@ static bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2
             return true;
         }
         else { // when both are not TOP
-            for (size_t index = 1; index < limit && index < measure1.size(); index += 2) {
+            for (size_t index = 1; index <= limit && index < measure1.size(); index += 2) {
                 if (measure1[index] > measure2[index]) {
                     return true;
                 }
+				else if (measure1[index] < measure2[index]){
+					return false;
+				}
             }
             return !strict; // Both are equal, so for strict this is false and otherwise true.
         }
@@ -117,7 +120,6 @@ static Measures prog(const ParityGame& game, Measures& maxMeasures, const std::v
         }
         if (!madeStrictlyGreater) {
             newMeasure = TOP;
-            // does m = rhoish(w) = TOP also mean that rhoish(w) has to be adjusted?
         }
     }
 
@@ -141,6 +143,7 @@ Measures lift(const ParityGame& game, Measures maxMeasures, const std::vector<Me
 
         if (game.isEven(vertex)) {
             if (vertex == outgoingVertex && game.getPriority(vertex) % 2 == 0) {
+				//if it is a self loop with an even priority return the minimal measure
                 return Measures(game.getMaximumPriority() + 1, 0);
             }
 
