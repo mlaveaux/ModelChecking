@@ -1,9 +1,7 @@
 \documentclass[10pt,a4paper]{article}
 
 \usepackage[utf8]{inputenc}
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{amssymb}
+\usepackage{amsmath, amsfonts, amssymb}
 \usepackage{tikz}
 \usepackage{pgf}
 \usepackage{pgfplots}
@@ -232,6 +230,8 @@ This lifting order combines the advantages and rationale of the two orders above
 
 \section{Evaluation}\label{eval}
 
+In the evaluation the blue line represents the input order, red represents the random order, ?? represents the indegree order and ?? represents the breadth first order.
+
 \subsection{Self-made parity games}
 
 Resulting partitions for the sets.
@@ -259,6 +259,10 @@ The performance measures over 100 iterations, mainly used for the random order, 
 
 \subsection{Dining Philosophers}
 
+\subsubsection{Invariantly inevitably eat}
+
+The first vertex is won by odd.
+
 \begin{tikzpicture}
   	\begin{axis}[ 
     	xlabel={Number of philosophers},
@@ -266,14 +270,75 @@ The performance measures over 100 iterations, mainly used for the random order, 
     	ymode=log,
         log basis y={10}
   	] 
-    \addplot+ [color=blue] coordinates {(2, 0.005) (3, 0.005) (4, 0.006) (5, 0.011) (6, 0.047) (7, 0.174) (8, 1.270) (9, 6.131) (10, 34.391) (11, 144.252)}; 
+    \addplot+ [color=blue] coordinates { (2, 0.0615) (3, 0.015) (4, 0.02658) (5, 0.1903) (6, 2.145) (7, 27.434) (8, 335.774) };
+  	\end{axis}
+\end{tikzpicture}
+
+\subsubsection{Invariantly possibly eat}
+
+The first vertex is won by odd.
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)},
+    	ymode=log,
+        log basis y={10}
+  	] 
+    \addplot+ [color=blue] coordinates { (2, 0.06396) (3, 0.013748) (4, 0.0322) (5, 0.3428) (6, 4.18) (7, 54.96) (8, 696.657) };
+  	\end{axis}
+\end{tikzpicture}
+
+\subsubsection{Invariantly plato starves}
+
+The first vertex is won by odd. 
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)},
+    	ymode=log,
+        log basis y={10}
+  	] 
+    \addplot+ [color=blue] coordinates { (2, 0.005) (3, 0.005) (4, 0.007) (5, 0.015) (6, 0.0434) (7, 0.11081) (8, 0.4102) (9, 1.649) (10, 5.664) (11, 19.9487) };
+        
+    \addplot+ [color=red] coordinates { (2, 0.00159) (3, 0.0019) (4, 0.0028) (5, 0.0067) (6, 0.0235) (7, 0.0898) (8, 0.4324) (9, 2.0533) (10, 8.333) (11, 30.65) };
+        
+    \addplot+ [color=purple] coordinates { (2, 0.00164) (3, 0.00194) (4, 0.003) (5, 0.0076) (6, 0.025) (7, 0.093) (8, 0.384) (9, 1.458) (10, 6.6211) (11, 23.879)};
     
-    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.005) (6, 0.017) (7, 0.065) (8, 0.333) (9, 1.442) (10, 6.716) (11, 26.529)}; 
+    \addplot+ [color=black] coordinates { (2, 0.00167) (3, 0.001994) (4, 0.0033) (5, 0.0077) (6, 0.0258) (7, 0.1782) (8, 0.442) (9, 2.013) (10, 6.923) (11, 26.045)};
+  	\end{axis}
+\end{tikzpicture}
+
+\subsubsection{Plato infinitely often can eat}
+
+The first vertex is won by odd.
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)},
+    	ymode=log,
+        log basis y={10}
+  	] 
+    \addplot+ [color=blue] coordinates { (2, 0.002) (3, 0.0594) (4, 0.0401) (5, 0.1970) (6, 2.8098) (7, 29.4722) (8, 397.45) };
   	\end{axis}
 \end{tikzpicture}
 
 \subsection{Elevator}
 
+\subsubsection{1 elevator}
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of floors},
+    	ylabel={Duration (Seconds)},
+    	ymode=log,
+        log basis y={10}
+  	] 
+    \addplot+ [color=blue] coordinates { (2, 0.00468) (3, 0.03615) (4, 0.769) (5, 31.619) };
+  	\end{axis}
+\end{tikzpicture}
 
 \section{Conclusion}\label{conc}
 
