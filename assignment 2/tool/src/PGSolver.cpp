@@ -21,7 +21,20 @@
 #include <tuple>
 
 using Measures = std::vector<uint32_t>;
-const Measures TOP(1, 1);
+const static Measures TOP(1, 1);
+
+/**
+ * Check whether all values in a measure a 0.
+ */
+static bool isBottom(const Measures& measure) {
+    for (size_t index = 1; index < measure.size(); index += 2) {
+        if (measure[index] != 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 /**
  * Gets the progress measures for a parity game
@@ -57,10 +70,13 @@ static bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2
             return true;
         }
         else { // when both are not TOP
-            for (size_t index = 1; index < limit && index < measure1.size(); index += 2) {
+            for (size_t index = 1; index <= limit && index < measure1.size(); index += 2) {
                 if (measure1[index] > measure2[index]) {
                     return true;
                 }
+				else if (measure1[index] < measure2[index]){
+					return false;
+				}
             }
             return !strict; // Both are equal, so for strict this is false and otherwise true.
         }
@@ -104,7 +120,6 @@ static Measures prog(const ParityGame& game, Measures& maxMeasures, const std::v
         }
         if (!madeStrictlyGreater) {
             newMeasure = TOP;
-            // does m = rhoish(w) = TOP also mean that rhoish(w) has to be adjusted?
         }
     }
 
@@ -117,23 +132,40 @@ static Measures prog(const ParityGame& game, Measures& maxMeasures, const std::v
 Measures lift(const ParityGame& game, Measures maxMeasures, const std::vector<Measures>& progMeasures, Vertex vertex)
 {
     Measures result;
-    if (game.isEven(vertex)) {
-        result = TOP;
-    }
-    else {
-        result = Measures(maxMeasures.size(), 0);
-    }
-    //optimizations possible: look at selfloops (for instance, if vertex has self loop, is of player even, has odd priority: measure = TOP)
 
-    // Sketch of code, but requires additional functionality in ParityGame.
     for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
         Measures progress = prog(game, maxMeasures, progMeasures, vertex, outgoingVertex);
 
+        if (result.size() == 0) {
+            // Initialize the result to the first value.
+            result = progress;
+        }
+
         if (game.isEven(vertex)) {
+            if (vertex == outgoingVertex && game.getPriority(vertex) % 2 == 0) {
+				//if it is a self loop with an even priority return the minimal measure
+                return Measures(game.getMaximumPriority() + 1, 0);
+            }
+
             result = lexicoGreaterThan(progress, result) ? result : progress; // Minimize result
+
+            if (isBottom(result)) {
+                // if it has the minimum value, return it immediately
+                return result;
+            }
         }
         else {
+            if (vertex == outgoingVertex && game.getPriority(vertex) % 2 == 1) {
+                // If it is a selfloop with an odd priority return TOP.
+                return TOP;
+            }
+
             result = lexicoGreaterThan(progress, result) ? progress : result; // Maximize result
+
+            if (result == TOP) {
+                // if it has the maximum value, return it immediately
+                return result;
+            }
         }
 
     }
@@ -141,7 +173,7 @@ Measures lift(const ParityGame& game, Measures maxMeasures, const std::vector<Me
     return result;
 }
 
-std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order)
+std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vertex>& order, bool fullPartition)
 {
     // For every vector set the zeroed Measure tuple.
     std::vector<Measures> vertexToMeasures(game.getNumberOfVertices());
@@ -173,17 +205,27 @@ std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vert
     } while (increased);
 
     // Gather the set that don't equal Top and put true for them.
-    std::vector<bool> evenDominated = std::vector<bool>(game.getNumberOfVertices());
+    if (fullPartition) {
+        std::vector<bool> evenDominated = std::vector<bool>(game.getNumberOfVertices());
 
-    Vertex index = 0;
-    for (auto measures : vertexToMeasures) {
-        if (measures != TOP) {
-            // Not equal top implies winning set for even.
-            evenDominated[index] = true;
+        Vertex index = 0;
+        for (auto measures : vertexToMeasures) {
+            if (measures != TOP) {
+                // Not equal top implies winning set for even.
+                evenDominated[index] = true;
+            }
+
+            ++index;
         }
 
-        ++index;
+        return evenDominated;
     }
-
-    return evenDominated;
+    else {
+        if (vertexToMeasures[0] != TOP) {
+            return{ true };
+        }
+        else {
+            return{ false };
+        }
+    }
 }
