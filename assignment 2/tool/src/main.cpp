@@ -174,6 +174,8 @@ int main(int argc, char* argv[])
                     std::cout << vert << " ";
                 }
             }
+
+            std::cout << std::endl;
         }
         else {
             if (result[0]) {

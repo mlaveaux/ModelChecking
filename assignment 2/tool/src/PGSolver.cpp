@@ -21,7 +21,20 @@
 #include <tuple>
 
 using Measures = std::vector<uint32_t>;
-const Measures TOP(1, 1);
+const static Measures TOP(1, 1);
+
+/**
+ * Check whether all values in a measure a 0.
+ */
+static bool isBottom(const Measures& measure) {
+    for (size_t index = 1; index < measure.size(); index += 2) {
+        if (measure[index] != 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 /**
  * Gets the progress measures for a parity game
@@ -118,27 +131,40 @@ Measures lift(const ParityGame& game, Measures maxMeasures, const std::vector<Me
 {
     Measures result;
 
-    if (game.isEven(vertex)) {
-        result = TOP;
-		for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
-			Measures progress = prog(game, maxMeasures, progMeasures, vertex, outgoingVertex);
-			result = lexicoGreaterThan(progress, result) ? result : progress; // Minimize result
-			// if it has the minimum value, return it immediately
-			if (result == Measures(maxMeasures.size(), 0)) {
-				return result;
-			}
-		}
-    }
-    else {
-        result = Measures(maxMeasures.size(), 0);
-		for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
-			Measures progress = prog(game, maxMeasures, progMeasures, vertex, outgoingVertex);
-			result = lexicoGreaterThan(progress, result) ? progress : result; // Maximize result
-			// if it has the maximum value, return it immediately
-			if (result == TOP) {
-				return result;
-			}
-		}
+    for (auto outgoingVertex : game.getOutgoingVertices(vertex)) {
+        Measures progress = prog(game, maxMeasures, progMeasures, vertex, outgoingVertex);
+
+        if (result.size() == 0) {
+            // Initialize the result to the first value.
+            result = progress;
+        }
+
+        if (game.isEven(vertex)) {
+            if (vertex == outgoingVertex && game.getPriority(vertex) % 2 == 0) {
+                return Measures(game.getMaximumPriority() + 1, 0);
+            }
+
+            result = lexicoGreaterThan(progress, result) ? result : progress; // Minimize result
+
+            if (isBottom(result)) {
+                // if it has the minimum value, return it immediately
+                return result;
+            }
+        }
+        else {
+            if (vertex == outgoingVertex && game.getPriority(vertex) % 2 == 1) {
+                // If it is a selfloop with an odd priority return TOP.
+                return TOP;
+            }
+
+            result = lexicoGreaterThan(progress, result) ? progress : result; // Maximize result
+
+            if (result == TOP) {
+                // if it has the maximum value, return it immediately
+                return result;
+            }
+        }
+
     }
 
     return result;
@@ -193,10 +219,10 @@ std::vector<bool> solveParityGame(const ParityGame& game, const std::vector<Vert
     }
     else {
         if (vertexToMeasures[0] != TOP) {
-            return { true };
+            return{ true };
         }
         else {
-            return { false };
+            return{ false };
         }
     }
 }
