@@ -70,7 +70,7 @@ static bool lexicoGreaterThan(const Measures& measure1, const Measures& measure2
             return true;
         }
         else { // when both are not TOP
-            for (size_t index = 1; index < limit && index < measure1.size(); index += 2) {
+            for (size_t index = 1; index <= limit && index < measure1.size(); index += 2) {
                 if (measure1[index] > measure2[index]) {
                     return true;
                 }
