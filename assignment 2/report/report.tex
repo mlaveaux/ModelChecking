@@ -398,10 +398,11 @@ The first vertex is won by even for any number of philosophers, implying that th
 \end{tikzpicture}
 
 \subsection{Elevator}
+In this section the algorithm is evaluated on the elevator test case set. There are two types of test cases: elevator 1 and elevator 2. The results for each type of test case are shown in the below two sections.
 
-\subsubsection{1 elevator}
+\subsubsection{Elevator 1}
 
-The first vertex is won by odd.
+The first vertex is won by even for any number of elevators, implying that the property represented by 1 holds for any number of elevator. The execution times are shown in the graph below.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -420,9 +421,9 @@ The first vertex is won by odd.
   	\end{axis}
 \end{tikzpicture}
 
-\subsubsection{2 elevator}
+\subsubsection{Elevator 2}
 
-The first vertex is won by odd.
+The first vertex is won by odd for any number of elevators, implying that the property represented by 1 does not hold for any number of elevator. The execution times are shown in the graph below.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -446,9 +447,9 @@ In this section we will reflect in the results above. First will be reflected on
 
 \subsubsection{Algorithm answers}
 The partitions of the created parity games have been derived using the implemented algorithm and by visual analysis. Both partitions were equal for each created parity game.\\
-For the dining philosophers and elevator test cases we have compared it to the results given ....\\
 The properties used for the dining philosophers have been used for the previous assignment as well, so the correct answers for these properties were already known. These correct answers are the same as the answers of the algorithm implemented for this assignment.\\
-From these observations we conclude that our implementation of the small progress measures algorithm produces correct answers.
+We have also compared the answers of our algorithm to the answers of mCRL2. These did however not always match, but we think that this is caused by either not testing with mCRL2 correctly or perhaps mCRL2 itself. We think one of these is the case since for the plato infinitely often can eat property mCRL2 gives false. From the previous assignment however we know this must be true.\\
+From these observations we conclude that our implementation of the small progress measures algorithm very likely produces correct answers.
 
 \subsubsection{Performance results}
 The graphs are all linear, showing that this algorithm is exponential, except for the first few points, but this is likely to be caused by overhead.\\
