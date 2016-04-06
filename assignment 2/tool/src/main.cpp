@@ -21,6 +21,7 @@
 #include <iostream>
 #include <string.h>
 #include <queue>
+#include <random>
 
 
 std::vector<Vertex> createIndegreeOrder(ParityGame game){
@@ -123,8 +124,10 @@ int main(int argc, char* argv[])
                 next = vert;
                 ++vert;
             }
+            std::random_device rd;
+            std::default_random_engine engine(rd());
             // Shuffle the order at random.
-            std::random_shuffle(order.begin(), order.end());
+            std::shuffle(order.begin(), order.end(), engine);
             break;
         }
         case 2: {

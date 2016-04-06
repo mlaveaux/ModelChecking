@@ -14,6 +14,7 @@
 \usepackage{parskip}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{enumerate}
 \usepackage[nounderscore]{syntax}
 
 \shortverb{\|}
@@ -283,7 +284,43 @@ This lifting order combines the advantages and rationale of the two orders above
 
 \subsection{Self-made parity games}
 
+Resulting partitions for the sets.
+
+\begin{enumerate}[01]
+	\item Even set \{0, 1\}, Odd set \{2, 3, 4, 5, 6\}
+	\item Odd set \{0, 1, 2, 3, 4, 5, 6, 7, 8\}
+	\item Even set \{0, 1, 3, 7\}, Odd set \{2, 4, 5, 6\}
+	\item Odd set \{0, 1, 2, 3, 4, 5\}
+	\item Odd set \{0, 1, 2, 3, 4, 5\}
+
+\end{enumerate}
+
+The performance measures over 100 iterations, mainly used for the random order, but still done on every order for consistency.
+
+\begin{tabular}{l l l l l}
+	Game	& Input	 & Random & Indegree & Breadthfirst \\
+	01		& 0.0018 & 0.0017 & 0.0019   & 0.0018 \\
+	02		& 0.0019 & 0.0019 & 0.0019   & 0.0018 \\
+	03		& 0.0018 & 0.0019 & 0.0018 	 & 0.0018 \\
+	04		& 0.0018 & 0.0019 & 0.0020	 & 0.0017 \\
+	05		& 0.0018 & 0.0017 & 0.0019	 & 0.0018 
+
+\end{tabular}
+
 \subsection{Dining Philosophers}
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of philosophers},
+    	ylabel={Duration (Seconds)},
+    	ymode=log,
+        log basis y={10}
+  	] 
+    \addplot+ [color=blue] coordinates {(2, 0.005) (3, 0.005) (4, 0.006) (5, 0.011) (6, 0.047) (7, 0.174) (8, 1.270) (9, 6.131) (10, 34.391) (11, 144.252)}; 
+    
+    \addplot+ [color=red] coordinates {(2, 0.002) (3, 0.002) (4, 0.002) (5, 0.005) (6, 0.017) (7, 0.065) (8, 0.333) (9, 1.442) (10, 6.716) (11, 26.529)}; 
+  	\end{axis}
+\end{tikzpicture}
 
 \subsection{Elevator}
 
