@@ -276,36 +276,38 @@ An example where this order is more efficient then the others is a single cycle 
 Note that this order is not necessarily better in the example parity game given for the in degree. For example, if the center vertex of the star is the last vertex in the input, the order is actually quite bad. This gave us the idea of creating a fifth lifting order.
 
 \subsubsection{Breadth first search with in degree order}
-This lifting order combines the advantages and rationale of the two orders above. It first creates the in degree order as described in section \ref{indegree}. Then it uses the first vertex in this order to start the first breadth first search. When the search cannot go any further but there are vertices left, it will start a new search from the first vertex in the in degree order that hasn't been found yet.
+This lifting order combines the advantages and rationale of the two orders above. It first creates the in degree order as described in section \ref{indegree}. Then it uses the first vertex in this order to start the first breadth first search. When the search cannot go any further but there are vertices left, it will start a new search from the first vertex in the in degree order that hasn't been found yet.\\
+However, due to time constraints we have not been able to implement and evaluate this order. 
 
 \section{Evaluation}\label{eval}
 
-In the evaluation the blue line represents the input order, red represents the random order, purple represents the indegree order and black represents the breadth first order.
+In the evaluation the blue line represents the input order, red represents the random order, purple represents the indegree order and black represents the breadth first search order. Since that the random order causes non-determinism in the timing results, the tests are executed multiple times and the average of these executions are reported.\\
+First we will show the evaluation of our self-made parity games. Afterwards the dining test cases will be evaluated and lastly the elevator test cases will be evaluated.\\
 
 \subsection{Self-made parity games}
 
-Resulting partitions for the sets.
-
-\begin{enumerate}[01]
-	\item Even set \{0, 1\}, Odd set \{2, 3, 4, 5, 6\}
-	\item Odd set \{0, 1, 2, 3, 4, 5, 6, 7, 8\}
-	\item Even set \{0, 1, 3, 7\}, Odd set \{2, 4, 5, 6\}
-	\item Odd set \{0, 1, 2, 3, 4, 5\}
-	\item Odd set \{0, 1, 2, 3, 4, 5\}
-
-\end{enumerate}
-
-The performance measures over 100 iterations, mainly used for the random order, but still done on every order for consistency.
+See figure \ref{paritygames} for the self-made parity games. A box represents a vertex owned by the odd player, a diamond represents a vertex owned by the even player. The integer value inside a vertex represents its priority, the integer value next to the vertex is its identifier.\\
+The resulting partition is also present in this figure. If a vertex is green it is won by player even, if it is red it is won by player odd.\\
+For the execution times see the table below.
 
 \begin{tabular}{l l l l l}
-	Game	& Input	 & Random & Indegree & Breadthfirst \\
+	Game	& Input	 & Random & Indegree & Breadthfirst \\\hline
 	01		& 0.0018 & 0.0017 & 0.0019   & 0.0018 \\
 	02		& 0.0019 & 0.0019 & 0.0019   & 0.0018 \\
 	03		& 0.0018 & 0.0019 & 0.0018 	 & 0.0018 \\
 	04		& 0.0018 & 0.0019 & 0.0020	 & 0.0017 \\
 	05		& 0.0018 & 0.0017 & 0.0019	 & 0.0018 
-
 \end{tabular}
+
+As can be seen in this table, the execution times do not differ much. It seems that the indegree order is a little bit worse than the other orders and that the breadth first search order is a little bit better than the other orders. The latter can be expected, since it is the order that tries to benefit from the use of successors for calculating a measure the most.
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paritygames.png}
+\caption{The self made parity games}
+\label{paritygames}
+\end{figure}
+
 
 \subsection{Dining Philosophers}
 
