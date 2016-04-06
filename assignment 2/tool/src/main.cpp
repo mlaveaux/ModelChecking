@@ -22,6 +22,33 @@
 #include <string.h>
 #include <queue>
 
+
+std::vector<Vertex> createIndegreeOrder(ParityGame game){
+	std::vector<Vertex> order;
+	//first get the max indegree
+	int maxIndegree = 0;
+	for (Vertex v = 0; v < game.getNumberOfVertices(); v++) {
+		size_t indegree = game.getIncomingVertices(v).size();
+		maxIndegree = (indegree > maxIndegree) ? indegree : maxIndegree;
+	}
+
+	//bucket sort
+	std::vector<std::set<Vertex>> degrees(maxIndegree + 1, std::set<Vertex>());
+	for (Vertex v = 0; v < game.getNumberOfVertices(); v++) {
+		degrees[game.getIncomingVertices(v).size()].insert(v);
+	}
+
+	//create the order
+	for (size_t i = degrees.size(); i-- > 0;) {
+		for (Vertex v : degrees[i]) {
+			order.push_back(v);
+		}
+	}
+
+	return order;
+}
+
+
  /**
   * The main entry point for the program.
   */
@@ -49,6 +76,9 @@ int main(int argc, char* argv[])
             else if (argument.find("breadthfirst") != std::string::npos) {
                 liftingOrder = 3;
             }
+			else if (argument.find("combi") != std::string::npos) {
+				liftingOrder = 4;
+			}
         }
         else if (argument.find("--output=") != std::string::npos) {
             if (argument.find("winner") != std::string::npos) {
@@ -65,7 +95,7 @@ int main(int argc, char* argv[])
 
     // Check that all input was given.
     if (argc < 2 || strPgFilename == nullptr) {
-        std::cout << "Usage: [--order=input|random|indegree|breadthfirst] [--output=winner|partition] <paritygame-filename>" << std::endl;
+        std::cout << "Usage: [--order=input|random|indegree|breadthfirst|combi] [--output=winner|partition] <paritygame-filename>" << std::endl;
         return -1;
     }
 
@@ -98,19 +128,7 @@ int main(int argc, char* argv[])
             break;
         }
         case 2: {
-            std::vector<std::set<Vertex>> degrees(5, std::set<Vertex>());
-            for (Vertex v = 0; v < parityGame.getNumberOfVertices(); v++) {
-                size_t degree = parityGame.getIncomingVertices(v).size();
-                if (degree >= degrees.size()) {
-                    degrees.resize(degree + 1, std::set<Vertex>());
-                }
-                degrees[parityGame.getIncomingVertices(v).size()].insert(v);
-            }
-            for (size_t i = degrees.size(); i-- > 0;) {
-                for (Vertex v : degrees[i]) {
-                    order.push_back(v);
-                }
-            }
+			order = createIndegreeOrder(parityGame);
             break;
         }
         case 3: {
@@ -154,6 +172,11 @@ int main(int argc, char* argv[])
                 }
             }
         }
+		case 4: 
+			//first het the indegree order
+			std::vector<Vertex> indegreeOrder = createIndegreeOrder(parityGame);
+			//breadth first search magic
+			break;
         }
 
         // Solve the parity game.
