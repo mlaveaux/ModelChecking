@@ -9,11 +9,16 @@
 \usepackage{pgfplots}
 \usepackage{hyperref}
 \usepackage{comment}
-%\usepackage{algorithm}
-%\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 \usepackage{parskip}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage[nounderscore]{syntax}
+
+\shortverb{\|}
+\setlength{\grammarindent}{2cm}
+\newcommand{\indalt}[1][2]{\\\hspace*{#1em}\textbar\quad}
 
 \pgfplotsset{compat=1.3}
 \newcommand{\algoname}[1]{\textnormal{\textsc{#1}}}
@@ -36,6 +41,51 @@ In this section the design and implementation of our small progress measures alg
 used to store a parity game. Then we elaborate on the design of the small progress measures algorithm itself. Lastly we will show the lifting orders implemented and explain their advantages.
 
 \subsection{Parity Game}
+This section contains a description of the expected input and how the parity game is represented as a data structure within the tool.
+
+\subsubsection{Input format}
+The parity games are expected to be in an EBNF format \cite{pgsreport}. The tool given here requires a few additional assumption on the input. The names of a vertex are not used in this tool, but can be provided. Additionally, the nodes are expected to be given in ascending order based on their identifier, starting at 0. 
+
+The following slightly adjusted format taken from The PGSolver Collection of Parity Game Solvers \cite{pgsreport} is expected.
+
+\begin{center}
+	\begin{minipage}{0.8\linewidth}
+		\begin{grammar}
+			<parity\_game> ::= [parity <max\_vertex\_id> ;] <node_spec>$^{+}$
+			
+			<node\_spec> ::= <identifier> <priority> <owner> <successors> [<name>] ;
+			
+      		<max\_vertex\_id> ::= $\mathbb{N}^+$
+      		
+      		<identifier> ::= $\mathbb{N}$
+      		
+      		<priority> ::= $\mathbb{N}$
+      		
+      		<owner> ::= \textbf{0} | \textbf{1}
+      		
+      		<successors> ::= <identifier> (, <identifier>)$^{*}$
+      		
+      		<name> ::= \textquotedblright (any ASCII string not containing \rq \textquotedblright \rq ) \textquotedblright
+    \end{grammar}
+  \end{minipage}
+\end{center}
+
+\subsubsection{Internal representation}
+To ensure that look-up times are minimized as much as possible during the solving a bit of pre-processing is done when parsing the parity game. The parity game is represented as a tuple: 
+
+\texttt{ParityGame(Succ, Pred, Prio, PrioCount, MaxPrio, Owner)}, with
+
+
+\begin{itemize}
+	\item \texttt{Succ}: mapping from a vertex to a set of its direct successors,
+	\item \texttt{Pred}: mapping from a vertex to a set of its direct, predecessors,
+	\item \texttt{Prio}: mapping from a vertex to its priority,
+	\item \texttt{PrioCount}: mapping from a priority to how often it occurs in the parity game,
+	\item \texttt{MaxPrio}: the maximum priority,
+	\item \texttt{Owner}: mapping from a vertex to its owner (even or odd).
+\end{itemize}
+
+Given the restrictions on the input given in the previous section all of these can be represented using an array where the index corresponds to the indentifier of the vertex.
 
 \subsection{Small progress measures}
 For this algorithm we needed another data structure, namely for progress measures. For this we have chosen to define \texttt{Measure} as a vector of $p$ integers where $p$ is the maximum priority of the parity game plus one. The special progress measure \texttt{TOP} is a vector of only one element, namely the integer 1. The set of possible progress measures for a parity game is also represented by a \texttt{Measure}, holding the maximum possible value for each uneven element.\\
@@ -243,6 +293,7 @@ This lifting order combines the advantages and rationale of the two orders above
 
 \begin{thebibliography}{9}
 \bibitem{spmpaper} M. Jurdzi\'{n}ski: Small Progress Measures for Solving Parity Games, March 2000
+\bibitem{pgsreport} O. Friedmann and Martin Lange: The PGSolver Collection of Parity Game Solvers, March 2014
 \end{thebibliography}
 
 
