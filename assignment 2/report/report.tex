@@ -33,7 +33,7 @@ Ziad Ben Snaiba (0748095, z.b.snaiba@student.tue.nl)}
 \maketitle
 
 \section{Introduction}
-This report elaborates on our work and findings of assignment two. The goal of this assignment is to implement and evaluate the small progress measures algorithm as described in \cite{spmpaper}. First we will address the design and implementation of the algorithm in section \ref{design}, along with alternative lifting strategies to make the algorithm more efficient. Then in section \ref{eval} we will show the performance of each lifting strategy using self-made and provided parity games. Lastly, we will reach a conclusion in section \ref{conc}.
+This report elaborates on our work and findings of assignment two. The goal of this assignment is to implement and evaluate the small progress measures algorithm as described in \cite{spmpaper}. First we will address the design and implementation of the algorithm in section \ref{design}, along with alternative lifting strategies to make the algorithm more efficient. Then in section \ref{eval} we will show the performance of each lifting strategy using created and provided parity games. Lastly, we will reach a conclusion in section \ref{conc}.
 
 \section{Design and implementation}\label{design}
 In this section the design and implementation of our small progress measures algorithm is given, which we have programmed using C++. First we will show the data structure
@@ -262,56 +262,59 @@ This lifting order, as the name suggests, uses a random ordering of all vertices
 The randomness causes the algorithm to be non-deterministic, giving different execution times every execution. This can, depending on the created order, either be an advantage or a disadvantage. It can happen that in one execution the order is very efficient and in another execution it is very inefficient.
 
 \subsubsection{In degree}\label{indegree}
-This lifting order is based on the fact that the \texttt{prog} method takes the measure of a successor vertex and either tries to increase it or copy it. In this order all vertices are descendingly ordered on their in degree (the amount of incoming edges). Since \texttt{prog} uses successors to create a measure, more vertices will have profit in the same iteration over the order when first lifting a vertex with a higher in degree than when first lifting a vertex with a lower in degree.
+This lifting order is based on the fact that the \texttt{prog} method takes the measure of a successor vertex and either tries to increase it or copy it. In this order all vertices are descendingly ordered on their in degree (the amount of incoming edges). Since \texttt{prog} uses successors to create a measure, more vertices will have profit in the same iteration over the order when first lifting a vertex with a higher in degree than when first lifting a vertex with a lower in degree. The implementation code of this order is included in the appendix under \ref{appendix:indegree}.
 
 
 This order works well with parity games with a big varying in degree for the nodes. Especially parity games with a star-like form, where many vertices point to one vertex, have profit form this order. In such a case the vertex in the center of the star will be lifted first. Afterwards the vertices on the points of the star will be lifted, profiting form the lifted center vertex.
 
 \subsubsection{Breadth first search}
 % Explanation
-Like the previous order, this lifting order is based on the fact that the \texttt{prog} method takes the measure of a successor vertex and either tries to increase it or copy it. When this successor vertex was already lifted beforehand the resulting measure for the lifted vertex will be even higher. So a breadth first search that places a vertex before its predecessors can possibly increase performance. It is not always possible to get all vertices starting from a single position, thus when the order is not complete the next smallest vertex is selected and another breadth first search is conducted. The implementation code is included in the appendix under \ref{appendix:bfs}.
+Like the previous order, this lifting order is based on the fact that the \texttt{prog} method takes the measure of a successor vertex and either tries to increase it or copy it. When this successor vertex was already lifted beforehand the resulting measure for the lifted vertex will be even higher. So a breadth first search that places a vertex before its predecessors can possibly increase performance. It is not always possible to get all vertices starting from a single position, thus when the order is not complete the next smallest vertex is selected and another breadth first search is conducted. The implementation code of this order is included in the appendix under \ref{appendix:bfs}.
 
 % Optimal example
 An example where this order is more efficient then the others is a single cycle where every vertex has a neighbour as successor. The input order doesn't have to follow the cycle reversed and the in-degree is the same for all vertices. So in this case the breadth first search will put the vertices in reversed order and the measures will be lifted faster.\\
 Note that this order is not necessarily better in the example parity game given for the in degree. For example, if the center vertex of the star is the last vertex in the input, the order is actually quite bad. This gave us the idea of creating a fifth lifting order.
 
 \subsubsection{Breadth first search with in degree order}
-This lifting order combines the advantages and rationale of the two orders above. It first creates the in degree order as described in section \ref{indegree}. Then it uses the first vertex in this order to start the first breadth first search. When the search cannot go any further but there are vertices left, it will start a new search from the first vertex in the in degree order that hasn't been found yet.
+This lifting order combines the advantages and rationale of the two orders above. It first creates the in degree order as described in section \ref{indegree}. Then it uses the first vertex in this order to start the first breadth first search. When the search cannot go any further but there are vertices left, it will start a new search from the first vertex in the in degree order that hasn't been found yet.\\
+However, due to time constraints we have not been able to implement and evaluate this order. 
 
 \section{Evaluation}\label{eval}
 
-In the evaluation the blue line represents the input order, red represents the random order, purple represents the indegree order and black represents the breadth first order.
+In the evaluation the blue line represents the input order, red represents the random order, purple represents the indegree order and black represents the breadth first search order. Since that the random order causes non-determinism in the timing results, the tests are executed multiple times and the average of these executions are reported.\\
+First we will show the evaluation of the algorithm on the created parity games. Then the algorithm will be evaluated on the dining test cases and afterwards on the the elevator test cases. Lastly we will reflect on the results.
 
-\subsection{Self-made parity games}
+\subsection{Created parity games}
 
-Resulting partitions for the sets.
-
-\begin{enumerate}[01]
-	\item Even set \{0, 1\}, Odd set \{2, 3, 4, 5, 6\}
-	\item Odd set \{0, 1, 2, 3, 4, 5, 6, 7, 8\}
-	\item Even set \{0, 1, 3, 7\}, Odd set \{2, 4, 5, 6\}
-	\item Odd set \{0, 1, 2, 3, 4, 5\}
-	\item Odd set \{0, 1, 2, 3, 4, 5\}
-
-\end{enumerate}
-
-The performance measures over 100 iterations, mainly used for the random order, but still done on every order for consistency.
+See figure \ref{paritygames} for the created parity games. A box represents a vertex owned by the odd player, a diamond represents a vertex owned by the even player. The integer value inside a vertex represents its priority, the integer value next to the vertex is its identifier.\\
+The resulting partition is also present in this figure. If a vertex is green it is won by player even, if it is red it is won by player odd.\\
+For the execution times see the table below.
 
 \begin{tabular}{l l l l l}
-	Game	& Input	 & Random & Indegree & Breadthfirst \\
+	Game	& Input	 & Random & Indegree & Breadthfirst \\\hline
 	01		& 0.0018 & 0.0017 & 0.0019   & 0.0018 \\
 	02		& 0.0019 & 0.0019 & 0.0019   & 0.0018 \\
 	03		& 0.0018 & 0.0019 & 0.0018 	 & 0.0018 \\
 	04		& 0.0018 & 0.0019 & 0.0020	 & 0.0017 \\
 	05		& 0.0018 & 0.0017 & 0.0019	 & 0.0018 
-
 \end{tabular}
 
+As can be seen in this table, the execution times do not differ much. It seems that the indegree order is a little bit worse than the other orders and that the breadth first search order is a little bit better than the other orders. The latter can be expected, since it is the order that tries to benefit from the use of successors for calculating a measure the most.
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{paritygames.png}
+\caption{The created parity games}
+\label{paritygames}
+\end{figure}
+
+
 \subsection{Dining Philosophers}
+In this section the algorithm is evaluated on the dining philosophers test case set. There are four types of test cases, each corresponding to a property being tested. The results for each type of test case are shown in the below four sections.
 
 \subsubsection{Invariantly inevitably eat}
 
-The first vertex is won by odd.
+The first vertex is won by odd for any number of philosophers, implying that the property does not hold for any number of philosophers. The execution times are shown in the graph below.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -332,7 +335,7 @@ The first vertex is won by odd.
 
 \subsubsection{Invariantly possibly eat}
 
-The first vertex is won by odd.
+The first vertex is won by odd for any number of philosophers, implying that the property does not hold for any number of philosophers. The execution times are shown in the graph below.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -353,7 +356,7 @@ The first vertex is won by odd.
 
 \subsubsection{Invariantly plato starves}
 
-The first vertex is won by odd. 
+The first vertex is won by odd for any number of philosophers, implying that the property does not hold for any number of philosophers. The execution times are shown in the graph below. 
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -374,7 +377,7 @@ The first vertex is won by odd.
 
 \subsubsection{Plato infinitely often can eat}
 
-The first vertex is won by odd.
+The first vertex is won by even for any number of philosophers, implying that the property holds for any number of philosophers. The execution times are shown in the graph below.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -395,10 +398,11 @@ The first vertex is won by odd.
 \end{tikzpicture}
 
 \subsection{Elevator}
+In this section the algorithm is evaluated on the elevator test case set. There are two types of test cases: elevator 1 and elevator 2. The results for each type of test case are shown in the below two sections.
 
-\subsubsection{1 elevator}
+\subsubsection{Elevator 1}
 
-The first vertex is won by odd.
+The first vertex is won by even for any number of elevators, implying that the property represented by 1 holds for any number of elevator. The execution times are shown in the graph below.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -417,9 +421,9 @@ The first vertex is won by odd.
   	\end{axis}
 \end{tikzpicture}
 
-\subsubsection{2 elevator}
+\subsubsection{Elevator 2}
 
-The first vertex is won by odd.
+The first vertex is won by odd for any number of elevators, implying that the property represented by 1 does not hold for any number of elevator. The execution times are shown in the graph below.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -438,18 +442,67 @@ The first vertex is won by odd.
   	\end{axis}
 \end{tikzpicture}
 
+\subsection{Reflection on results}
+In this section we will reflect in the results above. First will be reflected on the answers the implemented algorithm gives and lastly on the performance results.
+
+\subsubsection{Algorithm answers}
+The partitions of the created parity games have been derived using the implemented algorithm and by visual analysis. Both partitions were equal for each created parity game.\\
+The properties used for the dining philosophers have been used for the previous assignment as well, so the correct answers for these properties were already known. These correct answers are the same as the answers of the algorithm implemented for this assignment.\\
+We have also compared the answers of our algorithm to the answers given by the mCRL2 toolset (version 201409.1.13211) \cite{mcrl2}. These did however not always match, but we think that this is caused by either not testing with mCRL2 correctly or perhaps mCRL2 itself. We think one of these is the case since for the plato infinitely often can eat property mCRL2 gives false. From the previous assignment however we know this must be true.\\
+From these observations we conclude that our implementation of the small progress measures algorithm very likely produces correct answers.
+
+\subsubsection{Performance results}
+The graphs are all linear, showing that this algorithm is exponential, except for the first few points, but this is likely to be caused by overhead.\\
+What does seem odd is that the input order is the order that performs the worst for smaller parity games of the dining philosophers test case set. After evaluation of the datasets there seems to be a good reason for this. The vertex order also seems to be a topological order for most if not all edges. Since the measure of a vertex depends on its successors, this input order is the worst possible order for these parity games. This causes the algorithm to need significantly more iterations than the other orders, increasing the computation time.\\
+With this in mind one would expect that the input order will be considerably worse for bigger parity games, but this is not the case. After more investigation, it seems that the bigger parity games seem to increase more in width (caused by high out degree) than in length (from vertex 0 to a dead end). This causes the amount of extra iterations needed to barely grow, making it more insignificant compared to the total number of iterations needed, bringing it closer to the other orders.
+\\\\
+on average it seems that the breadth first search order has the best performance, although the differences are small. This can be expected, since it is the order that tries to benefit from the use of successors for calculating a measure the most. The random order seems to be the worst order, since it gives worse results than the other orders for most test cases.
+
 \section{Conclusion}\label{conc}
+We have implemented the small progress measures algorithm as described in \cite{spmpaper} and are pretty sure it works correctly.\\
+Four orders have been implemented: input order, random order, in degree order and breadth first search order. Out of these orders the random order is the worst order overall and the breadth first search order is the best order overall. There is however not a significant difference between the orders for bigger parity games.
+
+
 
 
 \begin{thebibliography}{9}
 \bibitem{spmpaper} M. Jurdzi\'{n}ski: Small Progress Measures for Solving Parity Games, March 2000
 \bibitem{pgsreport} O. Friedmann and Martin Lange: The PGSolver Collection of Parity Game Solvers, March 2014
+\bibitem{mcrl2} \url{http://www.mcrl2.org/}
 \end{thebibliography}
 
 
 \newpage
 \appendix
 
+\section{In degree order}\label{appendix:indegree}
+\begin{verbatim}
+std::vector<Vertex> order;
+
+//first get the max indegree
+int maxIndegree = 0;
+for (Vertex v = 0; v < game.getNumberOfVertices(); v++) {
+	size_t indegree = game.getIncomingVertices(v).size();
+	maxIndegree = (indegree > maxIndegree) ? indegree : maxIndegree;
+}
+
+//bucket sort
+std::vector<std::set<Vertex>> degrees(maxIndegree + 1, std::set<Vertex>());
+for (Vertex v = 0; v < game.getNumberOfVertices(); v++) {
+	degrees[game.getIncomingVertices(v).size()].insert(v);
+}
+
+//create the order
+for (size_t i = degrees.size(); i-- > 0;) {
+	for (Vertex v : degrees[i]) {
+		order.push_back(v);
+	}
+}
+
+return order;
+\end{verbatim}
+
+\newpage
 \section{Breadth first order}\label{appendix:bfs}
 
 \begin{verbatim}
