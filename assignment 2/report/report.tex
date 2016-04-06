@@ -280,7 +280,7 @@ This lifting order combines the advantages and rationale of the two orders above
 
 \section{Evaluation}\label{eval}
 
-In the evaluation the blue line represents the input order, red represents the random order, ?? represents the indegree order and ?? represents the breadth first order.
+In the evaluation the blue line represents the input order, red represents the random order, purple represents the indegree order and black represents the breadth first order.
 
 \subsection{Self-made parity games}
 
@@ -321,6 +321,12 @@ The first vertex is won by odd.
         log basis y={10}
   	] 
     \addplot+ [color=blue] coordinates { (2, 0.0615) (3, 0.015) (4, 0.02658) (5, 0.1903) (6, 2.145) (7, 27.434) (8, 335.774) };
+    
+    \addplot+ [color=red] coordinates { (2, 0.0017) (3, 0.0030) (4, 0.0170) (5, 0.1831) (6, 2.689) (7, 33.81) (8, 528.18) };
+    
+    \addplot+ [color=purple] coordinates { (2, 0.0017) (3, 0.00297) (4, 0.0163) (5, 0.1699) (6, 2.004) (7, 24.68) (8, 368.68) };
+    
+    \addplot+ [color=black] coordinates { (2, 0.0051) (3, 0.0082) (4, 0.0304) (5, 0.1987) (6, 2.1309) (7, 24.112) (8, 403.016) };
   	\end{axis}
 \end{tikzpicture}
 
@@ -336,6 +342,12 @@ The first vertex is won by odd.
         log basis y={10}
   	] 
     \addplot+ [color=blue] coordinates { (2, 0.06396) (3, 0.013748) (4, 0.0322) (5, 0.3428) (6, 4.18) (7, 54.96) (8, 696.657) };
+    
+    \addplot+ [color=red] coordinates { (2, 0.001758) (3, 0.00368) (4, 0.02822) (5, 0.333) (6, 4.055) (7, 67.8277) (8, 1009.135) };
+    
+    \addplot+ [color=purple] coordinates { (2, 0.00177) (3, 0.00408) (4, 0.0306) (5, 0.3355) (6, 4.0832) (7, 52.87) (8, 644.4567) };
+    
+    \addplot+ [color=black] coordinates { (2, 0.00176) (3, 0.0035) (4, 0.02255) (5, 0.2471) (6, 2.94) (7, 42.87) (8, 497.166) };
   	\end{axis}
 \end{tikzpicture}
 
@@ -371,13 +383,22 @@ The first vertex is won by odd.
     	ymode=log,
         log basis y={10}
   	] 
-    \addplot+ [color=blue] coordinates { (2, 0.002) (3, 0.0594) (4, 0.0401) (5, 0.1970) (6, 2.8098) (7, 29.4722) (8, 397.45) };
+    \addplot+ [color=blue] coordinates { (2, 0.002) (3, 0.00394) (4, 0.0401) (5, 0.1970) (6, 2.8098) (7, 29.4722) (8, 397.45) };
+    
+    \addplot+ [color=red] coordinates { (2, 0.00168) (3, 0.00266) (4, 0.01608) (5, 0.1837) (6, 2.37) (7, 33.298) (8, 509.6) };
+    
+    \addplot+ [color=purple] coordinates { (2, 0.0017) (3, 0.003) (4, 0.0175) (5, 0.2079) (6, 3.323) (7, 29.54) (8, 396.26) };
+    
+    \addplot+ [color=black] coordinates { (2, 0.0017) (3, 0.00257) (4, 0.0127) (5, 0.1366) (6, 1.6429) (7, 22.23) (8, 321.65) };
+    
   	\end{axis}
 \end{tikzpicture}
 
 \subsection{Elevator}
 
 \subsubsection{1 elevator}
+
+The first vertex is won by odd.
 
 \begin{tikzpicture}
   	\begin{axis}[ 
@@ -386,7 +407,34 @@ The first vertex is won by odd.
     	ymode=log,
         log basis y={10}
   	] 
-    \addplot+ [color=blue] coordinates { (2, 0.00468) (3, 0.03615) (4, 0.769) (5, 31.619) };
+    \addplot+ [color=blue] coordinates { (2, 0.00468) (3, 0.03615) (4, 0.769) (5, 31.619) (6, 1696.78) };
+    
+    \addplot+ [color=red] coordinates { (2, 0.00443) (3, 0.060) (4, 0.7708) (5, 61.68) };
+    
+    \addplot+ [color=purple] coordinates { (2, 0.0044) (3, 0.0378) (4, 0.729) (5, 36.62) };
+  	
+    \addplot+ [color=black] coordinates { (2, 0.0040) (3, 0.0345) (4, 0.7262) (5, 38.789) };
+  	\end{axis}
+\end{tikzpicture}
+
+\subsubsection{2 elevator}
+
+The first vertex is won by odd.
+
+\begin{tikzpicture}
+  	\begin{axis}[ 
+    	xlabel={Number of floors},
+    	ylabel={Duration (Seconds)},
+    	ymode=log,
+        log basis y={10}
+  	] 
+    \addplot+ [color=blue] coordinates { (2, 0.026) (3, 0.0737) (4, 1.169) (5, 39.41) };
+    
+    \addplot+ [color=red] coordinates { (2, 0.004) (3, 0.04) (4, 1.1859) (5, 45.89) };
+    
+    \addplot+ [color=purple] coordinates { (2, 0.0044) (3, 0.0405) (4, 1.645) (5, 39.11) };
+  	
+    \addplot+ [color=black] coordinates { (2, 0.0041) (3, 0.040) (4, 0.93) (5, 36.48) };
   	\end{axis}
 \end{tikzpicture}
 
