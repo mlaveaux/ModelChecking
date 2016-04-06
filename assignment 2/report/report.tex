@@ -448,7 +448,7 @@ In this section we will reflect in the results above. First will be reflected on
 \subsubsection{Algorithm answers}
 The partitions of the created parity games have been derived using the implemented algorithm and by visual analysis. Both partitions were equal for each created parity game.\\
 The properties used for the dining philosophers have been used for the previous assignment as well, so the correct answers for these properties were already known. These correct answers are the same as the answers of the algorithm implemented for this assignment.\\
-We have also compared the answers of our algorithm to the answers of mCRL2. These did however not always match, but we think that this is caused by either not testing with mCRL2 correctly or perhaps mCRL2 itself. We think one of these is the case since for the plato infinitely often can eat property mCRL2 gives false. From the previous assignment however we know this must be true.\\
+We have also compared the answers of our algorithm to the answers given by the mCRL2 toolset (version 201409.1.13211) \cite{mcrl2}. These did however not always match, but we think that this is caused by either not testing with mCRL2 correctly or perhaps mCRL2 itself. We think one of these is the case since for the plato infinitely often can eat property mCRL2 gives false. From the previous assignment however we know this must be true.\\
 From these observations we conclude that our implementation of the small progress measures algorithm very likely produces correct answers.
 
 \subsubsection{Performance results}
@@ -459,7 +459,8 @@ With this in mind one would expect that the input order will be considerably wor
 on average it seems that the breadth first search order has the best performance, although the differences are small. This can be expected, since it is the order that tries to benefit from the use of successors for calculating a measure the most. The random order seems to be the worst order, since it gives worse results than the other orders for most test cases.
 
 \section{Conclusion}\label{conc}
-
+We have implemented the small progress measures algorithm as described in \cite{spmpaper} and are pretty sure it works correctly.\\
+Four orders have been implemented: input order, random order, in degree order and breadth first search order. Out of these orders the random order is the worst order overall and the breadth first search order is the best order overall. There is however not a significant difference between the orders for bigger parity games.
 
 
 
@@ -467,6 +468,7 @@ on average it seems that the breadth first search order has the best performance
 \begin{thebibliography}{9}
 \bibitem{spmpaper} M. Jurdzi\'{n}ski: Small Progress Measures for Solving Parity Games, March 2000
 \bibitem{pgsreport} O. Friedmann and Martin Lange: The PGSolver Collection of Parity Game Solvers, March 2014
+\bibitem{mcrl2} \url{http://www.mcrl2.org/}
 \end{thebibliography}
 
 
