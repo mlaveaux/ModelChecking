@@ -310,7 +310,8 @@ As can be seen in this table, the execution times do not differ much. It seems t
 
 
 \subsection{Dining Philosophers}
-In this section the algorithm is evaluated on the dining philosophers test case set. There are four types of test cases, each corresponding to a property being tested. The results for each type of test case are shown in the below four sections.
+In this section the algorithm is evaluated on the dining philosophers test case set. There are four types of test cases, each corresponding to a property being tested. The results for each type of test case are shown in the below four sections.\\
+Note that due to time constraints we have not been able to run the very big parity games that have been provided. This concerns dining 10 and 11 and elevator 6 and 7.
 
 \subsubsection{Invariantly inevitably eat}
 
@@ -411,7 +412,7 @@ The first vertex is won by even for any number of elevators, implying that the p
     	ymode=log,
         log basis y={10}
   	] 
-    \addplot+ [color=blue] coordinates { (2, 0.00468) (3, 0.03615) (4, 0.769) (5, 31.619) (6, 1696.78) };
+    \addplot+ [color=blue] coordinates { (2, 0.00468) (3, 0.03615) (4, 0.769) (5, 31.619) };
     
     \addplot+ [color=red] coordinates { (2, 0.00443) (3, 0.060) (4, 0.7708) (5, 61.68) };
     
@@ -482,21 +483,21 @@ std::vector<Vertex> order;
 //first get the max indegree
 int maxIndegree = 0;
 for (Vertex v = 0; v < game.getNumberOfVertices(); v++) {
-	size_t indegree = game.getIncomingVertices(v).size();
-	maxIndegree = (indegree > maxIndegree) ? indegree : maxIndegree;
+    size_t indegree = game.getIncomingVertices(v).size();
+    maxIndegree = (indegree > maxIndegree) ? indegree : maxIndegree;
 }
 
 //bucket sort
 std::vector<std::set<Vertex>> degrees(maxIndegree + 1, std::set<Vertex>());
 for (Vertex v = 0; v < game.getNumberOfVertices(); v++) {
-	degrees[game.getIncomingVertices(v).size()].insert(v);
+    degrees[game.getIncomingVertices(v).size()].insert(v);
 }
 
 //create the order
 for (size_t i = degrees.size(); i-- > 0;) {
-	for (Vertex v : degrees[i]) {
-		order.push_back(v);
-	}
+    for (Vertex v : degrees[i]) {
+        order.push_back(v);
+    }
 }
 
 return order;
@@ -518,16 +519,16 @@ int ordering = 0;
 Vertex currentVertex = 0;
 
 while (ordering != parityGame.getNumberOfVertices()) {
-	workQueue.push(currentVertex); // Add the first vertex.
+    workQueue.push(currentVertex); // Add the first vertex.
 
     while (!workQueue.empty()) {
-    	// Pop the first element.
+        // Pop the first element.
         Vertex current = workQueue.front(); workQueue.pop();
 
         if (graphColoring[current] == 0) {
-        	// If the color is not yet set .
+            // If the color is not yet set .
             for (auto& incomingVertex : parityGame.getIncomingVertices(current)) {
-            	workQueue.push(incomingVertex);
+                workQueue.push(incomingVertex);
             }
 
             // Color the current vertex.
@@ -538,8 +539,8 @@ while (ordering != parityGame.getNumberOfVertices()) {
 
     // Select the smallest vertex not yet put into ordering.
     for (Vertex current = 0; current < graphColoring.size(); ++current) {
-    	if (graphColoring[current] == 0) {
-        	currentVertex = current;
+        if (graphColoring[current] == 0) {
+            currentVertex = current;
             break;
         }
     }
