@@ -27,6 +27,9 @@ const static Measures TOP(1, 1);
  * Check whether all values in a measure a 0.
  */
 static bool isBottom(const Measures& measure) {
+	if (measure == TOP){
+		return false;
+	}
     for (size_t index = 1; index < measure.size(); index += 2) {
         if (measure[index] != 0) {
             return false;
