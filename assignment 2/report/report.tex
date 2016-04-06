@@ -284,6 +284,17 @@ However, due to time constraints we have not been able to implement and evaluate
 In the evaluation the blue line represents the input order, red represents the random order, purple represents the indegree order and black represents the breadth first search order. Since that the random order causes non-determinism in the timing results, the tests are executed multiple times and the average of these executions are reported.\\
 First we will show the evaluation of the algorithm on the created parity games. Then the algorithm will be evaluated on the dining test cases and afterwards on the the elevator test cases. Lastly we will reflect on the results.
 
+
+\subsection{Performance}
+
+The performance tests were conducted on a EliteBook 8560w running Arch Linux. The relevant hardware specifications are stated below, the graphical unit and disks are not important as they are not utilized. The performance is measured using the \verb|perf| utility and they are an approximation as operating system operation, scheduling and caching might influence the performance.
+
+\begin{itemize}
+	\item Intel Core i7-2720QM Processor (2.20 GHz, 6MB L3 cache, 4 cores/8 threads, 45 W) Up to 3.30 GHz with Intel Turbo Boost Technology.
+	
+	\item 8GB memory in 2 slotted DDR3 PC3-10600 SDRAM (1,333 MHz) cards.
+\end{itemize}
+
 \subsection{Created parity games}
 
 See figure \ref{paritygames} for the created parity games. A box represents a vertex owned by the odd player, a diamond represents a vertex owned by the even player. The integer value inside a vertex represents its priority, the integer value next to the vertex is its identifier.\\
@@ -457,7 +468,7 @@ The graphs are all linear, showing that this algorithm is exponential, except fo
 What does seem odd is that the input order is the order that performs the worst for smaller parity games of the dining philosophers test case set. After evaluation of the datasets there seems to be a good reason for this. The vertex order also seems to be a topological order for most if not all edges. Since the measure of a vertex depends on its successors, this input order is the worst possible order for these parity games. This causes the algorithm to need significantly more iterations than the other orders, increasing the computation time.\\
 With this in mind one would expect that the input order will be considerably worse for bigger parity games, but this is not the case. After more investigation, it seems that the bigger parity games seem to increase more in width (caused by high out degree) than in length (from vertex 0 to a dead end). This causes the amount of extra iterations needed to barely grow, making it more insignificant compared to the total number of iterations needed, bringing it closer to the other orders.
 \\\\
-on average it seems that the breadth first search order has the best performance, although the differences are small. This can be expected, since it is the order that tries to benefit from the use of successors for calculating a measure the most. The random order seems to be the worst order, since it gives worse results than the other orders for most test cases.
+On average it seems that the breadth first search order has the best performance, although the differences are small. This can be expected, since it is the order that tries to benefit from the use of successors for calculating a measure the most. The random order seems to be the worst order, since it gives worse results than the other orders for most test cases.
 
 \section{Conclusion}\label{conc}
 We have implemented the small progress measures algorithm as described in \cite{spmpaper} and are pretty sure it works correctly.\\
